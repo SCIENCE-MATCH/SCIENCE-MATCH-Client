@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Science Match</title>
+  </head>
+  <body>
+  <form id="loginForm">
+    <h1>Science match</h1>
+    <input
+      required
+      maxlength="15"
+      type="text"
+      name="loginId"
+      placeholder="ID"
+      id="loginId"
+      value="member@gmail.com"
+    ></input>
+    <input
+      required
+      maxlength="12"
+      type="password"
+      name="loginPw"
+      placeholder="PW"
+      id="loginPw"
+      value="Iammember10!"
+    ></input>
+    <h3>sign in</h3>
+    <input type="submit" value="Log in"/>
+  </form>
+    <script src = "js/login.js"></script>
+    
+  </body>
+  <link rel="stylesheet" href="css/login.css" />
+  <script src="https://unpkg.com/react@17.0.2/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- <script type="text/babel">
+    const root = document.getElementById("root"); 
+    function render() {
+      ReactDOM.render(<Login />, root);
+    }
+    function Login() {
+      return (
+        <form id="loginForm">
+          <h1>Science match</h1>
+          <div className="inputContainer">
+            <input
+              required
+              maxlength="15"
+              type="text"
+              name="loginId"
+              placeholder="ID1"
+              id="loginId"
+              value="member@gmail.com"
+            ></input>
+          </div>
+          <div className="inputContainer">
+            <input
+              required
+              maxlength="12"
+              type="password"
+              name="loginPw"
+              placeholder="PW"
+              id="loginPw"
+              value="  Iammember10!"
+            ></input>
+          </div>
+          <h3>sign in</h3>
+          <div className="buttonContainer">
+            <input type="submit" value="Log in" onClick={onClick} />
+          </div>
+        </form>
+      );
+    }
+    render(); 
+  </script>-->
+</html>
