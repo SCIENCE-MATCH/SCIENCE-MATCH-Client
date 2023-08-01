@@ -1,26 +1,21 @@
 import { useState, useEffect } from "react";
-import { ReactDOM } from "react";
 import { Link } from "react-router-dom";
+import Axios from "axios";
 
 function LogIn() {
+  const axios = require(`axios`);
+
   function onLoginSubmit(event) {
     event.preventDefault();
     setLoginId("");
     setLoginPw("");
-    console.log("Submit event Occured");
-    loginFetch();
+    axios_Login_post();
   }
   const [loginId, setLoginId] = useState("member@gmail.com");
   const [loginPw, setLoginPw] = useState("Iammember10!");
   const onChangeId = (event) => setLoginId(event.target.value);
   const onChangePw = (event) => setLoginPw(event.target.value);
-  const url = "https://www.sophy.p-e.kr/auth/login";
-  const Data = {
-    email: loginId,
-    password: loginPw,
-    access_token_expired_time: 3000,
-    refresh_token_expired_time: 3000,
-  };
+  /*
   const otherParams = {
     method: "post",
     headers: {
@@ -38,7 +33,29 @@ function LogIn() {
         console.log(res.data.accessToken);
       })
       .catch((error) => console.log(error));
-  }
+  }*/
+
+  const axios_Login_post = () => {
+    const url = "https://www.sophy.p-e.kr/auth/login";
+
+    const data = {
+      email: loginId,
+      password: loginPw,
+      access_token_expired_time: 3000,
+      refresh_token_expired_time: 3000,
+    };
+
+    Axios.post(url, data)
+      .then((response) => {
+        console.log(response);
+        console.log(`acces Token : ${response.data.data.accessToken}`);
+        console.log(`refresth Token : ${response.data.data.refreshToken}`);
+      })
+      .catch((error) => {
+        console.log(error.message);
+      });
+  };
+
   return (
     <form onSubmit={onLoginSubmit}>
       <h1>Science match</h1>
