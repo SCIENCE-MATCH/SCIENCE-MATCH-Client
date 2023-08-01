@@ -1,8 +1,7 @@
-import { ReactDOM } from "react";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import reactRouterDom from "react-router-dom";
 import { useHistory } from "react-router-dom";
+import Axios from "axios";
 
 function SignUp() {
   const history = useHistory();
@@ -25,14 +24,22 @@ function SignUp() {
   const fillPwCheck = (event) => setPwCheck(event.target.value);
 
   const duplCheck = async (event) => {
-    event.preventDefault(); /*
-    const response = await fetch(`{{LOCAL_URL}}/auth/dupl-check`);
-    const json = await response.json();*/
-    if (true /*json.code !== 409*/) {
-      setEmailChecked(true);
-      alert("이메일 사용 가능!");
-    }
+    event.preventDefault();
+
+    Axios.post(`https://www.science-match.p-e.kr/auth/dupl-check`, {
+      email: email,
+    })
+      .then((response) => {
+        if (response.data.code === 200) {
+          setEmailChecked(true);
+          alert(response.data.message);
+        }
+      })
+      .catch((error) => {
+        alert("중복된 이메일 입니다.");
+      });
   };
+
   const passwordAccordCheck = () => {
     console.log("password accord check performed.");
     if (password === pwCheck && password !== "") {
@@ -57,34 +64,31 @@ function SignUp() {
   useEffect(passwordAccordCheck, [password, pwCheck]);
   useEffect(finalSummitAble, [emailChecked, pwAccord, name, phoneNum]);
 
-  const Data = {
-    email: email,
-    name: name,
-    password: password,
-    phoneNum: phoneNum,
-  };
-  const otherParams = {
-    method: "post",
-    headers: {
-      "content-type": "application/json; charset=UTF-8",
-    },
-    body: JSON.stringify(Data),
-  };
-  const signupFetch = () => {
-    console.log(Data);
-    fetch("{{LOCAL_URL}}/auth/signup", otherParams)
-      .then((data) => {
-        return data.json();
+  const signupSubmit = (event) => {
+    event.preventDefault();
+    console.log(
+      `email:${email}, name:${name}, pw:${password},${typeof password}, pN:${phoneNum},${typeof phoneNum}`
+    );
+    Axios.post(`https://www.science-match.p-e.kr/auth/signup`, {
+      email: "science@gmail.y",
+      name: "김사매",
+      password: "test1234",
+      phoneNum: "01012345678",
+      /*
+      email: email,
+      name: name,
+      password: password,
+      phoneNum: phoneNum,*/
+    })
+      .then((response) => {
+        console.log("우선 보내긴 함");
+        console.log(response.data.message);
       })
-      .then((res) => {
-        console.log(res.message);
-      })
-      .catch((error) => console.log(error));
-  };
-  const signupSubmit = () => {
-    signupFetch();
-    alert("회원가입 완료!");
-    history.push("/");
+      .catch((error) => {
+        console.log(error);
+        alert("오류 발생");
+      });
+    //history.push("/");
   };
 
   return (

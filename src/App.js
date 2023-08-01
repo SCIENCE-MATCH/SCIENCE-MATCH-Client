@@ -14,7 +14,7 @@ function App() {
           <SignUp />
         </Route>
         <Route path="/admin">
-          //접속자가 admin인지 확인해야함
+          {/*접속자가 admin인지 확인해야함*/}
           <Admin />
         </Route>
         <Route path="/teacher">

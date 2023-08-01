@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Axios from "axios";
+import InputBox from "../components/InputBox";
 
 function LogIn() {
   const axios = require(`axios`);
@@ -11,8 +12,8 @@ function LogIn() {
     setLoginPw("");
     axios_Login_post();
   }
-  const [loginId, setLoginId] = useState("member@gmail.com");
-  const [loginPw, setLoginPw] = useState("Iammember10!");
+  const [loginId, setLoginId] = useState("science@gmail.com");
+  const [loginPw, setLoginPw] = useState("test1234");
   const onChangeId = (event) => setLoginId(event.target.value);
   const onChangePw = (event) => setLoginPw(event.target.value);
   /*
@@ -36,7 +37,7 @@ function LogIn() {
   }*/
 
   const axios_Login_post = () => {
-    const url = "https://www.sophy.p-e.kr/auth/login";
+    const url = "https://www.science-match.p-e.kr/auth/login";
 
     const data = {
       email: loginId,
@@ -52,23 +53,22 @@ function LogIn() {
         console.log(`refresth Token : ${response.data.data.refreshToken}`);
       })
       .catch((error) => {
-        console.log(error.message);
+        console.log(error);
+        alert("아이디 혹은 비밀번호가 틀립니다.");
       });
   };
 
   return (
     <form onSubmit={onLoginSubmit}>
       <h1>Science match</h1>
-      <input
-        required
-        maxLength="25"
+      <InputBox
         type="text"
-        name="loginId"
-        placeholder="아이디"
-        id="loginId"
         value={loginId}
         onChange={onChangeId}
-      ></input>
+        maxLegnth="25"
+        placeholder="아이디"
+        isRequired="true"
+      ></InputBox>
       <br></br>
       <input
         required
