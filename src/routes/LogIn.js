@@ -1,40 +1,27 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import Axios from "axios";
-import InputBox from "../components/InputBox";
+import InputBox from "../components/InputBox.js";
+import InputButton from "../components/InputButton.js";
+import SignUpContainer from "../components/SignUpContainer.js";
+import { removeCookie, setCookie } from "../cookie.js";
 
-function LogIn() {
-  const axios = require(`axios`);
+const CustomColors = getComputedStyle(document.documentElement);
+const MAINCOLOR = CustomColors.getPropertyValue("--main-color");
+const BGCOLOR = CustomColors.getPropertyValue("--background-color");
+const YELLOWCOLOR = CustomColors.getPropertyValue("--yellow-color");
+const WARNCOLOR = CustomColors.getPropertyValue("--warning-color");
 
+function LogIn({ setAccessToken, setRefreshToken }) {
+  const history = useHistory();
   function onLoginSubmit(event) {
     event.preventDefault();
-    setLoginId("");
-    setLoginPw("");
     axios_Login_post();
   }
-  const [loginId, setLoginId] = useState("science@gmail.com");
-  const [loginPw, setLoginPw] = useState("test1234");
+  const [loginId, setLoginId] = useState("");
+  const [loginPw, setLoginPw] = useState("");
   const onChangeId = (event) => setLoginId(event.target.value);
   const onChangePw = (event) => setLoginPw(event.target.value);
-  /*
-  const otherParams = {
-    method: "post",
-    headers: {
-      "content-type": "application/json; charset=UTF-8",
-    },
-    body: JSON.stringify(Data),
-  };
-  function loginFetch() {
-    fetch(url, otherParams)
-      .then((data) => {
-        return data.json();
-      })
-      .then((res) => {
-        console.log(res);
-        console.log(res.data.accessToken);
-      })
-      .catch((error) => console.log(error));
-  }*/
 
   const axios_Login_post = () => {
     const url = "https://www.science-match.p-e.kr/auth/login";
@@ -43,48 +30,85 @@ function LogIn() {
       email: loginId,
       password: loginPw,
       access_token_expired_time: 3000,
-      refresh_token_expired_time: 3000,
+      refresh_token_expired_time: 3000
     };
 
     Axios.post(url, data)
       .then((response) => {
-        console.log(response);
-        console.log(`acces Token : ${response.data.data.accessToken}`);
-        console.log(`refresth Token : ${response.data.data.refreshToken}`);
+        setLoginId("");
+        setLoginPw("");
+        setCookie("aToken", `${response.data.data.accessToken}`);
+        setCookie("rToken", `${response.data.data.refreshToken}`);
+        history.push("/teacher");
       })
       .catch((error) => {
         console.log(error);
         alert("아이디 혹은 비밀번호가 틀립니다.");
+        setLoginPw("");
       });
   };
 
   return (
-    <form onSubmit={onLoginSubmit}>
-      <h1>Science match</h1>
-      <InputBox
-        type="text"
-        value={loginId}
-        onChange={onChangeId}
-        maxLegnth="25"
-        placeholder="아이디"
-        isRequired="true"
-      ></InputBox>
-      <br></br>
-      <input
-        required
-        maxLength="25"
-        type="password"
-        name="loginPw"
-        placeholder="비밀번호"
-        id="loginPw"
-        value={loginPw}
-        onChange={onChangePw}
-      ></input>
-      <h3>
-        <Link to={`/signup`}>Sign Up</Link>{" "}
-        <input type="submit" value="Log in" />
-      </h3>
-    </form>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "95vh",
+        background: "white"
+      }}
+    >
+      <form
+        onSubmit={onLoginSubmit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          width: "100%",
+          height: "90vh",
+          maxWidth: "400px",
+          padding: "20px",
+          background: "white",
+          borderRadius: "10px"
+        }}
+      >
+        <h1
+          style={{
+            fontFamily: "Inter",
+            fontSize: 50,
+            color: "",
+            fontWeight: "bolder"
+          }}
+        >
+          <span style={{ color: MAINCOLOR }}>Science</span> Match
+        </h1>
+        <SignUpContainer>
+          <InputBox
+            type="text"
+            value={loginId}
+            onChange={onChangeId}
+            maxLength="25"
+            placeholder="이메일"
+            isRequired={true}
+          ></InputBox>
+        </SignUpContainer>
+        <InputBox
+          isRequired={true}
+          maxLength="25"
+          type="password"
+          placeholder="비밀번호"
+          value={loginPw}
+          onChange={onChangePw}
+        ></InputBox>
+        <h3>
+          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+            <Link to={`/signup`}>Sign Up</Link>
+            <InputButton type="submit" value="Log in" />
+          </div>
+        </h3>
+      </form>
+    </div>
   );
 }
 export default LogIn;

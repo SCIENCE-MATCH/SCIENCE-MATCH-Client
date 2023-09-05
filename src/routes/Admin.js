@@ -8,7 +8,7 @@ import ManageQuestion from "./adminRoutes/ManageQuestion";
 import SidebarSettings from "./SidebarSettings";
 import Settings from "./Settings";
 
-function Admin() {
+function Admin({ accessToken, setAccessToken, refreshToken }) {
   return (
     <div
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
@@ -19,7 +19,7 @@ function Admin() {
           marginTop: "50px",
           display: "flex",
           width: "800px",
-          margin: "20px",
+          margin: "20px"
         }}
       >
         <div style={{ display: "flex", flexDirection: "column" }}>

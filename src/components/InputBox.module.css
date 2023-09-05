@@ -1,18 +1,10 @@
 .inputBox {
-  margin-bottom: 10px;
-}
-
-.inputBox label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.inputBox input {
-  width: 30%;
+  margin-bottom: 0px;
+  font-family: "inter", sans-serif;
+  width: 400px;
   height: 10px;
   padding: 20px;
-  font-size: 20px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
+  font-size: 25px;
+  border: 2px solid #000000;
+  border-radius: 100px;
 }

@@ -7,6 +7,13 @@ import Teacher from "./routes/Teacher";
 import Student from "./routes/Student";
 
 function App() {
+  console.log(`I'm working on App`);
+  const [accessToken, setAccessToken] = useState("");
+  const [refreshToken, setRefreshToken] = useState("");
+  useEffect(() => {
+    console.log(`refresh Token : ${refreshToken}`);
+    console.log(`access Token : ${accessToken}`);
+  }, [accessToken, refreshToken]);
   return (
     <Router>
       <Switch>
@@ -15,16 +22,31 @@ function App() {
         </Route>
         <Route path="/admin">
           {/*접속자가 admin인지 확인해야함*/}
-          <Admin />
+          <Admin
+            accessToken={accessToken}
+            setAccessToken={setAccessToken}
+            refreshToken={refreshToken}
+          />
         </Route>
         <Route path="/teacher">
-          <Teacher />
+          <Teacher
+            accessToken={accessToken}
+            setAccessToken={setAccessToken}
+            refreshToken={refreshToken}
+          />
         </Route>
         <Route path="/student">
-          <Student />
+          <Student
+            accessToken={accessToken}
+            setAccessToken={setAccessToken}
+            refreshToken={refreshToken}
+          />
         </Route>
         <Route path="/">
-          <LogIn />
+          <LogIn
+            setAccessToken={setAccessToken}
+            setRefreshToken={setRefreshToken}
+          />
         </Route>
       </Switch>
     </Router>
