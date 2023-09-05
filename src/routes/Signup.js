@@ -70,7 +70,7 @@ function SignUp() {
       `email:${email}, name:${name}, pw:${password},${typeof password}, pN:${phoneNum},${typeof phoneNum}`
     );
     Axios.post(`https://www.science-match.p-e.kr/auth/signup`, {
-      email: "science@gmail.y",
+      email: "science@gmail.com",
       name: "김사매",
       password: "test1234",
       phoneNum: "01012345678",
