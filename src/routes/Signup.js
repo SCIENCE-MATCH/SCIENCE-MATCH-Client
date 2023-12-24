@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import Axios from "axios";
-import InputBox from "../components/InputBox.js";
-import InputButton from "../components/InputButton.js";
+import InputBox from "../components/_Elements/InputBox.js";
+import InputButton from "../components/_Elements/InputButton.js";
 import "../components/LinkStyle.css";
-import SignUpContainer from "../components/SignUpContainer.js";
+import SignUpContainer from "../components/_Common/SignUpContainer.js";
 
 const MAINCOLOR = "#05F200";
 
@@ -15,6 +15,7 @@ function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phoneNum, setPhoneNum] = useState("");
+  const [authCode, setAuthCode] = useState("");
   const [pwCheck, setPwCheck] = useState("");
   const [emailChecked, setEmailChecked] = useState(false);
   const [validName, setValidName] = useState(false);
@@ -30,6 +31,7 @@ function SignUp() {
     setEmailChecked(false);
   };
   const fillPhoneNum = (event) => setPhoneNum(event.target.value);
+  const fillAuthCode = (event) => setAuthCode(event.target.value);
   const fillPassword = (event) => setPassword(event.target.value);
   const fillPwCheck = (event) => setPwCheck(event.target.value);
 
@@ -200,8 +202,22 @@ function SignUp() {
           placeholder="전화번호"
           value={phoneNum}
           onChange={fillPhoneNum}
+          maxLength="11"
         ></InputBox>
-        {phoneNum === "" || validPhoneNum ? "" : <>숫자 10~11자리</>}
+        {phoneNum === "" || validPhoneNum ? (
+          /*<SignUpContainer>
+            <InputBox
+              isDisabled={!validPhoneNum}
+              placeholder="인증번호"
+              value={authCode}
+              onChange={fillAuthCode}
+              maxLength="6"
+            />
+            <InputButton />
+          </SignUpContainer>*/ ""
+        ) : (
+          <>숫자 10~11자리</>
+        )}
       </SignUpContainer>
       <SignUpContainer>
         <InputBox
@@ -210,6 +226,7 @@ function SignUp() {
           placeholder="비밀번호"
           value={password}
           onChange={fillPassword}
+          maxLength="16"
         ></InputBox>
         {password === "" || validPw ? "" : <>영문, 숫자 8~16자리</>}
       </SignUpContainer>
@@ -220,6 +237,7 @@ function SignUp() {
           placeholder="비밀번호 확인"
           value={pwCheck}
           onChange={fillPwCheck}
+          maxLength="16"
         ></InputBox>
         {password === "" || pwCheck === ""
           ? ""

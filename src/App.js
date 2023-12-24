@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import LogIn from "./routes/LogIn";
 import SignUp from "./routes/Signup";
-import Admin from "./routes/Admin";
-import Teacher from "./routes/Teacher";
-import Student from "./routes/Student";
+import Admin from "./routes/adminRoutes/Admin";
+import Teacher from "./routes/teacherRoutes/Teacher";
+import Student from "./routes/studentRoutes/Student";
 
 function App() {
   console.log(`I'm working on App`);

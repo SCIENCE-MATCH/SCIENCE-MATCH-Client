@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Axios from "axios";
-import InputBox from "../components/InputBox.js";
-import InputButton from "../components/InputButton.js";
-import SignUpContainer from "../components/SignUpContainer.js";
-import { removeCookie, setCookie } from "../cookie.js";
+import InputBox from "../components/_Elements/InputBox.js";
+import InputButton from "../components/_Elements/InputButton.js";
+import SignUpContainer from "../components/_Common/SignUpContainer.js";
+import { removeCookie, setCookie } from "../components/_Common/cookie.js";
 
 const CustomColors = getComputedStyle(document.documentElement);
 const MAINCOLOR = CustomColors.getPropertyValue("--main-color");
@@ -39,12 +39,45 @@ function LogIn({ setAccessToken, setRefreshToken }) {
         setLoginPw("");
         setCookie("aToken", `${response.data.data.accessToken}`);
         setCookie("rToken", `${response.data.data.refreshToken}`);
-        history.push("/teacher");
+        {
+          loginId === "hyh12100863@gmail.com"
+            ? history.push("/admin")
+            : history.push("/teacher");
+        }
       })
       .catch((error) => {
         console.log(error);
         alert("아이디 혹은 비밀번호가 틀립니다.");
         setLoginPw("");
+      });
+  };
+
+  useEffect(() => {
+    //setLoginId("hyh12100863@gmail.com");
+    //setLoginPw("hyh12100863@");
+    setLoginId("science@gmail.com");
+    setLoginPw("test1234");
+  }, []);
+
+  const adminLogin = () => {
+    const url = "https://www.science-match.p-e.kr/auth/login";
+
+    const data = {
+      email: "hyh12100863@gmail.com",
+      password: "hyh12100863@",
+      access_token_expired_time: 3000,
+      refresh_token_expired_time: 3000
+    };
+
+    Axios.post(url, data)
+      .then((response) => {
+        setCookie("aToken", `${response.data.data.accessToken}`);
+        setCookie("rToken", `${response.data.data.refreshToken}`);
+        history.push("/admin");
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("네트워크 에러");
       });
   };
 
@@ -107,6 +140,7 @@ function LogIn({ setAccessToken, setRefreshToken }) {
             <InputButton type="submit" value="Log in" />
           </div>
         </h3>
+        <InputButton onClick={adminLogin} value="ADMIN" />
       </form>
     </div>
   );
