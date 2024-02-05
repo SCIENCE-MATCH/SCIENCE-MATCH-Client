@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import { NAV_LIST } from "./PageLayout";
+import { NAV_LIST } from "../../pages/Student"; 
 
 const StudentHeader = ({ clickedList, handleClickList }) => {
   const navigate = useNavigate();
