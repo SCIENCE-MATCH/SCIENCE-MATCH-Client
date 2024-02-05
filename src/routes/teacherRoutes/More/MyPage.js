@@ -20,8 +20,8 @@ const MyPage = () => {
 
       const response = await Axios.get(url, {
         headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
       //console.log("API 응답 데이터:", response.data);
@@ -36,6 +36,7 @@ const MyPage = () => {
       if (error.response.data.message === "만료된 액세스 토큰입니다.") {
         alert("다시 로그인 해주세요");
       }
+      navigate("/");
     }
   };
   const logOut = async () => {
@@ -49,8 +50,8 @@ const MyPage = () => {
         {},
         {
           headers: {
-            Authorization: `Bearer ${getCookie("aToken")}`
-          }
+            Authorization: `Bearer ${getCookie("aToken")}`,
+          },
         }
       );
 
@@ -75,7 +76,7 @@ const MyPage = () => {
     flexDirection: "column",
     margin: 20,
     border: "1px solid var(--background)",
-    borderRadius: 15
+    borderRadius: 15,
   };
   const box1Style = {
     display: "flex",
@@ -87,7 +88,7 @@ const MyPage = () => {
     marginTop: 20,
     fontFamily: "Arial, sans-serif", // 폰트 종류 설정
     fontSize: "18px", // 폰트 크기 설정
-    fontWeight: "bold" // 굵기 설정 (normal, bold, lighter 등)
+    fontWeight: "bold", // 굵기 설정 (normal, bold, lighter 등)
   };
   const box2Style = {
     display: "flex",
@@ -97,12 +98,10 @@ const MyPage = () => {
     marginTop: 20,
     fontFamily: "Arial, sans-serif", // 폰트 종류 설정
     fontSize: "18px", // 폰트 크기 설정
-    fontWeight: "normal" // 굵기 설정 (normal, bold, lighter 등)
+    fontWeight: "normal", // 굵기 설정 (normal, bold, lighter 등)
   };
   return (
-    <div
-      style={{ marginTop: "50px", height: "700px", backgroundColor: "white" }}
-    >
+    <div style={{ marginTop: "50px", height: "700px", backgroundColor: "white" }}>
       <div
         style={{
           display: "flex",
@@ -110,7 +109,7 @@ const MyPage = () => {
           justifyItems: "center",
           backgroundColor: "white",
           width: "1300px",
-          height: "350px"
+          height: "350px",
         }}
       >
         <div style={box0Style}>
