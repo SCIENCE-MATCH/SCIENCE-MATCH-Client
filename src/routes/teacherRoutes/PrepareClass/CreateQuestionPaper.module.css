@@ -1,0 +1,106 @@
+@import "../../../components/Colors.css";
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* 50% 불투명도 설정 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 모달 스타일 */
+.modal {
+  background: var(--background);
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  position: relative;
+  width: 1300px;
+  height: 700px;
+}
+
+.navigationBar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100vh;
+  height: 50px;
+}
+.main {
+  display: flex;
+  flex-direction: row;
+}
+/*=============시험 문제 범위 설정 부분 =============*/
+
+.categorySection {
+  background-color: white;
+  width: 800px;
+  height: 600px;
+  margin-right: 25px;
+}
+.rowContainer {
+  display: flex;
+  flex-direction: row;
+}
+.semesterBtn {
+  flex: 1;
+  width: 50px;
+  height: 40px;
+  border-radius: 20px;
+  border: 1px black solid;
+  margin-left: 10px;
+}
+.selectedSemesterBtn {
+  flex: 1;
+  width: 50px;
+  height: 40px;
+  border-radius: 20px;
+  margin-left: 10px;
+  border: 1px var(--main-color) solid;
+}
+
+/*=============문제지 세부 설정 부분 =============*/
+
+.questionSettings {
+  background-color: white;
+  width: 400px;
+  height: 600px;
+}
+.btnContainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+}
+.detailBtn {
+  flex: 1;
+  height: 40px;
+  margin-left: 10px;
+}
+.selectedDetailBtn {
+  flex: 1;
+  margin-left: 10px;
+  border: 1px var(--main-color) solid;
+}
+.inputNumber {
+  width: 50px;
+}
+.inputNumber::-webkit-outer-spin-button,
+.inputNumber::-webkit-inner-spin-button {
+  -webkit-appearance: none; /* Chrome, Safari, Edge, Opera */
+  margin: 0;
+}
+/* 모달 닫기 버튼 스타일 */
+.closebutton {
+  width: 75px;
+  height: 40px;
+  border-radius: 10px;
+  background-color: "var(--background)";
+  font-family: "sans-serif";
+  font-size: 18px;
+  font-weight: "bord";
+  margin-right: 200px;
+}
