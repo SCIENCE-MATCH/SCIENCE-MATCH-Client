@@ -1,21 +1,34 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import { NAV_LIST } from "./PageLayout";
 
-const NAV_LIST = ["학습 현황", "학습지", "1:1 질문지"];
+const StudentHeader = ({ clickedList, handleClickList }) => {
+  const navigate = useNavigate();
 
-const StudentHeader = () => {
+  const handleClickInfoBtn = () => {
+    // 추후 경로 확정 시, 수정 예정!
+    navigate("/");
+  };
+
   return (
     <St.HeaderWrapper>
       <St.Title>Science Match</St.Title>
 
-      <St.BtnWrapper>
+      <St.NavBar>
         {NAV_LIST.map((it) => {
-          return <St.Btn>{it}</St.Btn>;
+          return (
+            <St.List key={it} $isClickedList={it === clickedList} onClick={(e) => handleClickList(e.target.innerHTML)}>
+              {it}
+            </St.List>
+          );
         })}
-      </St.BtnWrapper>
+      </St.NavBar>
 
       <St.InfoBtnWrapper>
-        <St.InfoBtn type="button">내 정보</St.InfoBtn>
+        <St.InfoBtn type="button" onClick={handleClickInfoBtn}>
+          내 정보
+        </St.InfoBtn>
       </St.InfoBtnWrapper>
     </St.HeaderWrapper>
   );
@@ -42,14 +55,17 @@ const St = {
     font-size: 3rem;
   `,
 
-  BtnWrapper: styled.div`
+  NavBar: styled.nav`
     display: flex;
     justify-content: center;
+
     gap: 6rem;
   `,
 
-  Btn: styled.button`
-    color: ${({ theme }) => theme.colors.headerLi};
+  List: styled.li`
+    list-style: none;
+
+    color: ${({ theme, $isClickedList }) => ($isClickedList ? theme.colors.mainColor : theme.colors.headerLi)};
     line-height: 2.606rem;
     font-weight: 700;
     font-size: 1.8rem;
