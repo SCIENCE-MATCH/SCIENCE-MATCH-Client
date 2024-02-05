@@ -148,7 +148,7 @@ ${reset}
     -ms-overflow-style: none; /* 인터넷 익스플로러 */
     scrollbar-width: none; /* 파이어폭스 */
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Inter";
 }
 #root::-webkit-scrollbar {
     display: none; /* 크롬, 사파리, 오페라, 엣지 */
@@ -163,7 +163,7 @@ ${reset}
     // 링크 터치 금지
     -webkit-touch-callout: none;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Inter";
     
 }
 input:disabled, textarea:disabled, input:disabled::placeholder, textarea:disabled::placeholder {
@@ -179,7 +179,7 @@ input, textarea,button {
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
 
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: "Inter";
 }
 `;
 
