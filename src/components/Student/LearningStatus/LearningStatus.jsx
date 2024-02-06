@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import MonthlyReport from "./MonthlyReport";
+import MonthlyReport from "./RightSide/MonthlyReport";
 import WeeklyStatus from "./LeftSide/WeeklyStatus";
 
 const LearningStatus = () => {
