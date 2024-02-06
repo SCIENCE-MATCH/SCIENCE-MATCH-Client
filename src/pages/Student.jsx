@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import StudentHeader from "../components/Student/StudentHeader";
 import styled from "styled-components";
 import LearningStatus from "../components/Student/LearningStatus/LearningStatus";
+import StudMyPage from "../components/Student/Info/StudMyPage";
 
-export const NAV_LIST = ["학습 현황", "학습지", "1:1 질문지"];
+export const HEADER_DATA = ["학습 현황", "학습지", "1:1 질문지", "내 정보"];
 
 const Student = () => {
   const [clickedList, setClickedList] = useState("학습 현황");
@@ -12,10 +13,21 @@ const Student = () => {
     setClickedList(value);
   };
 
+  const handleReturnCom = (clickedList) => {
+    switch (clickedList) {
+      case "학습 현황":
+        return <LearningStatus />;
+      case "내 정보":
+        return <StudMyPage />;
+      default:
+        return <LearningStatus />;
+    }
+  };
+
   return (
     <St.Wrapper>
       <StudentHeader clickedList={clickedList} handleClickList={handleClickList} />
-      {clickedList === "학습 현황" && <LearningStatus />}
+      {handleReturnCom(clickedList)}
     </St.Wrapper>
   );
 };
