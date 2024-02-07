@@ -51,7 +51,7 @@ const St = {
     height: 100vh;
     overflow-y: auto;
 
-    background-color: ${({ theme }) => theme.colors.background};
+    background-color: ${({ theme }) => theme.colors.brightGray};
   `,
 };
 
