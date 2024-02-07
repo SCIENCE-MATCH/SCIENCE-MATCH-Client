@@ -4,6 +4,7 @@ import MonthlyReport from "./RightSide/MonthlyReport";
 import WeeklyStatus from "./LeftSide/WeeklyStatus";
 
 const LearningStatus = () => {
+  localStorage.clear();
   return (
     <St.Wrapper>
       <WeeklyStatus />
