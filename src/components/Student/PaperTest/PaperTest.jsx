@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const DescriptiveQuestion = () => {
+const PaperTest = () => {
   // 일단 퍼블리싱 용으로 구현한 함수! -> 기능 붙일 때 수정 필요 !!! (작성한 내용이 없는 경우 동작하지 않게 해야 함)
   const handleClickSubmitBtn = () => {
     document.getElementById("question-answer").style.display = "none";
@@ -30,7 +30,7 @@ const DescriptiveQuestion = () => {
   );
 };
 
-export default DescriptiveQuestion;
+export default PaperTest;
 
 const St = {
   Wrapper: styled.section`

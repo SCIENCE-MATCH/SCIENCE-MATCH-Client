@@ -4,7 +4,7 @@ import styled from "styled-components";
 import LearningStatus from "../components/Student/LearningStatus/LearningStatus";
 import StudMyPage from "../components/Student/Info/StudMyPage";
 import ChangePwModal from "../components/Student/Modal/ChangePwModal";
-import DescriptiveQuestion from "../components/Student/DescriptiveQuestions/DescriptiveQuestion";
+import PaperTest from "../components/Student/PaperTest/PaperTest";
 
 export const HEADER_DATA = ["학습 현황", "학습지", "1:1 질문지", "내 정보"];
 
@@ -25,7 +25,7 @@ const Student = () => {
       case "학습 현황":
         return <LearningStatus />;
       case "1:1 질문지":
-        return <DescriptiveQuestion />;
+        return <PaperTest />;
       case "내 정보":
         return <StudMyPage handleClickChangePW={handleClickChangePW} />;
       default:
