@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-const QuestionPaperList = () => {
-// api 붙이면서 추가할 기능: 상태에 따른 분기처리(Status 배경색), 채점 상태에 따른 분기처리(채점 상태, 가장 우측 버튼)
+const QuestionPaperList = ({ handleClickedOpenBtn }) => {
+  // api 붙이면서 추가할 기능: 상태에 따른 분기처리(Status 배경색), 채점 상태에 따른 분기처리(채점 상태, 가장 우측 버튼)
   return (
     <St.Wrapper>
       <St.ContentsWrapper>
@@ -17,7 +17,9 @@ const QuestionPaperList = () => {
         <St.Grading>채점 전</St.Grading>
 
         <St.BtnWrapper>
-          <St.Button type="button">문제 풀기</St.Button>
+          <St.Button type="button" onClick={handleClickedOpenBtn}>
+            문제 풀기
+          </St.Button>
         </St.BtnWrapper>
       </St.ContentsWrapper>
     </St.Wrapper>
