@@ -32,12 +32,8 @@ const QuestionPaper = () => {
 
       {!isBtnClicked && (
         <>
-          <QuestionPaperHeader status={status} handleSelectedStatus={handleSelectedStatus} />
-          <QuestionPaperList
-            status={status}
-            handleSelectedStatus={handleSelectedStatus}
-            handleClickedOpenBtn={handleClickedOpenBtn}
-          />
+          <QuestionPaperHeader handleSelectedStatus={handleSelectedStatus} />
+          <QuestionPaperList handleSelectedStatus={handleSelectedStatus} handleClickedOpenBtn={handleClickedOpenBtn} />
         </>
       )}
     </St.Wrapper>

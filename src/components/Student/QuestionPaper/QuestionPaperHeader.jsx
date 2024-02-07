@@ -1,19 +1,25 @@
 import React from "react";
 import styled from "styled-components";
 
-const QuestionPaperHeader = ({ status, handleSelectedStatus }) => {
+const QuestionPaperHeader = ({ handleSelectedStatus }) => {
+  const status = localStorage.getItem("status") ? localStorage.getItem("status") : "전체";
+
+  const handleClickFn = (e) => {
+    handleSelectedStatus(e.target.innerHTML);
+    localStorage.setItem("status", e.target.innerHTML);
+  };
   return (
     <St.Wrapper>
-      <St.Status $isClicked={status === "전체"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+      <St.Status $isClicked={status === "전체"} onClick={handleClickFn}>
         전체
       </St.Status>
-      <St.Status $isClicked={status === "학습대기"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+      <St.Status $isClicked={status === "학습대기"} onClick={handleClickFn}>
         학습대기
       </St.Status>
-      <St.Status $isClicked={status === "풀이중"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+      <St.Status $isClicked={status === "풀이중"} onClick={handleClickFn}>
         풀이중
       </St.Status>
-      <St.Status $isClicked={status === "학습완료"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+      <St.Status $isClicked={status === "학습완료"} onClick={handleClickFn}>
         학습완료
       </St.Status>
     </St.Wrapper>

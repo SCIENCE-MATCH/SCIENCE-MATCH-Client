@@ -53,7 +53,8 @@ const DUMMY = [
   },
 ];
 
-const QuestionPaperList = ({ status, handleSelectedStatus, handleClickedOpenBtn }) => {
+const QuestionPaperList = ({ handleSelectedStatus, handleClickedOpenBtn }) => {
+  const status = localStorage.getItem("status");
   const [statusEN, setStatusEN] = useState("TOTAL");
 
   const handleClickBtn = (e) => {
