@@ -1,7 +1,7 @@
 import React from "react";
 import styled, { css } from "styled-components";
 
-const StudMyPage = () => {
+const StudMyPage = ({ handleClickChangePW }) => {
   return (
     <St.Wrapper>
       <St.ContentsWrapper>
@@ -28,7 +28,7 @@ const StudMyPage = () => {
 
         <St.Contents>
           <St.Category>비밀번호</St.Category>
-          <St.Info $isBold={true} $addBorder={true}>
+          <St.Info $isBold={true} $addBorder={true} onClick={handleClickChangePW}>
             비밀번호 변경
           </St.Info>
         </St.Contents>
