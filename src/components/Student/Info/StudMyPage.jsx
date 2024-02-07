@@ -13,13 +13,6 @@ const StudMyPage = ({ handleClickChangePW }) => {
         </St.Contents>
 
         <St.Contents>
-          <St.Category>학원 이름</St.Category>
-          <St.Info $isBold={false} $addBorder={false}>
-            최고학원
-          </St.Info>
-        </St.Contents>
-
-        <St.Contents>
           <St.Category>학생 ID</St.Category>
           <St.Info $isBold={true} $addBorder={false}>
             S012345678
@@ -55,8 +48,9 @@ export default StudMyPage;
 
 const St = {
   Wrapper: styled.section`
-    margin: 3.1rem 10.3rem;
-    padding: 7.5rem 0 35.8rem 11.3rem;
+    min-height: calc(100vh - 12.8rem);
+    margin: 3.1rem 15.5rem;
+    padding: 7.5rem 0 0 11.3rem;
 
     background-color: ${({ theme }) => theme.colors.headerBg};
   `,
@@ -87,6 +81,7 @@ const St = {
     ${({ $addBorder, theme }) =>
       $addBorder &&
       css`
+        margin: -0.7rem 0;
         padding: 0.7rem;
 
         border: 0.7rem solid ${theme.colors.mainColor};

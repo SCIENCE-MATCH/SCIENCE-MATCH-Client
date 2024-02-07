@@ -38,7 +38,7 @@ const St = {
     flex-direction: column;
     justify-content: center;
 
-    margin: 9.1rem 0 5.9rem 16.4rem;
+    margin: 5.1rem 0 5.9rem 16.4rem;
 
     gap: 9.1rem;
   `,

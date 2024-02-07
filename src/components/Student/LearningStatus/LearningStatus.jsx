@@ -20,7 +20,8 @@ const St = {
     align-items: center;
     grid-template-columns: repeat(2, 1fr);
 
-    margin: 3.1rem 10.3rem;
+    min-height: calc(100vh - 12.8rem);
+    margin: 3.1rem 15.5rem;
 
     background-color: ${({ theme }) => theme.colors.headerBg};
   `,
