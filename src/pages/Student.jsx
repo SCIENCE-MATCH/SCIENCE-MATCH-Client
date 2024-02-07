@@ -20,7 +20,7 @@ const Student = () => {
       case "내 정보":
         return <StudMyPage />;
       default:
-        return <LearningStatus />;
+        break;
     }
   };
 
