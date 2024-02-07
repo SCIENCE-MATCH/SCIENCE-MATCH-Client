@@ -10,6 +10,9 @@ const colors = {
   headerLi: "#6a6a6a",
   infoBtn: "#3d3d3d",
   headerPoint: "#2eb92b",
+  statusWaiting: "#E2C86B",
+  statusComplete: "#a3a3a3",
+  subText: "#8D939D",
 };
 
 const theme = {
