@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 
-const PageLayout = ({ handleClickedCloseBtn, children }) => {
+const PageLayout = ({ handleClickedCloseBtn, isCompleted, children }) => {
   const handleClickSubmitBtn = () => {
     // 여기 post 함수 추가 예정
     handleClickedCloseBtn();
@@ -13,9 +13,11 @@ const PageLayout = ({ handleClickedCloseBtn, children }) => {
         <St.CloseBtn type="button" onClick={handleClickedCloseBtn}>
           닫기
         </St.CloseBtn>
-        <St.SubmitBtn type="submit" onClick={handleClickSubmitBtn}>
-          제출
-        </St.SubmitBtn>
+        {!isCompleted && (
+          <St.SubmitBtn type="submit" onClick={handleClickSubmitBtn}>
+            제출
+          </St.SubmitBtn>
+        )}
       </St.BtnWrapper>
     </St.Wrapper>
   );
