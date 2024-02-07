@@ -1,27 +1,92 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-const QuestionPaperList = ({ handleClickedOpenBtn }) => {
-  // api 붙이면서 추가할 기능: 상태에 따른 분기처리(Status 배경색), 채점 상태에 따른 분기처리(채점 상태, 가장 우측 버튼)
+const DUMMY = [
+  {
+    id: 0,
+    subject: "PHYSICS",
+    assignStatus: "WAITING",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 1,
+    subject: "PHYSICS",
+    assignStatus: "COMPLETE",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 2,
+    subject: "PHYSICS",
+    assignStatus: "SOLVING",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 3,
+    subject: "PHYSICS",
+    assignStatus: "SOLVING",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 4,
+    subject: "PHYSICS",
+    assignStatus: "WAITING",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 5,
+    subject: "PHYSICS",
+    assignStatus: "SOLVING",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+  {
+    id: 6,
+    subject: "PHYSICS",
+    assignStatus: "COMPLETE",
+    title: "개념+유형라이트 - 개념책 8p ~ 75p",
+    questionNum: 140,
+  },
+];
+
+const QuestionPaperList = ({ handleClickedOpenBtn, checkingStatus }) => {
+  const handleClickBtn = (e) => {
+    const clickedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
+    checkingStatus(clickedStatus);
+    handleClickedOpenBtn();
+  };
+
   return (
     <St.Wrapper>
-      <St.ContentsWrapper>
-        <St.Status>풀이중</St.Status>
-        <St.Subject>지구과학2</St.Subject>
+      {DUMMY.map((it) => {
+        return (
+          <St.ContentsWrapper key={it.id}>
+            <St.Status id="status" $status={it.assignStatus}>
+              {it.assignStatus === "WAITING" && "학습대기"}
+              {it.assignStatus === "SOLVING" && "풀이중"}
+              {it.assignStatus === "COMPLETE" && "학습완료"}
+            </St.Status>
+            <St.Subject>{it.subject}</St.Subject>
 
-        <St.QuestionPaperWrapper>
-          <St.Title>개념+유형라이트 - 개념책 8p ~ 75p</St.Title>
-          <St.QuestionNum>104문제</St.QuestionNum>
-        </St.QuestionPaperWrapper>
+            <St.QuestionPaperWrapper>
+              <St.Title>{it.title}</St.Title>
+              <St.QuestionNum>{it.questionNum}문제</St.QuestionNum>
+            </St.QuestionPaperWrapper>
 
-        <St.Grading>채점 전</St.Grading>
+            <St.Grading>채점 전</St.Grading>
 
-        <St.BtnWrapper>
-          <St.Button type="button" onClick={handleClickedOpenBtn}>
-            문제 풀기
-          </St.Button>
-        </St.BtnWrapper>
-      </St.ContentsWrapper>
+            <St.BtnWrapper>
+              <St.Button type="button" onClick={handleClickBtn}>
+                {it.assignStatus === "COMPLETE" ? "결과 보기" : "문제 풀기"}
+              </St.Button>
+            </St.BtnWrapper>
+          </St.ContentsWrapper>
+        );
+      })}
     </St.Wrapper>
   );
 };
@@ -55,7 +120,27 @@ const St = {
 
     border-radius: 0.8rem;
 
-    background-color: ${({ theme }) => theme.colors.headerPoint};
+    background-color: ${({ $status, theme }) => {
+      switch ($status) {
+        case "WAITING":
+          return css`
+            ${theme.colors.statusWaiting}
+          `;
+
+        case "SOLVING":
+          return css`
+            ${theme.colors.headerPoint}
+          `;
+
+        case "COMPLETE":
+          return css`
+            ${theme.colors.statusComplete}
+          `;
+
+        default:
+          break;
+      }
+    }};
 
     text-align: center;
     color: ${({ theme }) => theme.colors.headerBg};

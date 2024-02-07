@@ -1,14 +1,13 @@
-import React, { useState } from "react";
+import React, {  useState } from "react";
 import QuestionPaperHeader from "./QuestionPaperHeader";
 import QuestionPaperList from "./QuestionPaperList";
 import styled from "styled-components";
 import Solving from "./Solving";
+import Grading from "./Grading";
 
 const QuestionPaper = () => {
-  // isBtnClicked -> 채점 완료/ 문제 풀기
-  // !isBtnClicked -> 홈 뷰
-
   const [isBtnClicked, setIsBtnClicked] = useState(false);
+  const [status, setStatus] = useState("학습대기");
 
   const handleClickedOpenBtn = () => {
     setIsBtnClicked(true);
@@ -20,12 +19,20 @@ const QuestionPaper = () => {
 
   return (
     <St.Wrapper>
-      {isBtnClicked ? (
-        <Solving handleClickedCloseBtn={handleClickedCloseBtn} />
-      ) : (
+      {isBtnClicked && status !== "학습완료" && (
+        <Solving handleClickedCloseBtn={handleClickedCloseBtn} isCompleted={false} />
+      )}
+      {isBtnClicked && status === "학습완료" && (
+        <Grading handleClickedCloseBtn={handleClickedCloseBtn} isCompleted={true} />
+      )}
+
+      {!isBtnClicked && (
         <>
           <QuestionPaperHeader />
-          <QuestionPaperList handleClickedOpenBtn={handleClickedOpenBtn} />
+          <QuestionPaperList
+            handleClickedOpenBtn={handleClickedOpenBtn}
+            checkingStatus={(clickedStatus) => setStatus(clickedStatus)}
+          />
         </>
       )}
     </St.Wrapper>
