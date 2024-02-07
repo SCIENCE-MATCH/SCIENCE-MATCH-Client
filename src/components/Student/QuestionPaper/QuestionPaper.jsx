@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import QuestionPaperHeader from "./QuestionPaperHeader";
 import QuestionPaperList from "./QuestionPaperList";
 import styled from "styled-components";
@@ -7,7 +7,7 @@ import Grading from "./Grading";
 
 const QuestionPaper = () => {
   const [isBtnClicked, setIsBtnClicked] = useState(false);
-  const [status, setStatus] = useState("학습대기");
+  const [status, setStatus] = useState("전체");
 
   const handleClickedOpenBtn = () => {
     setIsBtnClicked(true);
@@ -15,6 +15,10 @@ const QuestionPaper = () => {
 
   const handleClickedCloseBtn = () => {
     setIsBtnClicked(false);
+  };
+
+  const handleSelectedStatus = (selectedStatus) => {
+    setStatus(selectedStatus);
   };
 
   return (
@@ -28,10 +32,11 @@ const QuestionPaper = () => {
 
       {!isBtnClicked && (
         <>
-          <QuestionPaperHeader />
+          <QuestionPaperHeader status={status} handleSelectedStatus={handleSelectedStatus} />
           <QuestionPaperList
+            status={status}
+            handleSelectedStatus={handleSelectedStatus}
             handleClickedOpenBtn={handleClickedOpenBtn}
-            checkingStatus={(clickedStatus) => setStatus(clickedStatus)}
           />
         </>
       )}

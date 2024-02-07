@@ -1,24 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-const STATUS = ["전체", "학습대기", "풀이중", "학습완료"];
-
-const QuestionPaperHeader = () => {
-  const [isClickedStatus, setIsClickedStatus] = useState("전체");
-
-  const handleClickStatus = (e) => {
-    setIsClickedStatus(e.target.innerHTML);
-  };
-
+const QuestionPaperHeader = ({ status, handleSelectedStatus }) => {
   return (
     <St.Wrapper>
-      {STATUS.map((it) => {
-        return (
-          <St.Status key={it} $isClicked={isClickedStatus === it} onClick={handleClickStatus}>
-            {it}
-          </St.Status>
-        );
-      })}
+      <St.Status $isClicked={status === "전체"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+        전체
+      </St.Status>
+      <St.Status $isClicked={status === "학습대기"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+        학습대기
+      </St.Status>
+      <St.Status $isClicked={status === "풀이중"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+        풀이중
+      </St.Status>
+      <St.Status $isClicked={status === "학습완료"} onClick={(e) => handleSelectedStatus(e.target.innerHTML)}>
+        학습완료
+      </St.Status>
     </St.Wrapper>
   );
 };

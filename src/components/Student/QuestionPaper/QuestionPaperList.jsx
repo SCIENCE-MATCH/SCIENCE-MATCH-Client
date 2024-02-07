@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled, { css } from "styled-components";
 
 const DUMMY = [
@@ -53,16 +53,41 @@ const DUMMY = [
   },
 ];
 
-const QuestionPaperList = ({ handleClickedOpenBtn, checkingStatus }) => {
+const QuestionPaperList = ({ status, handleSelectedStatus, handleClickedOpenBtn }) => {
+  const [statusEN, setStatusEN] = useState("TOTAL");
+
   const handleClickBtn = (e) => {
-    const clickedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
-    checkingStatus(clickedStatus);
+    const selectedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
+    handleSelectedStatus(selectedStatus);
     handleClickedOpenBtn();
   };
 
+  useEffect(() => {
+    switch (status) {
+      case "전체":
+        setStatusEN("TOTAL");
+        break;
+
+      case "학습대기":
+        setStatusEN("WAITING");
+        break;
+
+      case "풀이중":
+        setStatusEN("SOLVING");
+        break;
+
+      case "학습완료":
+        setStatusEN("COMPLETE");
+        break;
+
+      default:
+        break;
+    }
+  }, [status]);
+
   return (
     <St.Wrapper>
-      {DUMMY.map((it) => {
+      {DUMMY.filter((v) => (statusEN === "TOTAL" ? v : v.assignStatus === statusEN)).map((it) => {
         return (
           <St.ContentsWrapper key={it.id}>
             <St.Status id="status" $status={it.assignStatus}>
