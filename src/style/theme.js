@@ -9,6 +9,7 @@ const colors = {
   headerBg: "#ffffff",
   headerLi: "#6a6a6a",
   infoBtn: "#3d3d3d",
+  headerPoint: "#2eb92b",
 };
 
 const theme = {
