@@ -63,7 +63,7 @@ const St = {
   List: styled.li`
     list-style: none;
 
-    color: ${({ theme, $isClickedList }) => ($isClickedList ? theme.colors.mainColor : theme.colors.headerLi)};
+    color: ${({ theme, $isClickedList }) => ($isClickedList ? theme.colors.headerPoint : theme.colors.headerLi)};
     line-height: 2.606rem;
     font-weight: 700;
     font-size: 1.8rem;
@@ -82,8 +82,8 @@ const St = {
     ${({ $isClickedList, theme }) =>
       $isClickedList
         ? css`
-            border: 0.05rem solid ${theme.colors.mainColor};
-            color: ${theme.colors.mainColor};
+            border: 0.05rem solid ${theme.colors.headerPoint};
+            color: ${theme.colors.headerPoint};
           `
         : css`
             border: 0.05rem solid #000000;
