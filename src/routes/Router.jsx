@@ -4,7 +4,8 @@ import SignUp from "./Signup";
 import Admin from "./adminRoutes/Admin";
 import Teacher from "./teacherRoutes/Teacher";
 import LogIn from "./LogIn";
-import Student from "./studentRoutes/Student";
+import Student from "../pages/Student";
+
 
 const Router = () => {
   console.log(`I'm working on App`);
