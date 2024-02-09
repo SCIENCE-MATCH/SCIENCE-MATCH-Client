@@ -172,9 +172,6 @@ input:disabled, textarea:disabled, input:disabled::placeholder, textarea:disable
 
 // 사파리 웹 뷰 브라우저 상속 스타일 제거
 input, textarea,button {
-    appearance: none;
-    -moz-appearance: none;
-    -webkit-appearance: none;
     border-radius: 0;
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
