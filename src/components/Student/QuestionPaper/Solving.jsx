@@ -16,12 +16,13 @@ const Solving = ({ handleClickedCloseBtn }) => {
       <St.AnswerWrapper>
         {data.map((it, idx) =>
           it === "MULTIPLE" ? (
-            <St.Answer>
+            <St.Answer key={idx}>
               <St.Number>{idx + 1}</St.Number>
               <form>
                 {[1, 2, 3, 4, 5].map((multipleV) => (
                   <>
                     <St.RadioInput
+                      key={`choice_${idx + 1}_${multipleV}`}
                       id={`choice_${idx + 1}_${multipleV}`}
                       type="radio"
                       name="multiple"
@@ -71,7 +72,10 @@ const St = {
     display: flex;
     flex-direction: column;
 
-    margin: 2.8rem 7.1rem 6.3rem 2.7rem;
+    height: calc(100vh - 21.8rem);
+    overflow-y: auto;
+    margin: 0 7.1rem 0 2.7rem;
+    padding: 2.8rem 0;
 
     gap: 1.1rem;
   `,
