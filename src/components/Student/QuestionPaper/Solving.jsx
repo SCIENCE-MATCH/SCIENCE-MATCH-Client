@@ -7,7 +7,7 @@ const Solving = ({ handleClickedCloseBtn }) => {
   const data = ["MULTIPLE", "SUBJECTIVE", "DESCRIPTIVE", "MULTIPLE", "MULTIPLE", "SUBJECTIVE"];
 
   return (
-    <PageLayout handleClickedCloseBtn={handleClickedCloseBtn}>
+    <PageLayout isCompleted={false} handleClickedCloseBtn={handleClickedCloseBtn}>
       <St.QuestionWrapper>
         {/* 추후 학습지 이미지로 대체할 예정 */}
         <St.QuestionImg></St.QuestionImg>
@@ -47,23 +47,27 @@ const Solving = ({ handleClickedCloseBtn }) => {
 export default Solving;
 
 const St = {
-  QuestionWrapper: styled.div`
+  QuestionWrapper: styled.article`
     width: 100%;
-    height: 65rem;
-
+    height: calc(100vh - 21.8rem);
     padding: 2.8rem 5.8rem;
+    overflow-y: auto;
 
     border-radius: 1.5rem;
 
     background-color: ${({ theme }) => theme.colors.brightGray};
   `,
 
+  // 추후 학습지 이미지로 대체 예정 ! - 이미지 추가 후 속성 수정/ 제거 예정
   QuestionImg: styled.div`
     width: 100%;
     height: 100%;
+
+    // 이미지 추가 후 제거할 속성임
+    background-color: white;
   `,
 
-  AnswerWrapper: styled.div`
+  AnswerWrapper: styled.article`
     display: flex;
     flex-direction: column;
 
