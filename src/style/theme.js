@@ -13,6 +13,7 @@ const colors = {
   statusWaiting: "#E2C86B",
   statusComplete: "#a3a3a3",
   subText: "#8D939D",
+  lightMain: "#DEFFDD"
 };
 
 const theme = {
