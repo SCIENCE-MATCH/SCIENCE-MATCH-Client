@@ -6,8 +6,8 @@ const PageLayout = ({ handleClickedCloseBtn, isCompleted, children }) => {
     handleClickedCloseBtn();
   };
   return (
-    <St.Wrapper>
-      <St.ContentsWrapper>{children}</St.ContentsWrapper>
+    <St.Wrapper $isCompleted={isCompleted}>
+      <St.ContentsWrapper $isCompleted={isCompleted}>{children}</St.ContentsWrapper>
 
       <St.BtnWrapper>
         <St.CloseBtn type="button" onClick={handleClickedCloseBtn}>
@@ -41,18 +41,27 @@ const St = {
     display: flex;
     flex-direction: column;
 
-    padding: 2.1rem 1.5rem;
+    padding: ${({ $isCompleted }) => ($isCompleted ? css`6rem 4.4rem 3.2rem` : css`2.1rem 1.5rem`)};
 
-    min-height: calc(100vh - 10.8rem);
+    height: calc(100vh - 10.8rem);
 
     background-color: ${({ theme }) => theme.colors.headerBg};
   `,
 
   ContentsWrapper: styled.article`
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    ${({ $isCompleted }) =>
+      $isCompleted
+        ? css`
+            grid-template-columns: 0.7fr 1fr;
 
-    margin: 0 0 3.5rem 0.9rem;
+            margin-bottom: 3.2rem;
+          `
+        : css`
+            grid-template-columns: repeat(2, 1fr);
+
+            margin: 0 0 3.5rem 0.9rem;
+          `};
   `,
 
   BtnWrapper: styled.div`
