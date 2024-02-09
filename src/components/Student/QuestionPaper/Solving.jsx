@@ -21,8 +21,13 @@ const Solving = ({ handleClickedCloseBtn }) => {
               <form>
                 {[1, 2, 3, 4, 5].map((multipleV) => (
                   <>
-                    <St.RadioInput id={`choice_${multipleV}`} type="radio" name="multiple" value={multipleV} />
-                    <St.RadioLabel htmlFor={`choice_${multipleV}`}>{multipleV}</St.RadioLabel>
+                    <St.RadioInput
+                      id={`choice_${idx + 1}_${multipleV}`}
+                      type="radio"
+                      name="multiple"
+                      value={multipleV}
+                    />
+                    <St.RadioLabel htmlFor={`choice_${idx + 1}_${multipleV}`}>{multipleV}</St.RadioLabel>
                   </>
                 ))}
               </form>
