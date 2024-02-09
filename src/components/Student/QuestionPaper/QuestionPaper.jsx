@@ -24,10 +24,10 @@ const QuestionPaper = () => {
   return (
     <St.Wrapper>
       {isBtnClicked && status !== "학습완료" && (
-        <Solving handleClickedCloseBtn={handleClickedCloseBtn} isCompleted={false} />
+        <Solving handleClickedCloseBtn={handleClickedCloseBtn} />
       )}
       {isBtnClicked && status === "학습완료" && (
-        <Grading handleClickedCloseBtn={handleClickedCloseBtn} isCompleted={true} />
+        <Grading handleClickedCloseBtn={handleClickedCloseBtn} />
       )}
 
       {!isBtnClicked && (
