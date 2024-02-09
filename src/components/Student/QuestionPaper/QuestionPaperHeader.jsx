@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const QuestionPaperHeader = ({ handleSelectedStatus }) => {
-  const status = localStorage.getItem("status") ? localStorage.getItem("status") : "전체";
+  const [status, setStatus] = useState(localStorage.getItem("status") ? localStorage.getItem("status") : "전체");
 
   const handleClickFn = (e) => {
     handleSelectedStatus(e.target.innerHTML);
     localStorage.setItem("status", e.target.innerHTML);
+    setStatus(localStorage.getItem("status"));
   };
   return (
     <St.Wrapper>
