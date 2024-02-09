@@ -4,7 +4,10 @@ const colors = {
   brightGray: "#eeeeee",
   yellow: "#e1e42c",
   warning: "#ef7e3e",
+  softWarning: "#f2d6c6",
+  wrong: "#B92B2B",
   unsellected: "#969696",
+  notGraded: "#e4e4e4",
   brightMain: "#eeffee",
   headerBg: "#ffffff",
   headerLi: "#6a6a6a",
@@ -13,7 +16,7 @@ const colors = {
   statusWaiting: "#E2C86B",
   statusComplete: "#a3a3a3",
   subText: "#8D939D",
-  lightMain: "#DEFFDD"
+  lightMain: "#DEFFDD",
 };
 
 const theme = {
