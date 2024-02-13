@@ -64,7 +64,7 @@ const St = {
     align-items: center;
     flex-direction: column;
 
-    padding: 4rem 3.5rem;
+    padding: 5.5rem 4rem;
 
     border-radius: 1rem;
     background-color: ${({ theme }) => theme.colors.headerBg};
