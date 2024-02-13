@@ -1,46 +1,59 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import useGetStudInfo from "../../../libs/hooks/useGetStudInfo";
 
 const StudMyPage = ({ handleClickChangePW }) => {
   localStorage.clear();
 
+  const { data } = useGetStudInfo();
+  if (!data) {
+    return;
+  }
+  const { name, parentNum, phoneNum } = data;
+
+  const STUD_INFO = [
+    {
+      id: 0,
+      category: "이름",
+      info: name,
+    },
+    {
+      id: 1,
+      category: "학생 ID",
+      info: phoneNum,
+    },
+    {
+      id: 2,
+      category: "비밀번호",
+      info: "비밀번호 변경",
+    },
+    {
+      id: 3,
+      category: "연락처",
+      info: phoneNum && `${phoneNum.slice(0, 3)}-${phoneNum.slice(3, 7)}-${phoneNum.slice(7, 12)}`,
+    },
+    {
+      id: 4,
+      category: "학부모 연락처",
+      info: parentNum && `${parentNum.slice(0, 3)}-${parentNum.slice(3, 7)}-${parentNum.slice(7, 12)}`,
+    },
+  ];
+
   return (
     <St.Wrapper>
       <St.ContentsWrapper>
-        <St.Contents>
-          <St.Category>이름</St.Category>
-          <St.Info $isBold={false} $addBorder={false}>
-            김학생
-          </St.Info>
-        </St.Contents>
-
-        <St.Contents>
-          <St.Category>학생 ID</St.Category>
-          <St.Info $isBold={true} $addBorder={false}>
-            S012345678
-          </St.Info>
-        </St.Contents>
-
-        <St.Contents>
-          <St.Category>비밀번호</St.Category>
-          <St.Info $isBold={true} $addBorder={true} onClick={handleClickChangePW}>
-            비밀번호 변경
-          </St.Info>
-        </St.Contents>
-
-        <St.Contents>
-          <St.Category>연락처</St.Category>
-          <St.Info $isBold={false} $addBorder={false}>
-            010-1234-5678
-          </St.Info>
-        </St.Contents>
-
-        <St.Contents>
-          <St.Category>학부모 연락처</St.Category>
-          <St.Info $isBold={false} $addBorder={false}>
-            010-2345-6789
-          </St.Info>
-        </St.Contents>
+        {STUD_INFO.map((student) => (
+          <St.Contents key={student.id}>
+            <St.Category>{student.category}</St.Category>
+            <St.Info
+              $isBold={student.id === 1 || student.id === 2}
+              $addBorder={student.id === 2}
+              onClick={student.id === 2 ? handleClickChangePW : undefined}
+            >
+              {student.info}
+            </St.Info>
+          </St.Contents>
+        ))}
       </St.ContentsWrapper>
     </St.Wrapper>
   );
