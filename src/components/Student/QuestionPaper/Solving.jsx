@@ -16,25 +16,24 @@ const Solving = ({ handleClickedCloseBtn }) => {
       <St.AnswerWrapper>
         {data.map((it, idx) =>
           it === "MULTIPLE" ? (
-            <St.Answer key={idx}>
+            <St.Answer key={`radio_${idx}`}>
               <St.Number>{idx + 1}</St.Number>
               <form>
                 {[1, 2, 3, 4, 5].map((multipleV) => (
-                  <>
+                  <React.Fragment key={`choice_${idx + 1}_${multipleV}`}>
                     <St.RadioInput
-                      key={`choice_${idx + 1}_${multipleV}`}
                       id={`choice_${idx + 1}_${multipleV}`}
                       type="radio"
                       name="multiple"
                       value={multipleV}
                     />
                     <St.RadioLabel htmlFor={`choice_${idx + 1}_${multipleV}`}>{multipleV}</St.RadioLabel>
-                  </>
+                  </React.Fragment>
                 ))}
               </form>
             </St.Answer>
           ) : (
-            <St.Answer>
+            <St.Answer key={`text_${idx}`}>
               <St.Number>{idx + 1}</St.Number>
               <St.TextInput rows={1} />
             </St.Answer>
