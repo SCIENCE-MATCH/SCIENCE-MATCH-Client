@@ -85,7 +85,7 @@ const Grading = ({ handleClickedCloseBtn }) => {
         <St.ContentsWrapper>
           {data.map((it) => {
             return (
-              <St.DetailWrapper>
+              <St.DetailWrapper key={it.id}>
                 <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
                   <St.QNum>{it.id + 1}</St.QNum>
                   <St.Answer $isRight={it.rightAnswer} $isGraded={isGraded}>
