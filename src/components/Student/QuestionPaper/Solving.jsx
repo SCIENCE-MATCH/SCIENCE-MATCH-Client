@@ -1,10 +1,10 @@
 import React from "react";
 import styled from "styled-components";
 import PageLayout from "./PageLayout";
+import useGetAnswerStructure from "../../../libs/hooks/useGetAnswerStructure";
 
-const Solving = ({ handleClickedCloseBtn }) => {
-  // api 통신 후 받은 결과로 대체
-  const data = ["MULTIPLE", "SUBJECTIVE", "DESCRIPTIVE", "MULTIPLE", "MULTIPLE", "SUBJECTIVE"];
+const Solving = ({ handleClickedCloseBtn, id }) => {
+  const { data } = useGetAnswerStructure(id);
 
   return (
     <PageLayout isCompleted={false} handleClickedCloseBtn={handleClickedCloseBtn}>
@@ -14,31 +14,32 @@ const Solving = ({ handleClickedCloseBtn }) => {
       </St.QuestionWrapper>
 
       <St.AnswerWrapper>
-        {data.map((it, idx) =>
-          it === "MULTIPLE" ? (
-            <St.Answer key={`radio_${idx}`}>
-              <St.Number>{idx + 1}</St.Number>
-              <form>
-                {[1, 2, 3, 4, 5].map((multipleV) => (
-                  <React.Fragment key={`choice_${idx + 1}_${multipleV}`}>
-                    <St.RadioInput
-                      id={`choice_${idx + 1}_${multipleV}`}
-                      type="radio"
-                      name="multiple"
-                      value={multipleV}
-                    />
-                    <St.RadioLabel htmlFor={`choice_${idx + 1}_${multipleV}`}>{multipleV}</St.RadioLabel>
-                  </React.Fragment>
-                ))}
-              </form>
-            </St.Answer>
-          ) : (
-            <St.Answer key={`text_${idx}`}>
-              <St.Number>{idx + 1}</St.Number>
-              <St.TextInput rows={1} />
-            </St.Answer>
-          )
-        )}
+        {data &&
+          data.map((it, idx) =>
+            it === "MULTIPLE" ? (
+              <St.Answer key={`radio_${idx}`}>
+                <St.Number>{idx + 1}</St.Number>
+                <form>
+                  {[1, 2, 3, 4, 5].map((multipleV) => (
+                    <React.Fragment key={`choice_${idx + 1}_${multipleV}`}>
+                      <St.RadioInput
+                        id={`choice_${idx + 1}_${multipleV}`}
+                        type="radio"
+                        name="multiple"
+                        value={multipleV}
+                      />
+                      <St.RadioLabel htmlFor={`choice_${idx + 1}_${multipleV}`}>{multipleV}</St.RadioLabel>
+                    </React.Fragment>
+                  ))}
+                </form>
+              </St.Answer>
+            ) : (
+              <St.Answer key={`text_${idx}`}>
+                <St.Number>{idx + 1}</St.Number>
+                <St.TextInput rows={1} />
+              </St.Answer>
+            )
+          )}
       </St.AnswerWrapper>
     </PageLayout>
   );

@@ -8,6 +8,7 @@ import Grading from "./Grading";
 const QuestionPaper = () => {
   const [isBtnClicked, setIsBtnClicked] = useState(false);
   const [status, setStatus] = useState("전체");
+  const [questionPaperId, setQuestionPaperId] = useState(0);
 
   const handleClickedOpenBtn = () => {
     setIsBtnClicked(true);
@@ -24,16 +25,20 @@ const QuestionPaper = () => {
   return (
     <St.Wrapper>
       {isBtnClicked && status !== "학습완료" && (
-        <Solving handleClickedCloseBtn={handleClickedCloseBtn} />
+        <Solving handleClickedCloseBtn={handleClickedCloseBtn} id={questionPaperId} />
       )}
       {isBtnClicked && status === "학습완료" && (
-        <Grading handleClickedCloseBtn={handleClickedCloseBtn} />
+        <Grading handleClickedCloseBtn={handleClickedCloseBtn} id={questionPaperId} />
       )}
 
       {!isBtnClicked && (
         <>
           <QuestionPaperHeader handleSelectedStatus={handleSelectedStatus} />
-          <QuestionPaperList handleSelectedStatus={handleSelectedStatus} handleClickedOpenBtn={handleClickedOpenBtn} />
+          <QuestionPaperList
+            handleSelectedStatus={handleSelectedStatus}
+            handleClickedOpenBtn={handleClickedOpenBtn}
+            clickedQuestionPaperId={(id) => setQuestionPaperId(id)}
+          />
         </>
       )}
     </St.Wrapper>

@@ -2,7 +2,7 @@ import React from "react";
 import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
 
-const Grading = ({ handleClickedCloseBtn }) => {
+const Grading = ({ handleClickedCloseBtn, id }) => {
   // 변수 모두 api 붙인 이후 수정할 예정 !
   // 완료한 학습지 조회 api response
   const data = [
