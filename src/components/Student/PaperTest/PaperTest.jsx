@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import postPaperTest from "../../../libs/apis/postPaperTest";
+import handleChangeInput from "../../../utils/handleChangeInput";
 import useGetPaperTest from "../../../libs/hooks/useGetPaperTest";
 
 const PaperTest = () => {
@@ -13,20 +14,8 @@ const PaperTest = () => {
     postPaperTest(input, id);
   };
 
-  const handleChangeInput = (e) => {
-    const questionId = e.target.id;
-    const updatedInput = [...input];
-    const existingQuestion = updatedInput.find((item) => item.id === questionId);
-
-    if (existingQuestion) {
-      // 이미 해당 질문에 대한 답변이 있는 경우 업데이트
-      existingQuestion.answer = e.target.value;
-    } else {
-      // 해당 질문에 대한 답변이 없는 경우 추가
-      updatedInput.push({ id: questionId, answer: e.target.value });
-    }
-
-    setInput(updatedInput);
+  const updateInput = (input) => {
+    setInput(input);
   };
 
   return (
@@ -45,7 +34,7 @@ const PaperTest = () => {
                 id={v.id}
                 placeholder="답을 입력하세요."
                 value={(input.find((item) => item.id === v.id) || {}).answer}
-                onChange={handleChangeInput}
+                onChange={(e) => handleChangeInput(e, input, updateInput)}
               />
 
               <St.BtnWrapper>
