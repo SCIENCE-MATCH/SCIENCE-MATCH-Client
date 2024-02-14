@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 import PageLayout from "./PageLayout";
+import handleChangeInput from "../../../utils/handleChangeInput";
 import useGetAnswerStructure from "../../../libs/hooks/useGetAnswerStructure";
 
 const Solving = ({ handleClickedCloseBtn, id }) => {
   const { data } = useGetAnswerStructure(id);
+  const [input, setInput] = useState([]);
+
+  const updateInput = (input) => {
+    setInput(input);
+  };
 
   return (
     <PageLayout isCompleted={false} handleClickedCloseBtn={handleClickedCloseBtn}>
@@ -23,12 +29,13 @@ const Solving = ({ handleClickedCloseBtn, id }) => {
                   {[1, 2, 3, 4, 5].map((multipleV) => (
                     <React.Fragment key={`choice_${idx + 1}_${multipleV}`}>
                       <St.RadioInput
-                        id={`choice_${idx + 1}_${multipleV}`}
+                        id={idx + 1}
                         type="radio"
                         name="multiple"
                         value={multipleV}
+                        onChange={(e) => handleChangeInput(e, input, updateInput)}
                       />
-                      <St.RadioLabel htmlFor={`choice_${idx + 1}_${multipleV}`}>{multipleV}</St.RadioLabel>
+                      <St.RadioLabel htmlFor={idx + 1}>{multipleV}</St.RadioLabel>
                     </React.Fragment>
                   ))}
                 </form>
@@ -36,7 +43,12 @@ const Solving = ({ handleClickedCloseBtn, id }) => {
             ) : (
               <St.Answer key={`text_${idx}`}>
                 <St.Number>{idx + 1}</St.Number>
-                <St.TextInput rows={1} />
+                <St.TextInput
+                  id={idx + 1}
+                  rows={1}
+                  value={(input.find((item) => item.id === idx + 1) || {}).answer}
+                  onChange={(e) => handleChangeInput(e, input, updateInput)}
+                />
               </St.Answer>
             )
           )}
