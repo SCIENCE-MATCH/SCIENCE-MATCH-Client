@@ -1,20 +1,20 @@
 import { api } from "../api";
 
-const postPaperTest = (input, id) => {
-  console.log(input);
+const postPaperTest = async ({ input, id }) => {
   const clickedPaperTest = input.find((it) => it.id === id);
 
   if (clickedPaperTest && clickedPaperTest.answer) {
     const answer = clickedPaperTest.answer;
 
-    api
+    await api
       .post("/student/paper-test", {
         assignPaperTestId: id,
         answer: answer,
       })
       .then((res) => {
+        // 데이터 들어오면 확인용으로 남겨둠 -> 확인한 뒤에 지울 예정
         console.log(res);
-        window.reload();
+        window.location.reload();
       })
       .catch((err) => alert(err.response.data.message));
   } else {
