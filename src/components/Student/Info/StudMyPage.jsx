@@ -1,10 +1,11 @@
 import React from "react";
 import styled, { css } from "styled-components";
 import useGetStudInfo from "../../../libs/hooks/useGetStudInfo";
+import { removeCookie } from "../../_Common/cookie";
+import { useNavigate } from "react-router";
 
 const StudMyPage = ({ handleClickChangePW }) => {
-  localStorage.clear();
-
+  const navigate = useNavigate();
   const { data } = useGetStudInfo();
   if (!data) {
     return;
@@ -39,6 +40,11 @@ const StudMyPage = ({ handleClickChangePW }) => {
     },
   ];
 
+  const handleClickLogoutBtn = () => {
+    removeCookie("aToken");
+    navigate("/");
+  };
+
   return (
     <St.Wrapper>
       <St.ContentsWrapper>
@@ -54,6 +60,10 @@ const StudMyPage = ({ handleClickChangePW }) => {
             </St.Info>
           </St.Contents>
         ))}
+
+        <St.LogoutBtn type="button" onClick={handleClickLogoutBtn}>
+          로그아웃
+        </St.LogoutBtn>
       </St.ContentsWrapper>
     </St.Wrapper>
   );
@@ -107,5 +117,22 @@ const St = {
     font-weight: ${({ $isBold }) => ($isBold ? 600 : 500)};
     font-size: 1.6rem;
     line-height: 1.936rem;
+  `,
+
+  LogoutBtn: styled.button`
+    width: fit-content;
+
+    padding: 1.4rem 3.2rem;
+    margin-top: 1rem;
+
+    border-radius: 0.5rem;
+
+    background-color: ${({ theme }) => theme.colors.logoutBtn};
+
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.81rem;
+    letter-spacing: 0;
   `,
 };
