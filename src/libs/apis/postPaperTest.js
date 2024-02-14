@@ -1,8 +1,8 @@
 import { api } from "../api";
 
-const postPaperTest = async ({ input, id }) => {
-  const clickedPaperTest = input.find((it) => it.id === id);
-
+const postPaperTest = async (input, id) => {
+  const clickedPaperTest = input && input.find((it) => it.id === id);
+  
   if (clickedPaperTest && clickedPaperTest.answer) {
     const answer = clickedPaperTest.answer;
 
