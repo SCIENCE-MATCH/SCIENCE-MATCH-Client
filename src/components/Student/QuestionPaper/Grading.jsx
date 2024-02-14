@@ -1,74 +1,15 @@
 import React from "react";
 import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
+import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
 
-const Grading = ({ handleClickedCloseBtn, id }) => {
-  // 변수 모두 api 붙인 이후 수정할 예정 !
-  // 완료한 학습지 조회 api response
-  const data = [
-    {
-      id: 0,
-      submitAnswer: "3",
-      solution: "",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: true,
-    },
-    {
-      id: 1,
-      submitAnswer: "5",
-      solution: "2",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: false,
-    },
-    {
-      id: 3,
-      submitAnswer: "3",
-      solution: "",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: true,
-    },
-    {
-      id: 4,
-      submitAnswer: "5",
-      solution: "",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: true,
-    },
-    {
-      id: 5,
-      submitAnswer: "5",
-      solution: "2",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: false,
-    },
-    {
-      id: 6,
-      submitAnswer: "3",
-      solution: "",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: true,
-    },
-    {
-      id: 7,
-      submitAnswer: "5",
-      solution: "2",
-      solutionImg: "string",
-      category: "MULTIPLE",
-      rightAnswer: false,
-    },
-  ];
+const Grading = ({ handleClickedCloseBtn, id, questionNum }) => {
+  const { data } = useGetCompleteQuestionPaper(id);
+
+  // api 수정되면 채점 전/ 후 분기처리 해야 함!!
   const assignStatus = "GRADED";
   const isGraded = assignStatus === "GRADED";
   const score = 70;
-
-  // 이 두 개는 학습지 리스트에서 props로 받아오면 될 듯 !
-  const questionNum = 30;
   const correctNum = 21;
 
   return (
@@ -83,36 +24,37 @@ const Grading = ({ handleClickedCloseBtn, id }) => {
         </St.ScoreWrapper>
 
         <St.ContentsWrapper>
-          {data.map((it) => {
-            return (
-              <St.DetailWrapper key={it.id}>
-                <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
-                  <St.QNum>{it.id + 1}</St.QNum>
-                  <St.Answer $isRight={it.rightAnswer} $isGraded={isGraded}>
-                    {it.submitAnswer}
-                  </St.Answer>
-                </St.AnswerDetail>
+          {data &&
+            data.map((it) => {
+              return (
+                <St.DetailWrapper key={it.id}>
+                  <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
+                    <St.QNum>{it.id + 1}</St.QNum>
+                    <St.Answer $isRight={it.rightAnswer} $isGraded={isGraded}>
+                      {it.submitAnswer}
+                    </St.Answer>
+                  </St.AnswerDetail>
 
-                <div>
-                  <St.Icon $isRight={it.rightAnswer} $isGraded={isGraded}>
-                    {it.rightAnswer ? "○" : "✕"}
-                  </St.Icon>
-                </div>
+                  <div>
+                    <St.Icon $isRight={it.rightAnswer} $isGraded={isGraded}>
+                      {it.rightAnswer ? "○" : "✕"}
+                    </St.Icon>
+                  </div>
 
-                {isGraded && !it.rightAnswer && (
-                  <St.RightAnswerWrapper $isGraded={isGraded}>
-                    <St.RightAnswer>{`정답: ${it.solution}`}</St.RightAnswer>
-                    <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
-                  </St.RightAnswerWrapper>
-                )}
-                {!isGraded && (
-                  <St.RightAnswerWrapper $isGraded={isGraded}>
-                    <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
-                  </St.RightAnswerWrapper>
-                )}
-              </St.DetailWrapper>
-            );
-          })}
+                  {isGraded && !it.rightAnswer && (
+                    <St.RightAnswerWrapper $isGraded={isGraded}>
+                      <St.RightAnswer>{`정답: ${it.solution}`}</St.RightAnswer>
+                      <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
+                    </St.RightAnswerWrapper>
+                  )}
+                  {!isGraded && (
+                    <St.RightAnswerWrapper $isGraded={isGraded}>
+                      <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
+                    </St.RightAnswerWrapper>
+                  )}
+                </St.DetailWrapper>
+              );
+            })}
         </St.ContentsWrapper>
       </St.GradingWrapper>
 
