@@ -5,6 +5,8 @@ import { removeCookie } from "../../_Common/cookie";
 import { useNavigate } from "react-router";
 
 const StudMyPage = ({ handleClickChangePW }) => {
+  localStorage.clear();
+  
   const navigate = useNavigate();
   const { data } = useGetStudInfo();
   if (!data) {
