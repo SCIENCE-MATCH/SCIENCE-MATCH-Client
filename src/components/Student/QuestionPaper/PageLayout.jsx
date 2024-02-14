@@ -1,9 +1,9 @@
 import styled, { css } from "styled-components";
+import postQuestionPaper from "../../../libs/apis/postQuestionPaper";
 
-const PageLayout = ({ handleClickedCloseBtn, isCompleted, children }) => {
+const PageLayout = ({ handleClickedCloseBtn, isCompleted, children, id, input, questionNum }) => {
   const handleClickSubmitBtn = () => {
-    // 여기 post 함수 추가 예정
-    handleClickedCloseBtn();
+    postQuestionPaper(input, id, questionNum, handleClickedCloseBtn);
   };
   return (
     <St.Wrapper $isCompleted={isCompleted}>

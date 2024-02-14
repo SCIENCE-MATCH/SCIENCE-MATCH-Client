@@ -4,7 +4,7 @@ import PageLayout from "./PageLayout";
 import handleChangeInput from "../../../utils/handleChangeInput";
 import useGetAnswerStructure from "../../../libs/hooks/useGetAnswerStructure";
 
-const Solving = ({ handleClickedCloseBtn, id }) => {
+const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
   const { data } = useGetAnswerStructure(id);
   const [input, setInput] = useState([]);
 
@@ -13,7 +13,13 @@ const Solving = ({ handleClickedCloseBtn, id }) => {
   };
 
   return (
-    <PageLayout isCompleted={false} handleClickedCloseBtn={handleClickedCloseBtn}>
+    <PageLayout
+      isCompleted={false}
+      handleClickedCloseBtn={handleClickedCloseBtn}
+      id={id}
+      input={input}
+      questionNum={questionNum}
+    >
       <St.QuestionWrapper>
         {/* 추후 학습지 이미지로 대체할 예정 */}
         <St.QuestionImg></St.QuestionImg>
