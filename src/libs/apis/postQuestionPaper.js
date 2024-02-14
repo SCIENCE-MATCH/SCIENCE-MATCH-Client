@@ -1,6 +1,6 @@
 import { api } from "../api";
 
-const postQuestionPaper = async ({ input, id, questionNum, handleClickedCloseBtn }) => {
+const postQuestionPaper = async (input, id, questionNum, handleClickedCloseBtn) => {
   const answer = input && input.map((data) => data.answer);
   if (answer && answer.length === parseInt(questionNum)) {
     await api
