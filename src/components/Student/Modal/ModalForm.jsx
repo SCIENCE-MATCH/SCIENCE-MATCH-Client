@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { api } from "../../../libs/api";
+import postChangePw from "../../../libs/apis/postChangePw";
 
 const ModalForm = ({ setModalOn }) => {
   const [input, setInput] = useState({
@@ -9,15 +10,6 @@ const ModalForm = ({ setModalOn }) => {
     checkedPw: "",
   });
   const { currentPw, newPw, checkedPw } = input;
-
-  const handleChangeInput = (e) => {
-    setInput({
-      ...input,
-      [e.target.id]: e.target.value,
-    });
-  };
-
-  console.log(input);
 
   const CONSTANTS = [
     {
@@ -40,6 +32,17 @@ const ModalForm = ({ setModalOn }) => {
     },
   ];
 
+  const handleModal = () => {
+    setModalOn(false);
+  };
+
+  const handleChangeInput = (e) => {
+    setInput({
+      ...input,
+      [e.target.id]: e.target.value,
+    });
+  };
+
   const handleClickSubmitBtn = () => {
     if (currentPw && newPw && checkedPw) {
       api
@@ -47,19 +50,7 @@ const ModalForm = ({ setModalOn }) => {
           currentPw,
         })
         .then(() => {
-          if (newPw === checkedPw) {
-            api
-              .post("/auth/student/change-pw", {
-                newPw,
-              })
-              .then((res) => {
-                alert(res.data.message);
-                setModalOn(false);
-              })
-              .catch((err) => console.log(err));
-          } else {
-            alert("입력하신 새로운 비밀번호와 확인용 비밀번호가 일치하지 않습니다.");
-          }
+          postChangePw(newPw, checkedPw, handleModal);
         })
         .catch((err) => alert(err.response.data.message));
     } else {
@@ -75,7 +66,7 @@ const ModalForm = ({ setModalOn }) => {
         <St.FormWrapper>
           {CONSTANTS.map((v) => (
             <St.Form key={v.id}>
-              <St.Label htmlFor={v.id}>현재 비밀번호</St.Label>
+              <St.Label htmlFor={v.id}>{v.label}</St.Label>
               <St.Input
                 id={v.id}
                 type="password"
