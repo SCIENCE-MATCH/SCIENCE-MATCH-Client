@@ -1,33 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import postPaperTest from "../../../libs/apis/postPaperTest";
+import useGetPaperTest from "../../../libs/hooks/useGetPaperTest";
 
 const PaperTest = () => {
   localStorage.clear();
-  
-  // 일단 퍼블리싱 용으로 구현한 함수! -> 기능 붙일 때 수정 필요 !!! (작성한 내용이 없는 경우 동작하지 않게 해야 함)
-  const handleClickSubmitBtn = () => {
-    document.getElementById("question-answer").style.display = "none";
+  const { data } = useGetPaperTest();
+  const [input, setInput] = useState([]);
+
+  const handleClickSubmitBtn = (e) => {
+    const id = e.target.id.split("_")[1];
+    postPaperTest(input, id);
+  };
+
+  const handleChangeInput = (e) => {
+    const questionId = e.target.id;
+    const updatedInput = [...input];
+    const existingQuestion = updatedInput.find((item) => item.id === questionId);
+
+    if (existingQuestion) {
+      // 이미 해당 질문에 대한 답변이 있는 경우 업데이트
+      existingQuestion.answer = e.target.value;
+    } else {
+      // 해당 질문에 대한 답변이 없는 경우 추가
+      updatedInput.push({ id: questionId, answer: e.target.value });
+    }
+
+    setInput(updatedInput);
   };
 
   return (
     <St.Wrapper>
-      <St.ContentsWrapper id="question-answer">
-        <St.QuestionWrapper>
-          <St.Question>질문 :</St.Question>
-          <St.Question>질문 내용</St.Question>
-        </St.QuestionWrapper>
+      {data &&
+        data.map((v, idx) => (
+          <St.ContentsWrapper id="question-answer" key={`PaperTest${idx + 1}`}>
+            <St.QuestionWrapper>
+              <St.Question>질문 :</St.Question>
+              <St.Question>{v.question}</St.Question>
+            </St.QuestionWrapper>
 
-        <St.AnswerWrapper>
-          <St.Answer>답 :</St.Answer>
-          <St.AnswerInput placeholder="답을 입력하세요." />
+            <St.AnswerWrapper>
+              <St.Answer>답 :</St.Answer>
+              <St.AnswerInput
+                id={v.id}
+                placeholder="답을 입력하세요."
+                value={(input.find((item) => item.id === v.id) || {}).answer}
+                onChange={handleChangeInput}
+              />
 
-          <St.BtnWrapper>
-            <St.SubmitBtn type="submit" onClick={handleClickSubmitBtn}>
-              제출
-            </St.SubmitBtn>
-          </St.BtnWrapper>
-        </St.AnswerWrapper>
-      </St.ContentsWrapper>
+              <St.BtnWrapper>
+                <St.SubmitBtn id={`submit_${v.id}`} type="submit" onClick={handleClickSubmitBtn}>
+                  제출
+                </St.SubmitBtn>
+              </St.BtnWrapper>
+            </St.AnswerWrapper>
+          </St.ContentsWrapper>
+        ))}
     </St.Wrapper>
   );
 };
