@@ -2,14 +2,23 @@ import React from "react";
 import styled, { css } from "styled-components";
 import useGetQuestionPaperList from "../../../libs/hooks/useGetQuestionPaperList";
 
-const QuestionPaperList = ({ handleSelectedStatus, handleClickedOpenBtn }) => {
+const QuestionPaperList = ({
+  handleSelectedStatus,
+  handleClickedOpenBtn,
+  clickedQuestionPaperId,
+  clickedQuestionNum,
+}) => {
   const status = localStorage.getItem("status");
 
   const { data } = useGetQuestionPaperList();
 
   const handleClickBtn = (e) => {
     const selectedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
+    const id = e.target.id.split("_")[0];
+    const questionNum = e.target.id.split("_")[1];
     handleSelectedStatus(selectedStatus);
+    clickedQuestionPaperId(id);
+    clickedQuestionNum(questionNum);
     handleClickedOpenBtn();
   };
 
@@ -73,7 +82,7 @@ const QuestionPaperList = ({ handleSelectedStatus, handleClickedOpenBtn }) => {
                 </St.GradingWrapper>
 
                 <St.BtnWrapper>
-                  <St.Button type="button" onClick={handleClickBtn}>
+                  <St.Button id={`${it.id}_${it.questionNum}`} type="button" onClick={handleClickBtn}>
                     {it.assignStatus === "COMPLETE" || it.assignStatus === "GRADED" ? "결과 보기" : "문제 풀기"}
                   </St.Button>
                 </St.BtnWrapper>
