@@ -9,7 +9,8 @@ const QuestionPaper = () => {
   const [isBtnClicked, setIsBtnClicked] = useState(false);
   const [status, setStatus] = useState("전체");
   const [questionPaperId, setQuestionPaperId] = useState(0);
-  const [questionNum, setQuestionNum] = useState(0)
+  const [questionNum, setQuestionNum] = useState(0);
+  const [correctNum, setCorrectNum] = useState(0);
 
   const handleClickedOpenBtn = () => {
     setIsBtnClicked(true);
@@ -26,10 +27,15 @@ const QuestionPaper = () => {
   return (
     <St.Wrapper>
       {isBtnClicked && status !== "학습완료" && (
-        <Solving handleClickedCloseBtn={handleClickedCloseBtn} id={questionPaperId} questionNum={questionNum}/>
+        <Solving handleClickedCloseBtn={handleClickedCloseBtn} id={questionPaperId} questionNum={questionNum} />
       )}
       {isBtnClicked && status === "학습완료" && (
-        <Grading handleClickedCloseBtn={handleClickedCloseBtn} id={questionPaperId} questionNum={questionNum}/>
+        <Grading
+          handleClickedCloseBtn={handleClickedCloseBtn}
+          id={questionPaperId}
+          questionNum={questionNum}
+          correctNum={correctNum}
+        />
       )}
 
       {!isBtnClicked && (
@@ -40,6 +46,7 @@ const QuestionPaper = () => {
             handleClickedOpenBtn={handleClickedOpenBtn}
             clickedQuestionPaperId={(id) => setQuestionPaperId(id)}
             clickedQuestionNum={(num) => setQuestionNum(num)}
+            clickedCorrectNum={(num) => setCorrectNum(num)}
           />
         </>
       )}
