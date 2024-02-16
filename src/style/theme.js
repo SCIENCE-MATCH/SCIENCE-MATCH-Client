@@ -17,6 +17,7 @@ const colors = {
   statusComplete: "#a3a3a3",
   subText: "#8D939D",
   lightMain: "#DEFFDD",
+  logoutBtn: "#d9d9d9",
 };
 
 const theme = {

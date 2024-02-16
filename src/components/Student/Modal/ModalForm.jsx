@@ -1,27 +1,79 @@
-import React from "react";
+import React, { useState } from "react";
 import styled, { css } from "styled-components";
+import { api } from "../../../libs/api";
+import postChangePw from "../../../libs/apis/postChangePw";
 
 const ModalForm = ({ setModalOn }) => {
+  const [input, setInput] = useState({
+    currentPw: "",
+    newPw: "",
+    checkedPw: "",
+  });
+  const { currentPw, newPw, checkedPw } = input;
+
+  const CONSTANTS = [
+    {
+      id: "currentPw",
+      label: "현재 비밀번호",
+      placeholder: "현재 비밀번호를 입력해주세요",
+      value: currentPw,
+    },
+    {
+      id: "newPw",
+      label: "새로운 비밀번호",
+      placeholder: "새로운 비밀번호를 입력해주세요",
+      value: newPw,
+    },
+    {
+      id: "checkedPw",
+      label: "비밀번호 확인",
+      placeholder: "다시 한 번 입력해주세요",
+      value: checkedPw,
+    },
+  ];
+
+  const handleModal = () => {
+    setModalOn(false);
+  };
+
+  const handleChangeInput = (e) => {
+    setInput({
+      ...input,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleClickSubmitBtn = () => {
+    if (currentPw && newPw && checkedPw) {
+      api
+        .post("/auth/student/check-pw", `${currentPw}`)
+        .then(() => {
+          postChangePw(newPw, checkedPw, handleModal);
+        })
+        .catch((err) => alert(err.response.data.message));
+    } else {
+      alert("모든 항목을 입력해주세요.");
+    }
+  };
+
   return (
     <St.Wrapper>
       <St.ContentsWrapper>
         <St.Title>비밀번호 변경</St.Title>
 
         <St.FormWrapper>
-          <St.Form>
-            <St.Label htmlFor="currentPw">현재 비밀번호</St.Label>
-            <St.Input id="currentPw" type="password" placeholder="현재 비밀번호를 입력해주세요" />
-          </St.Form>
-
-          <St.Form>
-            <St.Label htmlFor="newPw">새로운 비밀번호</St.Label>
-            <St.Input id="newPw" type="password" placeholder="새로운 비밀번호를 입력해주세요" />
-          </St.Form>
-
-          <St.Form>
-            <St.Label htmlFor="checkPw">비밀번호 확인</St.Label>
-            <St.Input id="checkPw" type="password" placeholder="다시 한 번 입력해주세요" />
-          </St.Form>
+          {CONSTANTS.map((v) => (
+            <St.Form key={v.id}>
+              <St.Label htmlFor={v.id}>{v.label}</St.Label>
+              <St.Input
+                id={v.id}
+                type="password"
+                placeholder={v.placeholder}
+                value={v.value}
+                onChange={handleChangeInput}
+              />
+            </St.Form>
+          ))}
         </St.FormWrapper>
 
         <St.Warning>
@@ -33,7 +85,7 @@ const ModalForm = ({ setModalOn }) => {
           <St.Button type="button" onClick={() => setModalOn(false)} $isCancleBtn={true}>
             취소
           </St.Button>
-          <St.Button type="button" $isCancleBtn={false}>
+          <St.Button type="button" $isCancleBtn={false} onClick={handleClickSubmitBtn}>
             저장하기
           </St.Button>
         </St.BtnWrapper>
@@ -64,7 +116,7 @@ const St = {
     align-items: center;
     flex-direction: column;
 
-    padding: 4rem 3.5rem;
+    padding: 5.5rem 4rem;
 
     border-radius: 1rem;
     background-color: ${({ theme }) => theme.colors.headerBg};

@@ -1,118 +1,98 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled, { css } from "styled-components";
+import useGetQuestionPaperList from "../../../libs/hooks/useGetQuestionPaperList";
 
-const DUMMY = [
-  {
-    id: 0,
-    subject: "PHYSICS",
-    assignStatus: "WAITING",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 1,
-    subject: "PHYSICS",
-    assignStatus: "COMPLETE",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 2,
-    subject: "PHYSICS",
-    assignStatus: "SOLVING",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 3,
-    subject: "PHYSICS",
-    assignStatus: "SOLVING",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 4,
-    subject: "PHYSICS",
-    assignStatus: "WAITING",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 5,
-    subject: "PHYSICS",
-    assignStatus: "SOLVING",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-  {
-    id: 6,
-    subject: "PHYSICS",
-    assignStatus: "COMPLETE",
-    title: "개념+유형라이트 - 개념책 8p ~ 75p",
-    questionNum: 140,
-  },
-];
-
-const QuestionPaperList = ({ handleSelectedStatus, handleClickedOpenBtn }) => {
+const QuestionPaperList = ({
+  handleSelectedStatus,
+  handleClickedOpenBtn,
+  clickedQuestionPaperId,
+  clickedQuestionNum,
+  clickedCorrectNum,
+}) => {
   const status = localStorage.getItem("status");
-  const [statusEN, setStatusEN] = useState("TOTAL");
+
+  const { data } = useGetQuestionPaperList();
 
   const handleClickBtn = (e) => {
     const selectedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
+    const id = e.target.id.split("_")[0];
+    const questionNum = e.target.id.split("_")[1];
+    const correctNum = e.target.id.split("_")[2];
+
     handleSelectedStatus(selectedStatus);
+    clickedQuestionPaperId(id);
+    clickedQuestionNum(questionNum);
+    clickedCorrectNum(correctNum);
     handleClickedOpenBtn();
   };
 
-  useEffect(() => {
+  const filterStatus = (data) => {
     switch (status) {
       case "전체":
-        setStatusEN("TOTAL");
-        break;
+        return data;
 
       case "학습대기":
-        setStatusEN("WAITING");
-        break;
+        return data.assignStatus === "WAITING";
 
       case "풀이중":
-        setStatusEN("SOLVING");
-        break;
+        return data.assignStatus === "SOLVING";
 
       case "학습완료":
-        setStatusEN("COMPLETE");
-        break;
+        return data.assignStatus === "COMPLETE" || data.assignStatus === "GRADED";
 
       default:
-        break;
+        return data;
     }
-  }, [status]);
+  };
 
   return (
     <St.Wrapper>
-      {DUMMY.filter((v) => (statusEN === "TOTAL" ? v : v.assignStatus === statusEN)).map((it) => {
-        return (
-          <St.ContentsWrapper key={it.id}>
-            <St.Status id="status" $status={it.assignStatus}>
-              {it.assignStatus === "WAITING" && "학습대기"}
-              {it.assignStatus === "SOLVING" && "풀이중"}
-              {it.assignStatus === "COMPLETE" && "학습완료"}
-            </St.Status>
-            <St.Subject>{it.subject}</St.Subject>
+      {data &&
+        data
+          .filter((v) => filterStatus(v))
+          .map((it) => {
+            return (
+              <St.ContentsWrapper key={it.id}>
+                <St.Status id="status" $status={it.assignStatus}>
+                  {it.assignStatus === "WAITING" && "학습대기"}
+                  {it.assignStatus === "SOLVING" && "풀이중"}
+                  {it.assignStatus === "COMPLETE" && "학습완료"}
+                  {it.assignStatus === "GRADED" && "학습완료"}
+                </St.Status>
+                <St.Subject>{it.subject}</St.Subject>
 
-            <St.QuestionPaperWrapper>
-              <St.Title>{it.title}</St.Title>
-              <St.QuestionNum>{it.questionNum}문제</St.QuestionNum>
-            </St.QuestionPaperWrapper>
+                <St.QuestionPaperWrapper>
+                  <St.Title>{it.title}</St.Title>
+                  <St.QuestionNum>{it.questionNum}문제</St.QuestionNum>
+                </St.QuestionPaperWrapper>
 
-            <St.Grading>채점 전</St.Grading>
+                <St.GradingWrapper>
+                  {it.assignStatus === "COMPLETE" && (
+                    <St.Grading $isCorrectNum={false} $status={it.assignStatus}>
+                      채점 전
+                    </St.Grading>
+                  )}
+                  {it.assignStatus === "GRADED" && (
+                    <>
+                      <St.Grading $isCorrectNum={true} $status={it.assignStatus}>
+                        {it.correctNum}
+                      </St.Grading>
+                      <St.Grading
+                        $isCorrectNum={false}
+                        $status={it.assignStatus}
+                      >{`/ ${it.questionNum} 문제`}</St.Grading>
+                    </>
+                  )}
+                </St.GradingWrapper>
 
-            <St.BtnWrapper>
-              <St.Button type="button" onClick={handleClickBtn}>
-                {it.assignStatus === "COMPLETE" ? "결과 보기" : "문제 풀기"}
-              </St.Button>
-            </St.BtnWrapper>
-          </St.ContentsWrapper>
-        );
-      })}
+                <St.BtnWrapper>
+                  <St.Button id={`${it.id}_${it.questionNum}_${it.correctNum}`} type="button" onClick={handleClickBtn}>
+                    {it.assignStatus === "COMPLETE" || it.assignStatus === "GRADED" ? "결과 보기" : "문제 풀기"}
+                  </St.Button>
+                </St.BtnWrapper>
+              </St.ContentsWrapper>
+            );
+          })}
     </St.Wrapper>
   );
 };
@@ -163,6 +143,11 @@ const St = {
             ${theme.colors.statusComplete}
           `;
 
+        case "GRADED":
+          return css`
+            ${theme.colors.statusComplete}
+          `;
+
         default:
           break;
       }
@@ -204,12 +189,27 @@ const St = {
     line-height: 1.2rem;
   `,
 
+  GradingWrapper: styled.div`
+    display: flex;
+    align-items: end;
+    justify-content: center;
+
+    gap: 0.7rem;
+  `,
+
   Grading: styled.p`
-    text-align: center;
-    color: ${({ theme }) => theme.colors.subText};
-    font-size: 2rem;
-    font-weight: 500;
-    line-height: 2.42rem;
+    ${({ $isCorrectNum, $status, theme }) =>
+      $isCorrectNum
+        ? css`
+            font-size: 2.4rem;
+            font-weight: 700;
+            line-height: 0.8;
+          `
+        : css`
+            color: ${theme.colors.subText};
+            font-size: ${$status === "GRADED" ? css`1.6rem` : css`2rem`};
+            font-weight: 500;
+          `};
   `,
 
   BtnWrapper: styled.div`
