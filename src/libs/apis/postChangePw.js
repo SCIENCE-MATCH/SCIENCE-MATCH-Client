@@ -3,9 +3,7 @@ import { api } from "../api";
 const postChangePw = (newPw, checkedPw, handleModal) => {
   if (newPw === checkedPw && newPw.length >= 6) {
     api
-      .post("/auth/student/change-pw", {
-        newPw,
-      })
+      .post("/auth/student/change-pw", `${newPw}`)
       .then((res) => {
         alert(res.data.message);
         handleModal();

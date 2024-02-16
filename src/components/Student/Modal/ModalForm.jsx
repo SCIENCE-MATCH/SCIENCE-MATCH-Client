@@ -46,9 +46,7 @@ const ModalForm = ({ setModalOn }) => {
   const handleClickSubmitBtn = () => {
     if (currentPw && newPw && checkedPw) {
       api
-        .post("/auth/student/check-pw", {
-          currentPw,
-        })
+        .post("/auth/student/check-pw", `${currentPw}`)
         .then(() => {
           postChangePw(newPw, checkedPw, handleModal);
         })
