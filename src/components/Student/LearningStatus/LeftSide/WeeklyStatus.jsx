@@ -23,7 +23,6 @@ const WeeklyStatus = () => {
 
       <St.MonthlyQuestionWrapper>
         <St.Title>최근 한달간 푼 문제</St.Title>
-
         <ResolvedQuestionGraph />
       </St.MonthlyQuestionWrapper>
     </St.Wrapper>
@@ -38,7 +37,7 @@ const St = {
     flex-direction: column;
     justify-content: center;
 
-    margin: 5.1rem 0 5.9rem 11.1rem;
+    margin: 4.3rem 0 5.9rem 9rem;
 
     gap: 9.1rem;
   `,
