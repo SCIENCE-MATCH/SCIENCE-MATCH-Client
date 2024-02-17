@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
+import HorizontalBarChart from "./HorizontalBarChart";
 
 const MonthlyReport = () => {
   return (
     <St.Wrapper>
       <St.CorrectRateWrapper>
         <St.Title>이번달 문제 난이도별 정답률</St.Title>
-
-        {/* 피그마 상에서 그래프 들어가는 부분 */}
+        <HorizontalBarChart />
       </St.CorrectRateWrapper>
 
       <St.MonthlyReportWrapper>
@@ -32,7 +32,7 @@ const St = {
     flex-direction: column;
     justify-content: center;
 
-    margin: 5.1rem 0 5.9rem 4.7rem;
+    margin: 5.1rem 4.7rem 5.9rem 0;
 
     gap: 4.4rem;
   `,
@@ -40,9 +40,6 @@ const St = {
   CorrectRateWrapper: styled.article`
     display: flex;
     flex-direction: column;
-
-    // 추후 사라져야 할 부분 ! (그래프 들어갈 공간 띄워둠)
-    margin-bottom: 25.8rem;
 
     gap: 4.8rem;
   `,
