@@ -31,12 +31,13 @@ const data = [
 
 const HorizontalBarChart = () => {
   return (
-    <ResponsiveContainer width={340} height={258}>
+    <ResponsiveContainer width="100%" height={258}>
       <BarChart
         layout="vertical"
         data={data}
         margin={{
           left: 33,
+          right: 180,
         }}
       >
         <XAxis type="number" tickCount={0} />
