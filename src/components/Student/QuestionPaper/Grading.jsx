@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
 import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
@@ -6,6 +6,11 @@ import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuest
 const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
   const { data } = useGetCompleteQuestionPaper(id);
   const isGraded = assignStatus === "GRADED";
+  const [imgSrc, setImgSrc] = useState("");
+
+  const handleClickDescriptBtn = (src) => {
+    setImgSrc(src);
+  };
 
   return (
     <PageLayout isCompleted={true} handleClickedCloseBtn={handleClickedCloseBtn}>
@@ -41,7 +46,9 @@ const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
                   {isGraded && !it.rightAnswer && (
                     <St.RightAnswerWrapper $isGraded={isGraded}>
                       <St.RightAnswer>{`정답: ${it.solution}`}</St.RightAnswer>
-                      <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
+                      <St.GoDescriptBtn type="button" onClick={() => handleClickDescriptBtn(it.solutionImg)}>
+                        해설 보기
+                      </St.GoDescriptBtn>
                     </St.RightAnswerWrapper>
                   )}
                   {!isGraded && (
@@ -55,10 +62,7 @@ const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
         </St.ContentsWrapper>
       </St.GradingWrapper>
 
-      <St.DescriptWrapper>
-        {/* 추후 문제/ 해설 이미지로 대체할 예정 */}
-        <St.DescriptImg></St.DescriptImg>
-      </St.DescriptWrapper>
+      <St.DescriptWrapper>{imgSrc && <St.DescriptImg src={imgSrc} />}</St.DescriptWrapper>
     </PageLayout>
   );
 };
@@ -227,16 +231,16 @@ const St = {
   `,
 
   DescriptWrapper: styled.article`
-    height: calc(100vh - 27rem);
+    min-height: calc(100vh - 27rem);
     margin-left: 2rem;
     overflow-y: auto;
 
     border-radius: 0.9rem;
   `,
 
-  // 추후 이미지로 대체 예정 !! - 내부 정의한 속성은 스크롤 확인을 위해 임의로 넣은 속성임.
-  DescriptImg: styled.div`
-    height: 100rem;
+  DescriptImg: styled.img`
+    width: 100%;
+    height: calc(100vh - 27rem);
 
     background-color: ${({ theme }) => theme.colors.warning};
   `,
