@@ -7,7 +7,6 @@ const QuestionPaperList = ({
   handleClickedOpenBtn,
   clickedQuestionPaperId,
   clickedQuestionNum,
-  clickedCorrectNum,
 }) => {
   const status = localStorage.getItem("status");
 
@@ -17,12 +16,10 @@ const QuestionPaperList = ({
     const selectedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
     const id = e.target.id.split("_")[0];
     const questionNum = e.target.id.split("_")[1];
-    const correctNum = e.target.id.split("_")[2];
 
     handleSelectedStatus(selectedStatus);
     clickedQuestionPaperId(id);
     clickedQuestionNum(questionNum);
-    clickedCorrectNum(correctNum);
     handleClickedOpenBtn();
   };
 
@@ -86,7 +83,7 @@ const QuestionPaperList = ({
                 </St.GradingWrapper>
 
                 <St.BtnWrapper>
-                  <St.Button id={`${it.id}_${it.questionNum}_${it.correctNum}`} type="button" onClick={handleClickBtn}>
+                  <St.Button id={`${it.id}_${it.questionNum}`} type="button" onClick={handleClickBtn}>
                     {it.assignStatus === "COMPLETE" || it.assignStatus === "GRADED" ? "결과 보기" : "문제 풀기"}
                   </St.Button>
                 </St.BtnWrapper>
