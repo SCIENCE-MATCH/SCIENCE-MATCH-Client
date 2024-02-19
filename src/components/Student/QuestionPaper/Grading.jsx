@@ -3,11 +3,8 @@ import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
 import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
 
-const Grading = ({ handleClickedCloseBtn, id }) => {
+const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
   const { data } = useGetCompleteQuestionPaper(id);
-
-  // api 수정되면 채점 전/ 후 분기처리 해야 함!!
-  const assignStatus = "GRADED";
   const isGraded = assignStatus === "GRADED";
 
   return (
