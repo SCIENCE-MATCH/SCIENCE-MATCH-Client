@@ -3,28 +3,29 @@ import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
 import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
 
-const Grading = ({ handleClickedCloseBtn, id, questionNum, correctNum }) => {
+const Grading = ({ handleClickedCloseBtn, id }) => {
   const { data } = useGetCompleteQuestionPaper(id);
 
   // api 수정되면 채점 전/ 후 분기처리 해야 함!!
   const assignStatus = "GRADED";
   const isGraded = assignStatus === "GRADED";
-  const score = 70;
 
   return (
     <PageLayout isCompleted={true} handleClickedCloseBtn={handleClickedCloseBtn}>
       <St.GradingWrapper>
-        <St.ScoreWrapper>
-          <St.Score $isGraded={isGraded}> {isGraded ? `${score} 점` : "채점 전"}</St.Score>
-          <St.QNumWrapper>
-            <St.RightQNum $isGraded={isGraded}>{isGraded ? `${correctNum}` : "?"}</St.RightQNum>
-            <St.TotalQNum>{`/${questionNum} 문제`}</St.TotalQNum>
-          </St.QNumWrapper>
-        </St.ScoreWrapper>
+        {data && (
+          <St.ScoreWrapper>
+            <St.Score $isGraded={isGraded}> {isGraded ? `${data.score} 점` : "채점 전"}</St.Score>
+            <St.QNumWrapper>
+              <St.RightQNum $isGraded={isGraded}>{isGraded ? `${data.correctNum}` : "?"}</St.RightQNum>
+              <St.TotalQNum>{`/${data.questionNum} 문제`}</St.TotalQNum>
+            </St.QNumWrapper>
+          </St.ScoreWrapper>
+        )}
 
         <St.ContentsWrapper>
           {data &&
-            data.map((it) => {
+            data.answerResponseDtos.map((it) => {
               return (
                 <St.DetailWrapper key={it.id}>
                   <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
