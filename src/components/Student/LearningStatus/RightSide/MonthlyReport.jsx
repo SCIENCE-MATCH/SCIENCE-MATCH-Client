@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import HorizontalBarChart from "./HorizontalBarChart";
-import MonthlyPieChart from "./MonthlyPieChart";
+// import MonthlyPieChart from "./MonthlyPieChart";
 
 const MonthlyReport = () => {
   return (
@@ -25,7 +25,7 @@ const MonthlyReport = () => {
             <St.Label>종합 등급</St.Label>
           </St.GradeWrapper>
 
-          <MonthlyPieChart />
+          {/* <MonthlyPieChart /> */}
         </St.ReportWrapper>
       </St.MonthlyReportWrapper>
     </St.Wrapper>
