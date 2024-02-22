@@ -5,6 +5,10 @@ import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuest
 
 const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
   const { data } = useGetCompleteQuestionPaper(id);
+
+  // 해설 이미지 확인용 코드 -> 주석풀어서 확인하시고 나중에 필요없으면 지워주세용
+  // const { data } = useGetCompleteQuestionPaper(57);
+
   const isGraded = assignStatus === "GRADED";
   const [imgSrc, setImgSrc] = useState("");
 
