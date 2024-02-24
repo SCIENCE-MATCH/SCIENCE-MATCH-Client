@@ -26,9 +26,15 @@ const data = [
 
 const ResolvedQuestionGraph = () => {
   return (
-    <ResponsiveContainer width="100%" height={230}>
+    <ResponsiveContainer width="100%" height={238}>
       <ComposedChart data={data} margin={{ right: 50 }}>
-        <XAxis dataKey="name" tickMargin={10} style={{ fontSize: "15px", fontWeight: "500", lineHeight: "24.2px" }} />
+        <XAxis
+          dataKey="name"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={10}
+          style={{ fontSize: "15px", fontWeight: "500", lineHeight: "24.2px" }}
+        />
         <Bar dataKey="questions" fill="#05f200" barSize={37} isAnimationActive={false} />
         <Line type="linear" dataKey="line" strokeWidth={4} stroke="#ef7e3e" fill="#ef7e3e" isAnimationActive={false} />
       </ComposedChart>

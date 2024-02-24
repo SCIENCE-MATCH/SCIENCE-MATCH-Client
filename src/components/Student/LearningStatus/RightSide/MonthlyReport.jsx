@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
+import HorizontalBarChart from "./HorizontalBarChart";
+// import MonthlyPieChart from "./MonthlyPieChart";
 
 const MonthlyReport = () => {
   return (
     <St.Wrapper>
       <St.CorrectRateWrapper>
         <St.Title>이번달 문제 난이도별 정답률</St.Title>
-
-        {/* 피그마 상에서 그래프 들어가는 부분 */}
+        <HorizontalBarChart />
       </St.CorrectRateWrapper>
 
       <St.MonthlyReportWrapper>
@@ -18,7 +19,14 @@ const MonthlyReport = () => {
           <St.Contents>학습 범위 | 1 - 1 단원 ~ 2 - 3 단원</St.Contents>
         </St.ContentsWrapper>
 
-        {/* 피그마 상에서 그래프 들어가는 부분 */}
+        <St.ReportWrapper>
+          <St.GradeWrapper>
+            <St.Grade>1</St.Grade>
+            <St.Label>종합 등급</St.Label>
+          </St.GradeWrapper>
+
+          {/* <MonthlyPieChart /> */}
+        </St.ReportWrapper>
       </St.MonthlyReportWrapper>
     </St.Wrapper>
   );
@@ -32,7 +40,7 @@ const St = {
     flex-direction: column;
     justify-content: center;
 
-    margin: 5.1rem 0 5.9rem 4.7rem;
+    margin: 5.1rem 4.7rem 5.9rem 0;
 
     gap: 4.4rem;
   `,
@@ -40,9 +48,6 @@ const St = {
   CorrectRateWrapper: styled.article`
     display: flex;
     flex-direction: column;
-
-    // 추후 사라져야 할 부분 ! (그래프 들어갈 공간 띄워둠)
-    margin-bottom: 25.8rem;
 
     gap: 4.8rem;
   `,
@@ -57,9 +62,6 @@ const St = {
     display: flex;
     flex-direction: column;
 
-    // 추후 사라져야 할 부분 ! (그래프 들어갈 공간 띄워둠)
-    margin-bottom: 14rem;
-
     gap: 1.3rem;
   `,
 
@@ -73,6 +75,37 @@ const St = {
   Contents: styled.p`
     font-weight: 600;
     font-size: 2rem;
+    line-height: 2.42rem;
+  `,
+
+  ReportWrapper: styled.div`
+    display: grid;
+    grid-template-columns: 0.7fr 3fr;
+    align-items: center;
+
+    margin-top: 3rem;
+  `,
+
+  GradeWrapper: styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    border-right: 0.1rem solid ${({ theme }) => theme.colors.logoutBtn};
+
+    gap: 2rem;
+  `,
+
+  Grade: styled.p`
+    font-weight: 600;
+    font-size: 3rem;
+    line-height: 2.42rem;
+  `,
+
+  Label: styled.p`
+    color: ${({ theme }) => theme.colors.headerLi};
+    font-weight: 400;
+    font-size: 1.5rem;
     line-height: 2.42rem;
   `,
 };

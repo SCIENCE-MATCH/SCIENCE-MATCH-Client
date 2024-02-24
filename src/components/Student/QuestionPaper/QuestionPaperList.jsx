@@ -5,24 +5,21 @@ import useGetQuestionPaperList from "../../../libs/hooks/useGetQuestionPaperList
 const QuestionPaperList = ({
   handleSelectedStatus,
   handleClickedOpenBtn,
+  handleENStatus,
   clickedQuestionPaperId,
   clickedQuestionNum,
-  clickedCorrectNum,
 }) => {
   const status = localStorage.getItem("status");
 
   const { data } = useGetQuestionPaperList();
 
-  const handleClickBtn = (e) => {
-    const selectedStatus = e.target.parentNode.parentNode.children[0].innerHTML;
-    const id = e.target.id.split("_")[0];
-    const questionNum = e.target.id.split("_")[1];
-    const correctNum = e.target.id.split("_")[2];
+  const handleClickBtn = (id, questionNum, status) => {
+    const selectedStatus = document.getElementById(`status_${id}`).innerHTML;
 
+    handleENStatus(status);
     handleSelectedStatus(selectedStatus);
     clickedQuestionPaperId(id);
     clickedQuestionNum(questionNum);
-    clickedCorrectNum(correctNum);
     handleClickedOpenBtn();
   };
 
@@ -51,9 +48,13 @@ const QuestionPaperList = ({
         data
           .filter((v) => filterStatus(v))
           .map((it) => {
+            const id = it.id;
+            const questionNum = it.questionNum;
+            const status = it.assignStatus;
+
             return (
               <St.ContentsWrapper key={it.id}>
-                <St.Status id="status" $status={it.assignStatus}>
+                <St.Status id={`status_${it.id}`} $status={it.assignStatus}>
                   {it.assignStatus === "WAITING" && "학습대기"}
                   {it.assignStatus === "SOLVING" && "풀이중"}
                   {it.assignStatus === "COMPLETE" && "학습완료"}
@@ -75,18 +76,15 @@ const QuestionPaperList = ({
                   {it.assignStatus === "GRADED" && (
                     <>
                       <St.Grading $isCorrectNum={true} $status={it.assignStatus}>
-                        {it.correctNum}
+                        {it.score}
                       </St.Grading>
-                      <St.Grading
-                        $isCorrectNum={false}
-                        $status={it.assignStatus}
-                      >{`/ ${it.questionNum} 문제`}</St.Grading>
+                      <St.Grading $isCorrectNum={false} $status={it.assignStatus}>{`/ ${it.totalScore} 점`}</St.Grading>
                     </>
                   )}
                 </St.GradingWrapper>
 
                 <St.BtnWrapper>
-                  <St.Button id={`${it.id}_${it.questionNum}_${it.correctNum}`} type="button" onClick={handleClickBtn}>
+                  <St.Button type="button" onClick={() => handleClickBtn(id, questionNum, status)}>
                     {it.assignStatus === "COMPLETE" || it.assignStatus === "GRADED" ? "결과 보기" : "문제 풀기"}
                   </St.Button>
                 </St.BtnWrapper>

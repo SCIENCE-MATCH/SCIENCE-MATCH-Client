@@ -1,30 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
 import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
 
-const Grading = ({ handleClickedCloseBtn, id, questionNum, correctNum }) => {
+const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
   const { data } = useGetCompleteQuestionPaper(id);
 
-  // api 수정되면 채점 전/ 후 분기처리 해야 함!!
-  const assignStatus = "GRADED";
+  // 해설 이미지 확인용 코드 -> 주석풀어서 확인하시고 나중에 필요없으면 지워주세용
+  // const { data } = useGetCompleteQuestionPaper(57);
+
   const isGraded = assignStatus === "GRADED";
-  const score = 70;
+  const [imgSrc, setImgSrc] = useState("");
+
+  const handleClickDescriptBtn = (src) => {
+    setImgSrc(src);
+  };
 
   return (
     <PageLayout isCompleted={true} handleClickedCloseBtn={handleClickedCloseBtn}>
       <St.GradingWrapper>
-        <St.ScoreWrapper>
-          <St.Score $isGraded={isGraded}> {isGraded ? `${score} 점` : "채점 전"}</St.Score>
-          <St.QNumWrapper>
-            <St.RightQNum $isGraded={isGraded}>{isGraded ? `${correctNum}` : "?"}</St.RightQNum>
-            <St.TotalQNum>{`/${questionNum} 문제`}</St.TotalQNum>
-          </St.QNumWrapper>
-        </St.ScoreWrapper>
+        {data && (
+          <St.ScoreWrapper>
+            <St.Wrapper>
+              <St.Score $isGraded={isGraded}> {isGraded ? `${data.score}` : "?"}</St.Score>
+              <St.TotalScore>{`/${data.totalScore} 점`}</St.TotalScore>
+            </St.Wrapper>
+
+            <St.QNumWrapper>
+              <St.RightQNum $isGraded={isGraded}>{isGraded ? `${data.correctNum}` : "?"}</St.RightQNum>
+              <St.TotalQNum>{`/${data.questionNum} 문제`}</St.TotalQNum>
+            </St.QNumWrapper>
+          </St.ScoreWrapper>
+        )}
 
         <St.ContentsWrapper>
           {data &&
-            data.map((it) => {
+            data.answerResponseDtos.map((it) => {
               return (
                 <St.DetailWrapper key={it.id}>
                   <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
@@ -43,7 +54,9 @@ const Grading = ({ handleClickedCloseBtn, id, questionNum, correctNum }) => {
                   {isGraded && !it.rightAnswer && (
                     <St.RightAnswerWrapper $isGraded={isGraded}>
                       <St.RightAnswer>{`정답: ${it.solution}`}</St.RightAnswer>
-                      <St.GoDescriptBtn type="button">해설 보기</St.GoDescriptBtn>
+                      <St.GoDescriptBtn type="button" onClick={() => handleClickDescriptBtn(it.solutionImg)}>
+                        해설 보기
+                      </St.GoDescriptBtn>
                     </St.RightAnswerWrapper>
                   )}
                   {!isGraded && (
@@ -57,10 +70,7 @@ const Grading = ({ handleClickedCloseBtn, id, questionNum, correctNum }) => {
         </St.ContentsWrapper>
       </St.GradingWrapper>
 
-      <St.DescriptWrapper>
-        {/* 추후 문제/ 해설 이미지로 대체할 예정 */}
-        <St.DescriptImg></St.DescriptImg>
-      </St.DescriptWrapper>
+      <St.DescriptWrapper>{imgSrc && <St.DescriptImg src={imgSrc} />}</St.DescriptWrapper>
     </PageLayout>
   );
 };
@@ -88,20 +98,27 @@ const St = {
     border-radius: 1.5rem;
   `,
 
-  Score: styled.p`
-    ${({ $isGraded, theme }) =>
-      $isGraded
-        ? css`
-            font-weight: 700;
-          `
-        : css`
-            color: ${theme.colors.subText};
-            font-weight: 500;
-          `};
+  Wrapper: styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: end;
 
-    text-align: center;
+    padding: 2rem 0;
+
+    gap: 0.5rem;
+  `,
+
+  Score: styled.p`
     font-size: 3.2rem;
+    font-weight: 700;
     line-height: 3.9rem;
+  `,
+
+  TotalScore: styled.p`
+    color: ${({ theme }) => theme.colors.subText};
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 3.3rem;
   `,
 
   QNumWrapper: styled.div`
@@ -229,16 +246,16 @@ const St = {
   `,
 
   DescriptWrapper: styled.article`
-    height: calc(100vh - 27rem);
+    min-height: calc(100vh - 27rem);
     margin-left: 2rem;
     overflow-y: auto;
 
     border-radius: 0.9rem;
   `,
 
-  // 추후 이미지로 대체 예정 !! - 내부 정의한 속성은 스크롤 확인을 위해 임의로 넣은 속성임.
-  DescriptImg: styled.div`
-    height: 100rem;
+  DescriptImg: styled.img`
+    width: 100%;
+    height: calc(100vh - 27rem);
 
     background-color: ${({ theme }) => theme.colors.warning};
   `,

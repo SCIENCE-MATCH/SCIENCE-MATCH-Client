@@ -21,8 +21,8 @@ const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
       questionNum={questionNum}
     >
       <St.QuestionWrapper>
-        {/* 추후 학습지 이미지로 대체할 예정 */}
-        <St.QuestionImg></St.QuestionImg>
+        {/* api 통신 후 받아온 pdf로 대체 - 현재는 pdf 주소 임시로 넣어둠 */}
+        <iframe title="pdf" src="https://www.pdfa.org/norm-refs/XFA-3_3.pdf" width="100%" height="100%"></iframe>
       </St.QuestionWrapper>
 
       <St.AnswerWrapper>
@@ -75,15 +75,6 @@ const St = {
     border-radius: 1.5rem;
 
     background-color: ${({ theme }) => theme.colors.brightGray};
-  `,
-
-  // 추후 학습지 이미지로 대체 예정 ! - 이미지 추가 후 속성 수정/ 제거 예정
-  QuestionImg: styled.div`
-    width: 100%;
-    height: 100%;
-
-    // 이미지 추가 후 제거할 속성임
-    background-color: white;
   `,
 
   AnswerWrapper: styled.article`
