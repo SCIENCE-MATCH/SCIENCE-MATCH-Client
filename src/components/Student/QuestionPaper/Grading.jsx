@@ -21,7 +21,11 @@ const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
       <St.GradingWrapper>
         {data && (
           <St.ScoreWrapper>
-            <St.Score $isGraded={isGraded}> {isGraded ? `${data.score} 점` : "채점 전"}</St.Score>
+            <St.Wrapper>
+              <St.Score $isGraded={isGraded}> {isGraded ? `${data.score}` : "?"}</St.Score>
+              <St.TotalScore>{`/${data.totalScore} 점`}</St.TotalScore>
+            </St.Wrapper>
+
             <St.QNumWrapper>
               <St.RightQNum $isGraded={isGraded}>{isGraded ? `${data.correctNum}` : "?"}</St.RightQNum>
               <St.TotalQNum>{`/${data.questionNum} 문제`}</St.TotalQNum>
@@ -94,20 +98,27 @@ const St = {
     border-radius: 1.5rem;
   `,
 
-  Score: styled.p`
-    ${({ $isGraded, theme }) =>
-      $isGraded
-        ? css`
-            font-weight: 700;
-          `
-        : css`
-            color: ${theme.colors.subText};
-            font-weight: 500;
-          `};
+  Wrapper: styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: end;
 
-    text-align: center;
+    padding: 2rem 0;
+
+    gap: 0.5rem;
+  `,
+
+  Score: styled.p`
     font-size: 3.2rem;
+    font-weight: 700;
     line-height: 3.9rem;
+  `,
+
+  TotalScore: styled.p`
+    color: ${({ theme }) => theme.colors.subText};
+    font-size: 2rem;
+    font-weight: 500;
+    line-height: 3.3rem;
   `,
 
   QNumWrapper: styled.div`

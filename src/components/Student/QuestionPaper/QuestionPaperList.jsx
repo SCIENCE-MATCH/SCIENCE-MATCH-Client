@@ -76,12 +76,9 @@ const QuestionPaperList = ({
                   {it.assignStatus === "GRADED" && (
                     <>
                       <St.Grading $isCorrectNum={true} $status={it.assignStatus}>
-                        {it.correctNum}
+                        {it.score}
                       </St.Grading>
-                      <St.Grading
-                        $isCorrectNum={false}
-                        $status={it.assignStatus}
-                      >{`/ ${it.questionNum} 문제`}</St.Grading>
+                      <St.Grading $isCorrectNum={false} $status={it.assignStatus}>{`/ ${it.totalScore} 점`}</St.Grading>
                     </>
                   )}
                 </St.GradingWrapper>
