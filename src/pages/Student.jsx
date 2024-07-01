@@ -39,7 +39,7 @@ const Student = () => {
   return (
     <St.Wrapper>
       <StudentHeader clickedList={clickedList} handleClickList={handleClickList} />
-      {handleReturnCom(clickedList)}
+      <St.MainContents>{handleReturnCom(clickedList)}</St.MainContents>
 
       {modalOn && <ChangePwModal setModalOn={setModalOn} />}
     </St.Wrapper>
@@ -52,6 +52,12 @@ const St = {
     overflow-y: auto;
 
     background-color: ${({ theme }) => theme.colors.brightGray};
+  `,
+  MainContents: styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   `,
 };
 

@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import postQuestionPaper from "../../../libs/apis/postQuestionPaper";
+import postQuestionPaper from "../../../libs/apis/Student/postQuestionPaper";
 
 const PageLayout = ({ handleClickedCloseBtn, isCompleted, children, id, input, questionNum }) => {
   const handleClickSubmitBtn = () => {

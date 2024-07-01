@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
 import { api } from "../../../libs/api";
-import postChangePw from "../../../libs/apis/postChangePw";
+import postChangePw from "../../../libs/apis/Student/postChangePw";
 
 const ModalForm = ({ setModalOn }) => {
   const [input, setInput] = useState({

@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import useGetQuestionPaperList from "../../../libs/hooks/useGetQuestionPaperList";
+import useGetQuestionPaperList from "../../../libs/hooks/Student/useGetQuestionPaperList";
 
 const QuestionPaperList = ({
   handleSelectedStatus,

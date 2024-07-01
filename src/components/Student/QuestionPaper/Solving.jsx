@@ -2,15 +2,17 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import PageLayout from "./PageLayout";
 import handleChangeInput from "../../../utils/handleChangeInput";
-import useGetAnswerStructure from "../../../libs/hooks/useGetAnswerStructure";
+import useGetAnswerStructure from "../../../libs/hooks/Student/useGetAnswerStructure";
 
 const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
-  const { data } = useGetAnswerStructure(id);
+  const { data, loading } = useGetAnswerStructure(id);
   const [input, setInput] = useState([]);
 
   const updateInput = (input) => {
     setInput(input);
   };
+
+  const sampleData = ["MULTIPLE", "MULTIPLE", "MULTIPLE"];
 
   return (
     <PageLayout
@@ -22,12 +24,12 @@ const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
     >
       <St.QuestionWrapper>
         {/* api 통신 후 받아온 pdf로 대체 - 현재는 pdf 주소 임시로 넣어둠 */}
-        <iframe title="pdf" src="https://www.pdfa.org/norm-refs/XFA-3_3.pdf" width="100%" height="100%"></iframe>
+        {!loading && <iframe title="pdf" src={data.pdf} width="100%" height="100%"></iframe>}
       </St.QuestionWrapper>
 
       <St.AnswerWrapper>
         {data &&
-          data.map((it, idx) =>
+          data.categories.map((it, idx) =>
             it === "MULTIPLE" ? (
               <St.Answer key={`radio_${idx}`}>
                 <St.Number>{idx + 1}</St.Number>

@@ -139,6 +139,7 @@ export const reset = css`
     border: none;
   }
 `;
+
 const GlobalStyle = createGlobalStyle`
 
 ${reset}
@@ -148,7 +149,6 @@ ${reset}
     -ms-overflow-style: none; /* 인터넷 익스플로러 */
     scrollbar-width: none; /* 파이어폭스 */
 
-    font-family: "Inter";
 }
 #root::-webkit-scrollbar {
     display: none; /* 크롬, 사파리, 오페라, 엣지 */
@@ -163,9 +163,8 @@ ${reset}
     // 링크 터치 금지
     -webkit-touch-callout: none;
 
-    font-family: "Inter";
-    
 }
+
 input:disabled, textarea:disabled, input:disabled::placeholder, textarea:disabled::placeholder {
     opacity: 1; 
 }
@@ -176,8 +175,54 @@ input, textarea,button {
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
 
-    font-family: "Inter";
 }
+
+// react-datepicker 커스텀 스타일
+.react-datepicker {
+    width: 33rem;
+    height: 33rem;
+    background-color: white!important;
+    border: 1px solid ${({ theme }) => theme.colors.unselected || "#ccc"}!important;
+    border-radius: 0.6rem!important;
+    overflow: hidden;
+  }
+
+  .react-datepicker__header {
+    width: 33rem;
+    height: 5rem;
+    background-color: ${({ theme }) => theme.colors.primary || "#f0f0f0"}!important;
+    border-bottom: 1px solid ${({ theme }) => theme.colors.unselected || "#ccc"}!important;
+    font-size:2rem !important;
+  }
+  .react-datepicker__navigation{
+    margin-top: 0.8rem;
+  }
+  .react-datepicker__day-name{
+    font-size: 0rem !important;
+  }
+  .react-datepicker__current-month,
+  .react-datepicker-time__header,
+  .react-datepicker-year-header {
+    font-size: 2rem !important;
+    color:black !important;
+  }
+  .react-datepicker__day {
+    width: 4rem!important;
+    height: 4rem!important;
+    line-height: 4rem!important;
+    margin: 0.25rem!important;
+    font-size: 1.5rem !important;
+  }
+
+  .react-datepicker__day--selected {
+    background-color: ${({ theme }) => theme.colors.mainColor}!important;
+    color: white !important;
+  }
+
+  .react-datepicker__day--keyboard-selected {
+    background-color:${({ theme }) => theme.colors.brightMain}!important;
+    color: ${({ theme }) => theme.colors.mainColor}!important;
+  }
 `;
 
 export default GlobalStyle;

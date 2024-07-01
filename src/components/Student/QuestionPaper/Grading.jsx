@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PageLayout from "./PageLayout";
 import styled, { css } from "styled-components";
-import useGetCompleteQuestionPaper from "../../../libs/hooks/useGetCompleteQuestionPaper";
+import useGetCompleteQuestionPaper from "../../../libs/hooks/Student/useGetCompleteQuestionPaper";
 
 const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
   const { data } = useGetCompleteQuestionPaper(id);
@@ -35,11 +35,11 @@ const Grading = ({ handleClickedCloseBtn, id, assignStatus }) => {
 
         <St.ContentsWrapper>
           {data &&
-            data.answerResponseDtos.map((it) => {
+            data.answerResponseDtos.map((it, index) => {
               return (
                 <St.DetailWrapper key={it.id}>
                   <St.AnswerDetail $isRight={it.rightAnswer} $isGraded={isGraded}>
-                    <St.QNum>{it.id + 1}</St.QNum>
+                    <St.QNum>{index + 1}</St.QNum>
                     <St.Answer $isRight={it.rightAnswer} $isGraded={isGraded}>
                       {it.submitAnswer}
                     </St.Answer>

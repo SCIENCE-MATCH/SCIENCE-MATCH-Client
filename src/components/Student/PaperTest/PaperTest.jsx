@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import postPaperTest from "../../../libs/apis/postPaperTest";
+import postPaperTest from "../../../libs/apis/Student/postPaperTest";
 import handleChangeInput from "../../../utils/handleChangeInput";
-import useGetPaperTest from "../../../libs/hooks/useGetPaperTest";
+import useGetPaperTest from "../../../libs/hooks/Student/useGetPaperTest";
 
 const PaperTest = () => {
   localStorage.clear();
