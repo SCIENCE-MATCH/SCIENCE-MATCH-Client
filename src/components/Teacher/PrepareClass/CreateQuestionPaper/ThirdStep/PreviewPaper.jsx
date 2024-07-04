@@ -99,7 +99,14 @@ const PreviewPaper = ({ selectedQuestions, colorTheme, tamplateNum, title, maker
             <PP.PaperInfo>{dateAndMakerText}</PP.PaperInfo>
           </PP.TitleSection>
           <PP.FirstPageQues>
-            <PP.LeftPart>{RenderQues(selectedQuestions[0], 1)}</PP.LeftPart>;<PP.RightPart></PP.RightPart>
+            <PP.LeftPart>
+              {RenderQues(selectedQuestions[0], 1)}
+              {RenderQues(selectedQuestions[1], 2)}
+            </PP.LeftPart>
+            <PP.RightPart>
+              {RenderQues(selectedQuestions[2], 3)}
+              {RenderQues(selectedQuestions[3], 4)}
+            </PP.RightPart>
           </PP.FirstPageQues>
         </PP.InsideBox>
       </PP.A4SizePaper>
@@ -115,16 +122,19 @@ const PP = {
     width: 58rem;
     height: 52rem;
     margin-left: 2rem;
-    overflow-y: scroll;
-    background-color: ${({ theme }) => theme.colors.gray05};
+    overflow: hidden;
+    &:hover {
+      overflow-y: scroll;
+    }
     &::-webkit-scrollbar {
-      width: 2rem; /* 세로 스크롤바의 너비 */
+      width: 1rem; /* 세로 스크롤바의 너비 */
     }
     &::-webkit-scrollbar-track {
       background: #f1f1f1; /* 트랙의 배경 색상 */
     }
     &::-webkit-scrollbar-thumb {
       background: ${({ theme }) => theme.colors.unselected}; /* 핸들의 배경 색상 */
+      border-radius: 1rem;
     }
     &::-webkit-scrollbar-thumb:hover {
       background: ${({ theme }) => theme.colors.mainColor}; /* 호버 시 핸들의 배경 색상 */
@@ -142,6 +152,8 @@ const PP = {
     width: 56rem;
     height: 79.1rem;
     background-color: white;
+    padding: 1.33rem;
+    border: 0.02rem solid gray;
   `,
   InsideBox: styled.div`
     width: 53.34rem;
@@ -203,7 +215,10 @@ const PP = {
   `,
 
   //문제 부분
-  FirstPageQues: styled.div``,
+  FirstPageQues: styled.div`
+    display: flex;
+    flex-direction: row;
+  `,
   LeftPart: styled.div`
     width: 26.67rem;
     height: 60rem;
@@ -217,8 +232,7 @@ const PP = {
   `,
   SampleQues: styled.div`
     width: 22.66rem;
-
-    border: 0.01rem solid red;
+    margin-bottom: 3rem;
   `,
   CategoryLabel: styled.div`
     font-size: 0.8rem;

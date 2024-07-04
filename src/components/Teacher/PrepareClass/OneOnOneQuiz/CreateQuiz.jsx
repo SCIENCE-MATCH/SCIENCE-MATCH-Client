@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import styled from "styled-components";
-import { useNavigate } from "react-router";
 import { getCookie } from "../../../../libs/cookie";
 import Axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCaretDown, faCaretRight, faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import AutoResizeTextArea from "./AutoResizeTextArea";
+import usePostCreateQuiz from "../../../../libs/apis/Teacher/Prepare/postCreateQuiz";
+import useDeleteQuiz from "../../../../libs/apis/Teacher/Prepare/deleteQuiz";
 
-const CreateQuiz = ({ goBack, deliveredList }) => {
-  const navigate = useNavigate();
+const CreateQuiz = ({ goBack, deliveredList, getQuizs }) => {
+  const { postCreateQuiz } = usePostCreateQuiz();
+  const { deleteQuiz } = useDeleteQuiz();
   const [school, setSchool] = useState("초");
   const [semester, setSemester] = useState("THIRD1");
   const [subject, setSubject] = useState("SCIENCE");
@@ -196,43 +198,18 @@ const CreateQuiz = ({ goBack, deliveredList }) => {
   const [newAnswer, setNewAnswer] = useState("");
 
   const create1on1Quiz = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/paper-test/create";
-
-      await Axios.post(
-        url,
-        [
-          {
-            school: schoolToSend[school],
-            semester: semester,
-            chapterId: selectedChapter.id,
-            question: newQuestion,
-            solution: newAnswer,
-          },
-        ],
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json;charset=UTF-8",
-            accept: "application/json;charset=UTF-8",
-          },
-        }
-      );
-      setNewQuestion("");
-      setNewAnswer("");
-      const now = new Date();
-      setQuizs([{ chapterDescription: selectedChapter.description, createdAt: now, question: newQuestion }, ...quizs]);
-    } catch (error) {
-      console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-        navigate("/");
-      }
-    }
+    await postCreateQuiz(school, semester, subject, selectedChapter, newQuestion, newAnswer);
+    await getQuizs();
+    setNewQuestion("");
+    setNewAnswer("");
+    const now = new Date();
+    setQuizs([{ chapterDescription: selectedChapter.description, createdAt: now, question: newQuestion }, ...quizs]);
   };
 
-  const delete1on1Quiz = () => {};
+  const delete1on1Quiz = async (quizId) => {
+    await deleteQuiz(quizId);
+    setQuizs(quizs.filter((quiz) => quiz.id !== quizId));
+  };
   /** 질문 목록 띄워주기 */
   const [quizsToRender, setQuizsToRender] = useState([]);
   useEffect(() => {
@@ -322,9 +299,6 @@ const CreateQuiz = ({ goBack, deliveredList }) => {
               <OO.QuesLine>
                 <OO.QuizLabel>Q</OO.QuizLabel>
                 <OO.QuestionBox>{ques.question}</OO.QuestionBox>
-                <OO.DeleteBtn onClick={delete1on1Quiz}>
-                  <FontAwesomeIcon icon={faTrash} />
-                </OO.DeleteBtn>
               </OO.QuesLine>
             </OO.ContainerForOneQuiz>
           ))}
@@ -479,7 +453,7 @@ const OO = {
     width: 62.5rem;
     border: 0.02rem solid ${({ theme }) => theme.colors.unselected};
     border-radius: 1rem;
-    padding-block: 1rem;
+    padding-top: 1rem;
     background-color: white;
     margin-bottom: 1rem;
   `,
@@ -516,7 +490,9 @@ const OO = {
   DeleteBtn: styled.button`
     margin-left: 2rem;
     width: 9rem;
+    height: 4.5rem;
     border-radius: 0.8rem;
+    margin-right: 1rem;
     font-size: 2.5rem;
     background-color: ${({ theme }) => theme.colors.gray05};
     color: ${({ theme }) => theme.colors.unselected};
@@ -656,7 +632,7 @@ const CHAPTERSCOPE = {
   DescriptionBox: styled.div`
     margin-left: 0.75rem;
     font-size: 1.75rem;
-    width: 20rem;
+    width: 35rem;
   `,
   GoBackBtn: styled.button`
     margin-left: 2rem;

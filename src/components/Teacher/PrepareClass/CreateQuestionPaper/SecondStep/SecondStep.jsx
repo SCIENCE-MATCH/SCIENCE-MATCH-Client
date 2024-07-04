@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import PreviewQuestions from "./PreviewQuestions";
+import { useEffect } from "react";
 
 const SecondStep = ({
   questionMenu,
@@ -12,6 +13,9 @@ const SecondStep = ({
   QuestionSetModification,
   numberOfQuestions,
 }) => {
+  useEffect(() => {
+    setQuestionMenu("summary");
+  }, []);
   return (
     <CQP.CreationContianer>
       <CQP.SecondStep_LeftSection>
@@ -22,10 +26,6 @@ const SecondStep = ({
         <CQP.CategoryBtn onClick={() => setQuestionMenu("addNew")} $isSelected={questionMenu === "addNew"}>
           새 문제 추가
           <CQP.UnderBar $isSelected={questionMenu === "addNew"} />
-        </CQP.CategoryBtn>
-        <CQP.CategoryBtn onClick={() => setQuestionMenu("twinQues")} $isSelected={questionMenu === "twinQues"}>
-          쌍둥이·유사문제
-          <CQP.UnderBar $isSelected={questionMenu === "twinQues"} />
         </CQP.CategoryBtn>
         <CQP.ConceptBtn onClick={() => setQuestionMenu("addConcept")} $isSelected={questionMenu === "addConcept"}>
           개념 추가
@@ -148,7 +148,7 @@ const CQP = {
     font-weight: ${({ $isSelected }) => ($isSelected ? 600 : 400)};
     position: relative;
     color: ${({ $isSelected, theme }) => ($isSelected ? "black" : theme.colors.unselected)};
-    margin-left: 11rem;
+    margin-left: 24rem;
   `,
   UnderBar: styled.div`
     position: absolute;

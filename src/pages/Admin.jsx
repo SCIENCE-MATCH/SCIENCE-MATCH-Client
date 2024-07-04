@@ -30,7 +30,7 @@ const Admin = (accessToken, setAccessToken) => {
 
   useEffect(() => {
     setCurrentChapter({ id: null, description: null });
-    setSelectedBook({ bookId: null, title: null });
+    //setSelectedBook({ bookId: null, title: null });
     setCurrentPage(null);
   }, [activeMainTab, activeSubTab, questionCategory]);
   const handleReturnCom = () => {

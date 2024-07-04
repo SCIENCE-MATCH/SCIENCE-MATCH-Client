@@ -16,7 +16,7 @@ import {
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 
-const StudentsAndTeams = ({ setCurrentStudentId }) => {
+const StudentsAndTeams = ({ setCurrentStudentId, setStudentInfo }) => {
   const [nameSearchKey, setNameSearchKey] = useState("");
   const emptyGrades = [
     {
@@ -169,7 +169,7 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
 
       const overallTeams = await Promise.all(
         response.data.data.map(async (team) => {
-          return { ...team, extended: false };
+          return { ...team, extended: false, allSelected: false, students: await getDetail(team.teamId) };
         })
       );
 
@@ -202,6 +202,16 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
       }
     }
     setGrades(tempGrades);
+  };
+  const extendTeam = (team) => {
+    let tempTeams = [...teams];
+    for (let i = 0; i < tempTeams.length; i++) {
+      if (tempTeams[i].teamId === team.teamId) {
+        tempTeams[i].extended = !tempTeams[i].extended;
+        break;
+      }
+    }
+    setTeams(tempTeams);
   };
   const extendAll = () => {
     if (viewTeams) {
@@ -259,9 +269,10 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
   }, [grades, teams, nameSearchKey]);
 
   const [selectedStudent, setSelectedStudent] = useState({ id: null, name: null });
-  const selectStud = (stud) => {
+  const selectStud = (stud, grade) => {
     setSelectedStudent(stud);
     setCurrentStudentId(stud.id);
+    setStudentInfo({ name: stud.name, grade: grade.grade });
   };
 
   useEffect(() => {
@@ -271,6 +282,7 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
           extendGrade(grades[i]);
           setSelectedStudent(grades[i].students[0]);
           setCurrentStudentId(grades[i].students[0].id);
+          setStudentInfo({ name: grades[i].students[0].name, grade: grades[i].grade });
           break;
         }
       }
@@ -331,13 +343,34 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
           {viewTeams
             ? teamsToRender.map((team, index) => (
                 <StudTeamList.GradeContainer key={index}>
-                  <StudTeamList.GradeLine style={{ paddingLeft: `1rem` }}>
+                  <StudTeamList.GradeLine
+                    onClick={() => {
+                      extendTeam(team);
+                      console.log(teamsToRender);
+                    }}
+                  >
+                    <StudTeamList.ExtendBtn>
+                      <FontAwesomeIcon icon={team.extended ? faCaretDown : faCaretRight} />
+                    </StudTeamList.ExtendBtn>
                     <StudTeamList.GradeLabel>{team.name}</StudTeamList.GradeLabel>
-                    <StudTeamList.NumberLabel>
-                      {/* {team.teacherName} |  */}
-                      {team.studentNum}명
-                    </StudTeamList.NumberLabel>
+                    <StudTeamList.NumberLabel>{team.studentNum}명</StudTeamList.NumberLabel>
                   </StudTeamList.GradeLine>
+                  {team.extended && (
+                    <div>
+                      {team.students.map((stud) => (
+                        <StudTeamList.StudentLine
+                          key={stud.id}
+                          onClick={() => {
+                            selectStud(stud, stud.grade);
+                          }}
+                        >
+                          <StudTeamList.StudentLabel $isSelected={selectedStudent.id === stud.id}>
+                            {stud.name}
+                          </StudTeamList.StudentLabel>
+                        </StudTeamList.StudentLine>
+                      ))}
+                    </div>
+                  )}
                 </StudTeamList.GradeContainer>
               ))
             : gradesToRender.map(
@@ -355,20 +388,20 @@ const StudentsAndTeams = ({ setCurrentStudentId }) => {
                         <StudTeamList.GradeLabel>{grade.grade}</StudTeamList.GradeLabel>
                         <StudTeamList.NumberLabel>{grade.students.length}명</StudTeamList.NumberLabel>
                       </StudTeamList.GradeLine>
-                      {grade.extended && (
+                      {/* {grade.extended && (
                         <StudTeamList.StudentLine>
                           <StudTeamList.StudentLabel>
                             {`전체  `}
                             <FontAwesomeIcon icon={faUsers} />
                           </StudTeamList.StudentLabel>
                         </StudTeamList.StudentLine>
-                      )}
+                      )} */}
                       {grade.extended &&
                         grade.students.map((stud) => (
                           <StudTeamList.StudentLine
                             key={stud.id}
                             onClick={() => {
-                              selectStud(stud);
+                              selectStud(stud, grade);
                             }}
                           >
                             <StudTeamList.StudentLabel $isSelected={selectedStudent.id === stud.id}>

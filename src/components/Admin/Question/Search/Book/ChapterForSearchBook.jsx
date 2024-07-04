@@ -70,19 +70,13 @@ const ChapterForSearchBook = ({
   };
 
   useEffect(() => {
-    const getC = async () => {
-      if (selectedBook.bookId) {
-        await getBookChapters(selectedBook.bookId);
-        const transformed = Object.entries(bookChapters).map(([description, pages]) => ({
-          description,
-          pages,
-          expansion: false,
-        }));
-        setChapterToRender(transformed);
-      }
-    };
-    getC();
+    if (selectedBook.bookId) {
+      getBookChapters(selectedBook.bookId);
+    }
   }, [selectedBook]);
+  useEffect(() => {
+    setChapterToRender(bookChapters.map((chapter) => ({ ...chapter, expansion: false })));
+  }, [bookChapters]);
 
   const onExpansion = (item) => {
     const updatedChapterToRender = chapterToRender.map((chapter) => {
@@ -174,7 +168,7 @@ const ChapterForSearchBook = ({
                         </CHAPTERSCOPE.CheckBox>
                       </CHAPTERSCOPE.ExpansionSection>
                       <CHAPTERSCOPE.DescriptionBox $isHovering={hoveredPage === page}>
-                        {page}
+                        {page}p
                       </CHAPTERSCOPE.DescriptionBox>
                     </CHAPTERSCOPE.ChapterLine>
                   ))}
@@ -182,13 +176,6 @@ const ChapterForSearchBook = ({
               )}
             </div>
           ))}
-          <button
-            onClick={() => {
-              console.log(chapterToRender);
-            }}
-          >
-            ㅇ!!
-          </button>
         </CHAPTERSCOPE.ScopeSection>
       </OO.Wrapper>
     </SELECTCHAP.Wrapper>

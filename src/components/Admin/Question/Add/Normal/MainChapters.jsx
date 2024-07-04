@@ -317,11 +317,7 @@ const SelectChapter = ({
         });
         removeChapter(deleteTargetId);
       } catch (error) {
-        console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-        if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-          alert("다시 로그인 해주세요");
-          navigate("/");
-        }
+        console.error("API 요청 실패:", error);
       }
   };
   const [editMode, setEditMode] = useState({}); // 각 챕터의 수정 모드를 관리하는 상태
@@ -428,7 +424,10 @@ const SelectChapter = ({
             </CHAPTERSCOPE.CheckBox>
           </CHAPTERSCOPE.ExpansionSection>
         )}
-        <CHAPTERSCOPE.DescriptionBox onDoubleClick={() => handleDoubleClick(thisChap)}>
+        <CHAPTERSCOPE.DescriptionBox
+          $isHovering={hoveredChapter === thisChap.id}
+          onDoubleClick={() => handleDoubleClick(thisChap)}
+        >
           {editMode[thisChap.id] ? (
             <CHAPTERSCOPE.DescriptionInput
               type="text"
@@ -844,9 +843,18 @@ const CHAPTERSCOPE = {
     align-items: center;
     height: 4.5rem;
     margin-left: -0.25rem;
-    font-size: 1.75rem;
+    font-size: 1.6rem;
+    font-weight: 600;
     width: 25rem;
     cursor: pointer;
+    ${({ $isHovering, theme }) =>
+      $isHovering
+        ? css`
+            color: ${theme.colors.mainColor};
+          `
+        : css`
+            color: ${theme.colors.gray40};
+          `};
   `,
   DescriptionInput: styled.input`
     height: 4rem;

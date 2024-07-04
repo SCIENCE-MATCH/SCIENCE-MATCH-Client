@@ -91,7 +91,7 @@ const ListItem = ({ ques, index, moveItem }) => {
         <SQ.ShortBox>{index + 1}</SQ.ShortBox>
         <SQ.ShortBox>{categorys[ques.category]}</SQ.ShortBox>
         <SQ.ShortBox>{diff_Eng_to_Kor[ques.level]}</SQ.ShortBox>
-        <SQ.DescriptionBox>{ques.description}</SQ.DescriptionBox>
+        <SQ.DescriptionBox>{ques.chapterDescription}</SQ.DescriptionBox>
         <DraggableButton id={ques.id} index={index} />
       </SQ.QuestionLine>
     </motion.div>
@@ -153,10 +153,13 @@ const SQ = {
   `,
   QuestionList: styled.ul`
     width: 60rem;
-    height: 40.5rem;
-    overflow: scroll;
+    height: 41rem;
+    overflow: hidden;
+    &:hover {
+      overflow-y: scroll;
+    }
     &::-webkit-scrollbar {
-      width: 1.5rem; /* 세로 스크롤바의 너비 */
+      width: 1rem; /* 세로 스크롤바의 너비 */
     }
 
     /* 스크롤바 트랙(배경) 스타일 */
@@ -198,7 +201,7 @@ const SQ = {
 SQ.DescriptionBox = styled(SQ.ShortBox)`
   padding-left: 1rem;
   text-align: left;
-  width: 30.5rem;
+  width: 32rem;
 `;
 SQ.DragBox = styled(SQ.ShortBox)`
   &:hover {

@@ -16,6 +16,8 @@ const Teacher = ({ accessToken, setAccessToken }) => {
   const [activeTab, setTab] = useState("수업");
   const [activeSubTab, setSubTab] = useState("학습내역");
   const [currentStudentId, setCurrentStudentId] = useState(null);
+  const [studentInfo, setStudentInfo] = useState({ name: "", grade: "" });
+  console.log(studentInfo);
   useEffect(() => {
     setCurrentStudentId(null);
   }, []);
@@ -36,28 +38,28 @@ const Teacher = ({ accessToken, setAccessToken }) => {
           case "학습내역":
             return (
               <Te.RenderSection>
-                <StudentsAndTeams setCurrentStudentId={setCurrentStudentId} />
+                <StudentsAndTeams setStudentInfo={setStudentInfo} setCurrentStudentId={setCurrentStudentId} />
                 <LearningDetail studentId={currentStudentId} />
               </Te.RenderSection>
             );
           case "학습지":
             return (
               <Te.RenderSection>
-                <StudentsAndTeams setCurrentStudentId={setCurrentStudentId} />
-                <ClassQuestionPaper studentId={currentStudentId} />
+                <StudentsAndTeams setStudentInfo={setStudentInfo} setCurrentStudentId={setCurrentStudentId} />
+                <ClassQuestionPaper studentId={currentStudentId} studentInfo={studentInfo} />
               </Te.RenderSection>
             );
           case "1:1 질문지":
             return (
               <Te.RenderSection>
-                <StudentsAndTeams setCurrentStudentId={setCurrentStudentId} />
+                <StudentsAndTeams setStudentInfo={setStudentInfo} setCurrentStudentId={setCurrentStudentId} />
                 <OneOnOneQuiz studentId={currentStudentId} />
               </Te.RenderSection>
             );
           case "보고서":
             return (
               <Te.RenderSection>
-                <StudentsAndTeams setCurrentStudentId={setCurrentStudentId} />
+                <StudentsAndTeams setStudentInfo={setStudentInfo} setCurrentStudentId={setCurrentStudentId} />
                 <ReportPage studentId={currentStudentId} />
               </Te.RenderSection>
             );

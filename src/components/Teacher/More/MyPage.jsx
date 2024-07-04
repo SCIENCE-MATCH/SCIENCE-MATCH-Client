@@ -399,13 +399,14 @@ const MP = {
     align-items: center;
     justify-content: center;
     border-radius: 0.8rem;
-    border: 0.1rem solid ${({ theme }) => theme.colors.gray20};
+    //border: 0.1rem solid ${({ theme }) => theme.colors.gray20};
     margin-right: 0rem;
+    overflow: hidden;
   `,
   LogoImg: styled.img`
     width: ${({ $minWidth }) => `${$minWidth}rem`};
     height: ${({ $minHeight }) => `${$minHeight}rem`};
-    max-width: 15rem;
+    max-width: 40rem;
     max-height: 15rem;
   `,
   BtnLine: styled.div`

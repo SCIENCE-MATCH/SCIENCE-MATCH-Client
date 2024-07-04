@@ -5,6 +5,7 @@ import Admin from "../pages/Admin";
 import Teacher from "../pages/Teacher";
 import LogIn from "./LogIn";
 import Student from "../pages/Student";
+import TestPage from "../pages/TestPage";
 
 const Router = () => {
   console.log(`I'm working on App`);
@@ -17,6 +18,7 @@ const Router = () => {
         <Route path="/teacher" element={<Teacher />} />
         <Route path="/student" element={<Student />} />
         <Route path="/" element={<LogIn />} />
+        <Route path="/test" element={<TestPage />} />
       </Routes>
     </BrowserRouter>
   );

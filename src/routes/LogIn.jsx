@@ -137,29 +137,6 @@ function LogIn() {
           <LI.OptionBtn onClick={setTeacher}>Set Teacher</LI.OptionBtn>
           <LI.OptionBtn onClick={setAdmin}>Set Admin</LI.OptionBtn>
         </LI.OptionContainer>
-        <LI.OptionContainer>
-          <LI.OptionBtn
-            onClick={() => {
-              navigate("/Student");
-            }}
-          >
-            Move To Student
-          </LI.OptionBtn>
-          <LI.OptionBtn
-            onClick={() => {
-              navigate("/Teacher");
-            }}
-          >
-            Move To Teacher
-          </LI.OptionBtn>
-          <LI.OptionBtn
-            onClick={() => {
-              navigate("/Admin");
-            }}
-          >
-            Move To Admin
-          </LI.OptionBtn>
-        </LI.OptionContainer>
       </LI.MainContent>
     </LI.Wrapper>
   );

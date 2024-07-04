@@ -386,7 +386,6 @@ const CHAPTERSCOPE = {
       $isHovering
         ? css`
             color: ${theme.colors.mainColor};
-            font-size: 2.2rem;
           `
         : css`
             color: ${theme.colors.gray40};

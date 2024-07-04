@@ -126,7 +126,7 @@ const SQ = {
   Wrapper: styled.div``,
   Container: styled.div`
     width: 60rem;
-    height: 44.5rem;
+    height: 45rem;
     margin-top: 1rem;
     border-radius: 1rem;
     overflow: hidden;
@@ -190,7 +190,7 @@ SQ.DescriptionBox = styled(SQ.ShortBox)`
 /**Statistics (문제 통계) style */
 const Stat = {
   Container: styled.div`
-    margin-top: 1.5rem;
+    margin-top: 1rem;
     width: 60rem;
     height: 22rem;
     background-color: white;

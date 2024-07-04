@@ -1,7 +1,7 @@
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styled from "styled-components";
-const DetailOfBook = ({ selectedQuestions, selectedChapters, setCreateStep, preventNext }) => {
+const DetailOfBook = ({ selectedQuestions, selectedChapters, setCreateStep, preventNext, setSimpleChapters }) => {
   //=====================================
   //문제 개수 설정
 
@@ -22,6 +22,7 @@ const DetailOfBook = ({ selectedQuestions, selectedChapters, setCreateStep, prev
       </QT.SummaryBox>
       <QT.NextStepBtn
         onClick={() => {
+          setSimpleChapters([]);
           setCreateStep((prev) => prev + 1);
         }}
         disabled={preventNext}

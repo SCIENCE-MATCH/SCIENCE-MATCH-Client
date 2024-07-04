@@ -21,8 +21,11 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale/ko";
 import PDFViewer from "../../PrepareClass/CreateQuestionPaper/PreviewPdf";
 import ScorePaper from "./ScorePaper";
+import useDeleteAssignPaper from "../../../../libs/apis/Teacher/Class/deleteAssignPaper";
 
-const ClassQuestionPaper = ({ studentId }) => {
+const ClassQuestionPaper = ({ studentId, studentInfo }) => {
+  const { deleteAssignPaper } = useDeleteAssignPaper();
+
   const modifyDateToStartOfDay = (date) => {
     const newDate = new Date(date);
     newDate.setHours(0, 0, 0, 0); // 시간을 00:00:00:000로 설정
@@ -85,9 +88,12 @@ const ClassQuestionPaper = ({ studentId }) => {
   const closeScoring = () => {
     setIsScoring(false);
     setScoringPaper(null);
+    getPapers();
   };
 
   const getPapers = async () => {
+    setPapersToRender([]);
+    setPaperWithAnswer([]);
     try {
       const accessToken = getCookie("aToken");
       const url = `https://www.science-match.p-e.kr/teacher/assign-question-paper/${studentId}`;
@@ -100,8 +106,7 @@ const ClassQuestionPaper = ({ studentId }) => {
 
       let tempPapers = response.data.data;
       tempPapers.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-      console.log(tempPapers);
-      setRecivedPapers(response.data.data);
+      setRecivedPapers(tempPapers);
     } catch (error) {
       alert("학생 정보를 불러오지 못했습니다.");
       console.error("API 요청 실패:", error.response?.data?.code, error.response?.data?.message);
@@ -113,6 +118,7 @@ const ClassQuestionPaper = ({ studentId }) => {
   useEffect(() => {
     if (studentId) getPapers();
   }, [studentId]);
+  const levelsToKorean = { LOW: ` 하 `, MEDIUM_LOW: `중하`, MEDIUM: ` 중 `, MEDIUM_HIGH: `중상`, HIGH: ` 상 ` };
 
   const getAnswerForOne = async () => {
     const accessToken = getCookie("aToken");
@@ -132,15 +138,16 @@ const ClassQuestionPaper = ({ studentId }) => {
     });
 
     // "COMPLETE" 상태인 퀴즈들만 필터링하여 요청 생성
-    const promises = updatedPapers.map((paper) => {
-      if (paper.assignStatus === "COMPLETE") {
-        return Axios.get(`https://www.science-match.p-e.kr/teacher/assign-question-paper/${paper.id}/complete`, {
+    const promises = updatedPapers.map(async (paper) => {
+      if (paper.assignStatus === "COMPLETE" || paper.assignStatus === "GRADED") {
+        return await Axios.get(`https://www.science-match.p-e.kr/teacher/assign-question-paper/${paper.id}/complete`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         })
           .then((response) => ({
             ...paper,
+            score: response.data.data.score,
             totalScore: response.data.data.totalScore,
             correctNum: response.data.data.correctNum,
             questionNum: response.data.data.questionNum,
@@ -185,11 +192,11 @@ const ClassQuestionPaper = ({ studentId }) => {
     getAnswerForOne();
   }, [receivedPapers]);
 
-  const deleteQuiz = async (quizId) => {
-    console.log(`다음의 질문을 삭제합니다 ${quizId}`);
+  const deleteQuetionPaper = async (paperId) => {
+    await deleteAssignPaper(paperId);
   };
 
-  const [selectedQuizIds, setSelectedQuizIds] = useState([]);
+  const [selectedPaperIds, setSelectedPaperIds] = useState([]);
   const selectQuiz = (id) => {
     let tempPapers = [...papersWithAnswer];
     tempPapers.map((quiz) => {
@@ -197,7 +204,7 @@ const ClassQuestionPaper = ({ studentId }) => {
     });
     setPaperWithAnswer(tempPapers);
 
-    let tempArr = [...selectedQuizIds];
+    let tempArr = [...selectedPaperIds];
     const index = tempArr.indexOf(id);
 
     if (index === -1) {
@@ -207,21 +214,21 @@ const ClassQuestionPaper = ({ studentId }) => {
       // 배열에 요소가 있으면 제거
       tempArr.splice(index, 1);
     }
-    setSelectedQuizIds(tempArr);
+    setSelectedPaperIds(tempArr);
   };
   const deselectAll = () => {
     let tempPapers = [...papersWithAnswer];
-    tempPapers.map((quiz) => {
-      quiz.selected = false;
+    tempPapers.map((paper) => {
+      paper.selected = false;
     });
     setPaperWithAnswer(tempPapers);
-    setSelectedQuizIds([]);
+    setSelectedPaperIds([]);
   };
-  const deleteAll = () => {
-    selectedQuizIds.map((qId) => {
-      deleteQuiz(qId);
+  const deleteAll = async () => {
+    selectedPaperIds.map(async (qId) => {
+      await deleteQuetionPaper(qId);
     });
-    alert(`질문 ${selectedQuizIds.length}개가 삭제 되었습니다.`);
+    alert(`학습지 ${selectedPaperIds.length}개가 삭제 되었습니다.`);
     deselectAll();
   };
 
@@ -232,7 +239,7 @@ const ClassQuestionPaper = ({ studentId }) => {
       payLoad = payLoad + `studentIds=${studentId}&`;
 
       if (paperId) payLoad = payLoad + `questionPaperIds=${paperId}&`;
-      else selectedQuizIds.map((paperIds) => (payLoad = payLoad + `questionPaperIds=${paperIds}&`));
+      else selectedPaperIds.map((paperIds) => (payLoad = payLoad + `questionPaperIds=${paperIds}&`));
 
       payLoad = payLoad.slice(0, payLoad.length - 1);
       const url = `https://www.science-match.p-e.kr/teacher/question-paper/multiple-submit${payLoad}`;
@@ -346,12 +353,12 @@ const ClassQuestionPaper = ({ studentId }) => {
     const day = String(date.getDate()).padStart(2, "0"); // 두 자리 일
     return `${year}.${month}.${day}`;
   };
-  const attributes = ["선택", "학년", "학습지명", "출제일", "재출제", "미리보기", "채점", "더보기"];
+  const attributes = ["선택", "학년", "학습지명", "출제일", "재출제", "미리보기", "점수", "더보기"];
   const widths = [9, 7, 46.5, 13, 6, 10, 12, 9];
   return (
     <MQP.Wrapper>
       {isPreviewing && <PDFViewer closeModal={closePreview} paper={previewPaper} />}
-      {isScoring && <ScorePaper closeModal={closeScoring} paper={scoringPaper} />}
+      {isScoring && <ScorePaper closeModal={closeScoring} paper={scoringPaper} studentInfo={studentInfo} />}
       <MQP.FilterLine>
         <STATUSFILTER.FilterContainer>
           <STATUSFILTER.BtnContainer>
@@ -395,7 +402,7 @@ const ClassQuestionPaper = ({ studentId }) => {
             <FontAwesomeIcon icon={faXmark} />
           </MQP.XBtn>
         </MQP.SearchBox>
-        <MQP.CreateBtn>{` 단원 기간별 취약 유형 정리`}</MQP.CreateBtn>
+        <MQP.CreateBtn>{`기간별 취약 유형 정리`}</MQP.CreateBtn>
       </MQP.FilterLine>
       {isFilterModalOn && (
         <DATEFILTER.Modal>
@@ -487,7 +494,7 @@ const ClassQuestionPaper = ({ studentId }) => {
           </MQP.AttributeBox>
         ))}
       </MQP.ListHeader>
-      <MQP.ListContainer $shorten={selectedQuizIds.length > 0}>
+      <MQP.ListContainer $shorten={selectedPaperIds.length > 0}>
         {papersToRender.map((paper, index) => (
           <MQP.QuestionPaperLine key={index}>
             <MQP.CellBox
@@ -507,7 +514,10 @@ const ClassQuestionPaper = ({ studentId }) => {
                 {cutLongText(paper.title, 23)}
                 {paper.category === "MULTIPLE" && <MQP.AutoEvaluateBox>자동채점</MQP.AutoEvaluateBox>}
               </MQP.PaperTitleLine>
-              <MQP.DescriptionText>{`${paper.questionNum}문제 | ${paper.level} | ${paper.chapterRange}`}</MQP.DescriptionText>
+              <MQP.DescriptionText>{`${paper.questionNum}문제 | ${levelsToKorean[paper.level]} | ${cutLongText(
+                paper.boundary,
+                28
+              )}`}</MQP.DescriptionText>
             </MQP.CellBox>
             <MQP.CellBox $width={widths[3]}>{formatDate(paper.createdAt)}</MQP.CellBox>
             <MQP.CellBox $width={widths[4]}>
@@ -532,7 +542,8 @@ const ClassQuestionPaper = ({ studentId }) => {
             </MQP.CellBox>
             <MQP.CellBox $width={widths[6]}>
               <MQP.EvaluateBtn
-                disabled={paper.assignStatus !== "COMPLETE"}
+                disabled={paper.assignStatus === "WAITING"}
+                $graded={paper.assignStatus === "GRADED"}
                 onClick={() => {
                   openScoring(paper);
                 }}
@@ -541,7 +552,9 @@ const ClassQuestionPaper = ({ studentId }) => {
                   ? "미제출"
                   : paper.assignStatus === "COMPLETE"
                   ? "채점하기"
-                  : `${paper.score}점`}
+                  : paper.totalScore === 0
+                  ? `0점`
+                  : `${Math.floor((paper.score / paper.totalScore) * 100)}점`}
               </MQP.EvaluateBtn>
             </MQP.CellBox>
             <MQP.CellBox $width={widths[7]}>
@@ -552,24 +565,25 @@ const ClassQuestionPaper = ({ studentId }) => {
               >
                 <FontAwesomeIcon icon={faEllipsisVertical} />
               </MQP.MoreInfoBtn>
-              {/* {index == lookMoreIndex && (
+              {index == lookMoreIndex && (
                 <MQP.MoreInfo>
                   <MQP.MoreBtn
-                    onClick={() => {
-                      deleteQuiz(paper.id);
+                    onClick={async () => {
+                      await deleteQuetionPaper(paper.id);
+                      getPapers();
                     }}
                   >
                     삭제
                   </MQP.MoreBtn>
                 </MQP.MoreInfo>
-              )} */}
+              )}
             </MQP.CellBox>
           </MQP.QuestionPaperLine>
         ))}
       </MQP.ListContainer>
-      {selectedQuizIds.length > 0 ? (
+      {selectedPaperIds.length > 0 ? (
         <MQP.BottomLine>
-          <MQP.BottomText>{`질문 ${selectedQuizIds.length}개 선택됨`}</MQP.BottomText>
+          <MQP.BottomText>{`질문 ${selectedPaperIds.length}개 선택됨`}</MQP.BottomText>
           <MQP.BatchActionBtn
             onClick={() => {
               presentPapers();
@@ -582,7 +596,12 @@ const ClassQuestionPaper = ({ studentId }) => {
             <FontAwesomeIcon icon={faCloudArrowDown} style={{ marginBottom: "0.75rem" }} />
             다운로드
           </MQP.BatchActionBtn>
-          <MQP.BatchActionBtn onClick={deleteAll}>
+          <MQP.BatchActionBtn
+            onClick={async () => {
+              await deleteAll();
+              await getPapers();
+            }}
+          >
             <FontAwesomeIcon icon={faCircleMinus} style={{ marginBottom: "0.75rem" }} />
             출제 취소
           </MQP.BatchActionBtn>
@@ -689,7 +708,7 @@ const MQP = {
   AttributeBox: styled.div`
     width: ${({ $width }) => `${$width}rem`};
     text-align: ${({ $isTitle }) => ($isTitle ? `left` : `center`)};
-    padding-inline: ${({ $isTitle }) => ($isTitle ? `3rem` : `0rem`)};
+    padding-left: ${({ $isTitle }) => ($isTitle ? `3rem` : `0rem`)};
     color: ${({ theme }) => theme.colors.gray40};
     font-size: 1.4rem;
     font-weight: 600;
@@ -726,7 +745,7 @@ const MQP = {
   `,
   CellBox: styled.div`
     width: ${({ $width }) => `${$width}rem`};
-    padding-inline: ${({ $isTitle }) => ($isTitle ? `3rem` : `0rem`)};
+    padding-left: ${({ $isTitle }) => ($isTitle ? `3rem` : `0rem`)};
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -818,8 +837,9 @@ const MQP = {
     width: 10rem;
     height: 4rem;
     border-radius: 0.6rem;
-    background-color: ${({ theme }) => theme.colors.mainColor};
-    color: white;
+    background-color: ${({ $graded, theme }) => ($graded ? theme.colors.gray00 : theme.colors.mainColor)};
+    color: ${({ $graded }) => ($graded ? `black` : `white`)};
+    border: solid ${({ $graded, theme }) => ($graded ? `0.1rem ${theme.colors.gray30}` : `0rem`)};
     font-size: 1.5rem;
     font-weight: 600;
     &:disabled {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import PageLayout from "./PageLayout";
 import handleChangeInput from "../../../utils/handleChangeInput";
@@ -7,13 +7,22 @@ import useGetAnswerStructure from "../../../libs/hooks/Student/useGetAnswerStruc
 const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
   const { data, loading } = useGetAnswerStructure(id);
   const [input, setInput] = useState([]);
-
+  const [updated, setUpdated] = useState(false);
   const updateInput = (input) => {
     setInput(input);
   };
-
-  const sampleData = ["MULTIPLE", "MULTIPLE", "MULTIPLE"];
-
+  useEffect(() => {
+    if (data) {
+      if (!updated) {
+        const updatedInput = [...input];
+        data.categories.map((it, idx) => {
+          updatedInput.push({ id: `${idx + 1}`, answer: "" });
+        });
+        updateInput(updatedInput);
+        setUpdated(true);
+      }
+    }
+  }, [data]);
   return (
     <PageLayout
       isCompleted={false}
@@ -23,7 +32,6 @@ const Solving = ({ handleClickedCloseBtn, id, questionNum }) => {
       questionNum={questionNum}
     >
       <St.QuestionWrapper>
-        {/* api 통신 후 받아온 pdf로 대체 - 현재는 pdf 주소 임시로 넣어둠 */}
         {!loading && <iframe title="pdf" src={data.pdf} width="100%" height="100%"></iframe>}
       </St.QuestionWrapper>
 
@@ -71,8 +79,8 @@ const St = {
   QuestionWrapper: styled.article`
     width: 100%;
     height: calc(100vh - 21.8rem);
-    padding: 2.8rem 5.8rem;
-    overflow-y: auto;
+    //padding: 2.8rem 5.8rem;
+    overflow: hidden;
 
     border-radius: 1.5rem;
 

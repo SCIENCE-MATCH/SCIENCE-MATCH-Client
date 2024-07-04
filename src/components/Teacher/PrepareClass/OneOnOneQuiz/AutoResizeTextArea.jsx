@@ -46,6 +46,7 @@ const ARTA = {
     padding-left: 1rem;
     padding-block: 0.75rem;
     line-height: 3rem;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 1.7rem;
     font-weight: 600;
     box-sizing: border-box;

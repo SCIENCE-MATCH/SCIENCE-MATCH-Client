@@ -7,6 +7,8 @@ import {
   faXmark,
   faCheck,
   faCircleExclamation,
+  faCaretDown,
+  faCaretRight,
 } from "@fortawesome/free-solid-svg-icons";
 import useGetBooks from "../../../../../libs/hooks/Teacher/Management/useGetBooks";
 import useGetBookChaper from "../../../../../libs/hooks/Teacher/Management/useGetBookChapter";
@@ -15,10 +17,12 @@ import useGetBookQuestion from "../../../../../libs/hooks/Teacher/Management/use
 const SelectBook = ({
   selectedBook,
   setSelectedBook,
+  localBookChapters,
+  setLocalBookChapters,
   selectedQuestions,
   setSelectedQuestions,
-  selectedChapters,
   setSelectedChapters,
+  setPaperGrade,
 }) => {
   const { books, getBooks } = useGetBooks();
   const { bookChapters, getBookChapters } = useGetBookChaper();
@@ -97,6 +101,14 @@ const SelectBook = ({
   };
 
   useEffect(() => {
+    const test2 = async () => {
+      if (selectedBook) await getBookChapters(selectedBook.bookId);
+      setLocalBookChapters(bookChapters);
+    };
+    if (localBookChapters.length == 0) test2();
+  }, []);
+
+  useEffect(() => {
     const filteredArr = books.filter((book) => {
       return (
         book.school === schoolToSend[school] &&
@@ -106,6 +118,9 @@ const SelectBook = ({
     });
     setBooksToRender(filteredArr);
   }, [books, school, searchName, grade]);
+  useEffect(() => {
+    if (selectedBook !== null) setPaperGrade(getKoreanGrade(selectedBook.school, selectedBook.semester));
+  }, [selectedBook]);
 
   const gradesUponSchool = () => {
     return (
@@ -128,15 +143,27 @@ const SelectBook = ({
 
   //문제 선택 부분
 
-  const [chapterToRender, setChapterToRender] = useState([]);
   useEffect(() => {
-    const newArr = Object.entries(bookChapters).map(([description, pages]) => ({
-      description,
-      pages: pages.map((page) => ({ page, selected: false })), // 각 페이지에 selected 속성 추가
-      expansion: false,
-    }));
-    setChapterToRender(newArr);
+    if (localBookChapters.length === 0) {
+      const newArr = bookChapters.map((chapter) => ({
+        ...chapter,
+        pages: chapter.pages.map((page) => ({ page, selected: false })), // 각 페이지에 selected 속성 추가
+        expansion: false,
+      }));
+      setLocalBookChapters(newArr);
+    }
   }, [bookChapters]);
+
+  const onExpansion = (item) => {
+    const updatedChapterToRender = localBookChapters.map((chapter) => {
+      if (chapter.description === item.description) {
+        // 현재 챕터의 expansion 속성을 토글합니다.
+        return { ...chapter, expansion: !chapter.expansion };
+      }
+      return chapter; // 조건에 맞지 않는 경우에도 객체를 반환합니다.
+    });
+    setLocalBookChapters(updatedChapterToRender);
+  };
 
   const [currentPage, setCurrentPage] = useState(null);
 
@@ -151,38 +178,46 @@ const SelectBook = ({
 
   useEffect(() => {
     if (currentPage !== null) {
-      const isThisPageSelected = bookQuestions.some((ques) => selectedQuestions.includes(ques.questionId));
-      if (isThisPageSelected) {
-        const tempArr = chapterToRender.map((chapter) => ({
+      const isThisPageSelected = bookQuestions.some((ques) =>
+        selectedQuestions.some((q) => q.questionId === ques.questionId)
+      );
+      let tempArr = [];
+      if (isThisPageSelected)
+        tempArr = localBookChapters.map((chapter) => ({
           ...chapter,
           pages: chapter.pages.map((page) => (page.page === currentPage ? { ...page, selected: true } : page)),
         }));
-        setChapterToRender(tempArr);
-      } else {
-        const tempArr = chapterToRender.map((chapter) => ({
+      else
+        tempArr = localBookChapters.map((chapter) => ({
           ...chapter,
           pages: chapter.pages.map((page) => (page.page === currentPage ? { ...page, selected: false } : page)),
         }));
-        setChapterToRender(tempArr);
-      }
+
+      setLocalBookChapters(tempArr);
+      const isThisChapterSelected = tempArr
+        .map((chapter) =>
+          chapter.pages.some((page) => page.selected)
+            ? { id: chapter.chapterId, description: chapter.description }
+            : null
+        )
+        .filter((chapter) => chapter !== null)
+        .sort((a, b) => (a.id > b.id ? 1 : -1));
+      setSelectedChapters(isThisChapterSelected);
     }
   }, [selectedQuestions]);
 
-  useEffect(() => {
-    const isThisChapterSelected = chapterToRender
-      .map((chapter) => (chapter.pages.some((page) => page.selected) ? chapter.description : null))
-      .filter((description) => description !== null); // null 값을 제거
-
-    console.log(isThisChapterSelected);
-  }, [chapterToRender, selectedQuestions]);
-
+  const [hoveredChapter, setHoveredChapter] = useState(null);
   const [hoveredPage, setHoveredPage] = useState(null);
 
-  const onQuestionClick = (questionId) => {
-    if (selectedQuestions.includes(questionId)) {
-      setSelectedQuestions(selectedQuestions.filter((id) => id !== questionId));
+  const onQuestionClick = (question) => {
+    const questionId = question.questionId;
+    if (selectedQuestions.some((q) => q.questionId === questionId)) {
+      setSelectedQuestions(selectedQuestions.filter((q) => q.questionId !== questionId));
     } else {
-      setSelectedQuestions([...selectedQuestions, questionId]);
+      setSelectedQuestions([
+        ...selectedQuestions,
+        { ...question, imageURL: question.questionImg, description: question.chapterDescription },
+      ]);
     }
   };
   /** 1.1 => `1.(1)번` */
@@ -281,7 +316,7 @@ const SelectBook = ({
               setSelectedBook(null);
               setCurrentPage(null);
               setSelectedQuestions([]);
-              setChapterToRender([]);
+              setLocalBookChapters([]);
             }}
           >
             <FontAwesomeIcon icon={faArrowRightArrowLeft} style={{ marginRight: `0.5rem` }} />
@@ -290,32 +325,54 @@ const SelectBook = ({
         </SELECTPAGE.TitleLine>
         <CHAPTERSCOPE.ScopeSection>
           <CHAPTERSCOPE.ChapterSection>
-            {chapterToRender.map((item, index) => (
+            {localBookChapters.map((item, index) => (
               <div key={item.description}>
-                <CHAPTERSCOPE.ChapterLine $level={0}>
-                  <CHAPTERSCOPE.DescriptionBox>{item.description}</CHAPTERSCOPE.DescriptionBox>
-                </CHAPTERSCOPE.ChapterLine>
-                {item.pages.map((page, i) => (
-                  <CHAPTERSCOPE.ChapterLine
-                    key={page.page}
-                    $level={1}
-                    $isShowing={currentPage === page.page}
-                    onMouseEnter={() => setHoveredPage(page.page)}
-                    onMouseLeave={() => setHoveredPage(null)}
-                    onClick={() => {
-                      onPageClick(page.page);
-                    }}
+                <CHAPTERSCOPE.ChapterLine
+                  $level={0}
+                  $isExpanded={item.expansion}
+                  onMouseEnter={() => setHoveredChapter(item.description)}
+                  onMouseLeave={() => setHoveredChapter(null)}
+                  onClick={() => {
+                    onExpansion(item);
+                  }}
+                >
+                  <CHAPTERSCOPE.ExpansionSection
+                    $isExpanded={item.expansion}
+                    $isHovering={hoveredChapter === item.description}
                   >
-                    <CHAPTERSCOPE.ExpansionSection $isHovering={hoveredPage === page.page}>
-                      <CHAPTERSCOPE.CheckBox $isChecked={page.selected} $isHovering={hoveredPage === page.page}>
-                        {page.selected ? <FontAwesomeIcon icon={faCheck} /> : ""}
-                      </CHAPTERSCOPE.CheckBox>
-                    </CHAPTERSCOPE.ExpansionSection>
-                    <CHAPTERSCOPE.DescriptionBox $isHovering={hoveredPage === page.page || currentPage === page.page}>
-                      {page.page}p
-                    </CHAPTERSCOPE.DescriptionBox>
-                  </CHAPTERSCOPE.ChapterLine>
-                ))}
+                    <FontAwesomeIcon icon={item.expansion ? faCaretDown : faCaretRight} />
+                  </CHAPTERSCOPE.ExpansionSection>
+                  <CHAPTERSCOPE.DescriptionBox $isHovering={hoveredChapter === item.description}>
+                    {item.description}
+                  </CHAPTERSCOPE.DescriptionBox>
+                </CHAPTERSCOPE.ChapterLine>
+                {item.expansion && (
+                  <div>
+                    {item.pages.map((page, i) => (
+                      <CHAPTERSCOPE.ChapterLine
+                        key={page.page}
+                        $level={1}
+                        $isShowing={currentPage === page.page}
+                        onMouseEnter={() => setHoveredPage(page.page)}
+                        onMouseLeave={() => setHoveredPage(null)}
+                        onClick={() => {
+                          onPageClick(page.page);
+                        }}
+                      >
+                        <CHAPTERSCOPE.ExpansionSection $isHovering={hoveredPage === page.page}>
+                          <CHAPTERSCOPE.CheckBox $isChecked={page.selected} $isHovering={hoveredPage === page.page}>
+                            {page.selected ? <FontAwesomeIcon icon={faCheck} /> : ""}
+                          </CHAPTERSCOPE.CheckBox>
+                        </CHAPTERSCOPE.ExpansionSection>
+                        <CHAPTERSCOPE.DescriptionBox
+                          $isHovering={hoveredPage === page.page || currentPage === page.page}
+                        >
+                          {page.page}p
+                        </CHAPTERSCOPE.DescriptionBox>
+                      </CHAPTERSCOPE.ChapterLine>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </CHAPTERSCOPE.ChapterSection>
@@ -324,14 +381,18 @@ const SelectBook = ({
               {bookQuestions.map((ques) => (
                 <CHAPTERSCOPE.QuestionNumber
                   onClick={() => {
-                    onQuestionClick(ques.questionId);
+                    onQuestionClick(ques);
                   }}
                 >
                   <CHAPTERSCOPE.CheckBox
-                    $isChecked={selectedQuestions.includes(ques.questionId)}
+                    $isChecked={selectedQuestions.some((q) => q.questionId === ques.questionId)}
                     style={{ marginRight: `0.75rem` }}
                   >
-                    {selectedQuestions.includes(ques.questionId) ? <FontAwesomeIcon icon={faCheck} /> : ""}
+                    {selectedQuestions.some((q) => q.questionId === ques.questionId) ? (
+                      <FontAwesomeIcon icon={faCheck} />
+                    ) : (
+                      ""
+                    )}
                   </CHAPTERSCOPE.CheckBox>
                   {convertNumber(ques.pageOrder)}
                 </CHAPTERSCOPE.QuestionNumber>
@@ -528,6 +589,10 @@ const SCHOOLSEM = {
     color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.mainColor : theme.colors.unselected)};
     background-color: white;
     border: solid ${({ $isSelected, theme }) => ($isSelected ? `0.1rem ${theme.colors.mainColor}` : `0rem black`)};
+    &:hover {
+      font-weight: 600;
+      color: ${({ theme }) => theme.colors.mainColor};
+    }
   `,
   SemsterOptionContainer: styled.div`
     width: 33rem;
@@ -556,6 +621,10 @@ const SCHOOLSEM = {
     border: solid
       ${({ $isSelected, theme }) =>
         $isSelected ? `0.1rem ${theme.colors.mainColor}` : `0rem ${theme.colors.unselected}`};
+    &:hover {
+      font-weight: 600;
+      color: ${({ theme }) => theme.colors.mainColor};
+    }
   `,
 };
 
@@ -809,8 +878,6 @@ const CHAPTERSCOPE = {
       $isHovering
         ? css`
             color: ${theme.colors.mainColor};
-            font-size: 2rem;
-            margin-top: -0.1rem;
           `
         : css`
             color: ${theme.colors.gray50};

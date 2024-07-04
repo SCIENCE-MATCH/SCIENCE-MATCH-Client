@@ -20,8 +20,10 @@ import { ko } from "date-fns/locale/ko";
 import CreateQuiz from "./CreateQuiz";
 import PreviewQuiz from "./PreviewQuiz";
 import PresentQuiz from "./PresentQuiz";
+import useDeleteQuiz from "../../../../libs/apis/Teacher/Prepare/deleteQuiz";
 
 const PrepareOneOnOneQuiz = () => {
+  const { deleteQuiz } = useDeleteQuiz();
   const [isCreating, setIsCreating] = useState(false);
 
   const modifyDateToStartOfDay = (date) => {
@@ -163,14 +165,11 @@ const PrepareOneOnOneQuiz = () => {
         alert("다시 로그인 해주세요");
       }
     }
+    setLookMoreIndex(-1);
   };
   useEffect(() => {
     getQuizs();
   }, []);
-
-  const deleteQuiz = async (quizId) => {
-    console.log(`다음의 질문을 삭제합니다 ${quizId}`);
-  };
 
   const [selectedQuizIds, setSelectedQuizIds] = useState([]);
   const selectQuiz = (id) => {
@@ -200,12 +199,13 @@ const PrepareOneOnOneQuiz = () => {
     setReceivedQuizs(tempQuizs);
     setSelectedQuizIds([]);
   };
-  const deleteAll = () => {
-    selectedQuizIds.map((qId) => {
+  const deleteAll = async () => {
+    await selectedQuizIds.map((qId) => {
       deleteQuiz(qId);
     });
     alert(`질문 ${selectedQuizIds.length}개가 삭제 되었습니다.`);
     deselectAll();
+    getQuizs();
   };
 
   const cutLongText = (text, cutLength) => {
@@ -270,7 +270,7 @@ const PrepareOneOnOneQuiz = () => {
       {isPresenting && <PresentQuiz closeModal={closePresent} questionText={previewText} quizId={[presentId]} />}
       {isPresentingMany && <PresentQuiz closeModal={closePresentMany} quizId={selectedQuizIds} />}
       {isCreating ? (
-        <CreateQuiz goBack={comeBackToList} deliveredList={receivedQuizs} />
+        <CreateQuiz goBack={comeBackToList} deliveredList={receivedQuizs} getQuizs={getQuizs} />
       ) : (
         <OO.ManageSection>
           <OO.FilterLine>
@@ -427,8 +427,9 @@ const PrepareOneOnOneQuiz = () => {
                   {index == lookMoreIndex && (
                     <OO.MoreInfo>
                       <OO.MoreBtn
-                        onClick={() => {
-                          deleteQuiz(quiz.id);
+                        onClick={async () => {
+                          await deleteQuiz(quiz.id);
+                          getQuizs();
                         }}
                       >
                         삭제

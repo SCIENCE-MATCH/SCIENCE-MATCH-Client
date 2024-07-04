@@ -110,7 +110,7 @@ const PreviewQuestions = ({
           >
             <PQ.QuestionInfo>
               <PQ.QuestionNumber>{index + 1}</PQ.QuestionNumber>
-              <PQ.QuestionChapter>{ques.description}</PQ.QuestionChapter>
+              <PQ.QuestionChapter>{ques.chapterDescription}</PQ.QuestionChapter>
             </PQ.QuestionInfo>
             <PQ.QuestionDetail>
               <PQ.QuestionStatus>
@@ -126,7 +126,7 @@ const PreviewQuestions = ({
                 >
                   <FontAwesomeIcon icon={faTrash} />
                 </PQ.DeleteQuestionBtn>
-                <PQ.SimilarQuestionBtn>쌍둥이 · 유사</PQ.SimilarQuestionBtn>
+                {/* <PQ.SimilarQuestionBtn>쌍둥이 · 유사</PQ.SimilarQuestionBtn> */}
               </PQ.QuestionOptionalBox>
             </PQ.QuestionDetail>
           </PQ.QuestionBox>
@@ -139,7 +139,12 @@ const PreviewQuestions = ({
           {" |"}
         </Pg.DifficultySummary>
         <Pg.QuesNumSummary>문제 수 {selectedQuestions.length}개</Pg.QuesNumSummary>
-        <Pg.NextStepBtn onClick={() => setCreateStep((prev) => prev + 1)}>
+        <Pg.NextStepBtn
+          onClick={() => {
+            if (selectedQuestions.length === 0) alert("선택된 문제가 없습니다");
+            else setCreateStep((prev) => prev + 1);
+          }}
+        >
           {`다음 단계 `}
           <FontAwesomeIcon icon={faArrowRight} />
         </Pg.NextStepBtn>
@@ -300,7 +305,7 @@ const PQ = {
   `,
   QuestionTag: styled.div`
     display: flex;
-    width: 5rem;
+    width: 6rem;
     height: 2.2rem;
     margin-bottom: 1.1rem;
     border-radius: 0.5rem;

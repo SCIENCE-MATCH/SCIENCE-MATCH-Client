@@ -22,6 +22,8 @@ const colors = {
   logoutBtn: "#d9d9d9",
   deepDark: "#3d3d3d",
   stepLabel: "#00C9A9",
+  lightPurple: "#EAE6FF",
+  purple: "#AA00FF",
   main80: "#30F230",
   main60: "#61F261",
   main40: "#91F291",
@@ -42,6 +44,11 @@ const colors = {
   gray05: "#F2F2F2",
   gray00: "#F9F9F9",
   whiteGray: "#fcfcfc",
+  HIGH: `#FF0000`,
+  MHIGH: `#FFA200`,
+  MEDIUM: `#00DE5C`,
+  MLOW: `#008ADE`,
+  LOW: `#4A4A4A`,
 };
 
 const theme = {

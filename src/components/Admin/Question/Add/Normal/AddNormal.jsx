@@ -84,8 +84,8 @@ const AddNormal = ({ chapToAdd }) => {
     setAnswer(e.target.value);
   };
 
-  const [score, setScore] = useState(0);
-  const scoreOption = [0, 1, 2, 3, 4];
+  const [score, setScore] = useState(1);
+  const scoreOption = [1, 2, 3, 4];
   const inputScore = (e) => {
     setScore(e.target.value);
   };
@@ -101,7 +101,7 @@ const AddNormal = ({ chapToAdd }) => {
       formData.append("solutionImg", solutionFile);
       formData.append("solution", answer);
       formData.append("image", questionFile);
-      formData.append("category", categoryToSend);
+      formData.append("category", categoryToSendOption[category]);
       formData.append("score", score);
       formData.append("questionTag", "NORMAL");
       formData.forEach((value, key) => {
@@ -122,7 +122,7 @@ const AddNormal = ({ chapToAdd }) => {
       setAnswer("");
       DeleteQuestionImg(null);
       DeleteSolutionImg(null);
-      setScore(0);
+      setScore(1);
       return response.data;
     } catch (error) {
       console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);

@@ -275,9 +275,9 @@ const ManageQuestionPaper = () => {
     setReceivedPapers(tempPapers);
     setSelectedPapaerIds([]);
   };
-  const deleteAll = () => {
-    selectedPaparIds.map((qId) => {
-      deletePaper(qId);
+  const deleteAll = async () => {
+    await selectedPaparIds.map(async (qId) => {
+      await deletePaper(qId);
     });
     alert(`학습지 ${selectedPaparIds.length}개가 삭제 되었습니다.`);
     deselectAll();
@@ -327,6 +327,9 @@ const ManageQuestionPaper = () => {
   const closeCreateModal = () => {
     setCreateModalOpen(false);
   };
+  useEffect(() => {
+    getPapers();
+  }, [createModalOpen]);
 
   const handleBatchDownload = () => {
     receivedPapers.map((paper) => {
@@ -360,7 +363,6 @@ const ManageQuestionPaper = () => {
   const closeWarningBatch = () => setIsWarningBatch(false);
 
   const [isWarning, setIsWarning] = useState(false);
-  const openWarning = () => setIsWarning(true);
   const closeWarning = () => setIsWarning(false);
   const formatDate = (dateString) => {
     const date = new Date(dateString);

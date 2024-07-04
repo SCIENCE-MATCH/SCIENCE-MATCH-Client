@@ -184,17 +184,19 @@ const SearchNormal = ({ chapToSearch }) => {
         ) : (
           questionSet.map((q) => (
             <SQ.ImgContainer>
+              <SQ.ImgOptionLine>
+                <SQ.DeleteBtn
+                  onClick={() => {
+                    setIdToDelete(q.questionId);
+                    openWarning();
+                  }}
+                >
+                  문제 삭제
+                </SQ.DeleteBtn>
+              </SQ.ImgOptionLine>
               <SQ.ImgBox>
                 <SQ.Image src={q.imageURL} />
               </SQ.ImgBox>
-              <SQ.DeleteBtn
-                onClick={() => {
-                  setIdToDelete(q.questionId);
-                  openWarning();
-                }}
-              >
-                문제 삭제
-              </SQ.DeleteBtn>
             </SQ.ImgContainer>
           ))
         )}
@@ -253,7 +255,7 @@ const SQ = {
     border-radius: 0.6rem;
     padding-left: 1rem;
     font-size: 1.6rem;
-    font-weight: 400;
+    font-weight: 600;
     display: flex;
     align-items: center;
     border: 0.2rem solid ${({ theme }) => theme.colors.gray30};
@@ -355,6 +357,17 @@ const SQ = {
       margin-right: 0rem;
     }
   `,
+  ImgOptionLine: styled.div`
+    width: 38.5rem;
+    height: 4rem;
+    padding-left: 1rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  `,
   ImgBox: styled.div`
     width: 38.5rem;
     height: 15rem;
@@ -363,6 +376,7 @@ const SQ = {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
+    margin-bottom: 3rem;
     padding: 1rem;
     padding-right: 0rem;
     overflow: hidden;
@@ -394,9 +408,7 @@ const SQ = {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 1rem;
     margin-left: auto;
-    margin-bottom: 2rem;
     cursor: pointer;
     color: white;
     font-size: 1.75rem;

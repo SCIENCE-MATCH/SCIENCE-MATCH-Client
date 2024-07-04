@@ -1,47 +1,100 @@
-import { faCircle, faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faCaretRight, faCircle, faCircleExclamation, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { faCircleCheck } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import theme from "../../../../../style/theme";
-import axios from "axios";
-import { getCookie } from "../../../../../libs/cookie";
+import usePostGetConcepts from "../../../../../libs/apis/Teacher/Prepare/postGetConcepts";
 
-const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, setSelectedConceptIds }) => {
+const AddConcept = ({
+  selectedChapters,
+  simpleChapter,
+  setSelectedConcepts,
+  selectedConceptIds,
+  setSelectedConceptIds,
+}) => {
+  const { conceptData, getConcepts } = usePostGetConcepts();
   const [concepts, setConcepts] = useState([]);
   const [groupedConcepts, setGroupedConcepts] = useState([]);
 
-  const [isGrouped, setIsGrouped] = useState(true);
+  const [isGrouped, setIsGrouped] = useState(false);
   const ungroupConcepts = () => setIsGrouped(false);
-  const groupConcepts = () => setIsGrouped(true);
+  const groupConcepts = () => {
+    if (groupedConcepts.length > 0) setIsGrouped(true);
+  };
 
   useEffect(() => {
     let result = [];
     let result2 = [];
-    simpleChapter.forEach((dept1) => {
-      if (dept1.children && dept1.children.length > 0) {
-        dept1.children.forEach((dept2) => {
-          if (dept2.children && dept2.children.length > 0) {
-            const selectedChildren = dept2.children.filter((dept3) => dept3.selected);
-            if (selectedChildren.length > 0) {
-              result.push({
-                ...dept2,
-                children: selectedChildren,
-              });
-              result2.push(...selectedChildren);
+    if (simpleChapter.length > 0) {
+      setSelectedConceptIds([]);
+      simpleChapter.forEach((dept1) => {
+        if (dept1.children && dept1.children.length > 0) {
+          dept1.children.forEach((dept2) => {
+            if (dept2.children && dept2.children.length > 0) {
+              const selectedChildren = dept2.children.filter((dept3) => dept3.selected);
+              if (selectedChildren.length > 0) {
+                result.push({
+                  ...dept2,
+                  expansion: false,
+                  children: selectedChildren,
+                });
+                result2.push(...selectedChildren);
+              }
             }
-          }
-        });
-      }
-    });
-    const selectedConceptIds_temp = [];
-    result2.map((concept) => {
-      selectedConceptIds_temp.push(concept.id);
-    });
-    setGroupedConcepts(result);
-    setConcepts(result2);
-    setSelectedConceptIds(selectedConceptIds_temp);
+          });
+        }
+      });
+      const selectedConceptIds_temp = [];
+      result2.map((concept) => {
+        selectedConceptIds_temp.push(concept.id);
+      });
+      console.log(result);
+      console.log(result2);
+      setGroupedConcepts(result);
+      setConcepts(result2);
+      setSelectedConceptIds(selectedConceptIds_temp);
+      getConcepts(selectedConceptIds_temp);
+    } else {
+      setSelectedConceptIds([]);
+      result2 = selectedChapters.map((chapter) => ({ ...chapter, selected: false }));
+      console.log(result2);
+      setGroupedConcepts([]);
+      setConcepts(result2);
+    }
   }, []);
+  useEffect(() => {
+    if (conceptData.length > 0) {
+      // 기존 groupedConcepts와 concepts를 기반으로 업데이트된 배열 생성
+      const updatedGroupedConcepts = groupedConcepts.map((dept2) => {
+        const updatedChildren = dept2.children
+          .map((dept3) => {
+            const matchedConcepts = conceptData.filter((concept) => concept.chapterId === dept3.id);
+            return matchedConcepts.map((concept) => ({
+              ...dept3,
+              conceptId: concept.id,
+              conceptUrl: concept.url,
+            }));
+          })
+          .flat();
+
+        return {
+          ...dept2,
+          children: updatedChildren,
+        };
+      });
+
+      const updatedConcepts = updatedGroupedConcepts.flatMap((dept2) => dept2.children);
+
+      const selectedConceptIds_temp = updatedConcepts.map((concept) => concept.id);
+
+      console.log(updatedGroupedConcepts);
+      console.log(updatedConcepts);
+      setGroupedConcepts(updatedGroupedConcepts);
+      setConcepts(updatedConcepts);
+      setSelectedConceptIds(selectedConceptIds_temp);
+    }
+  }, [conceptData]);
 
   useEffect(() => {
     if (concepts.length > 0) {
@@ -49,7 +102,6 @@ const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, se
         ...concept,
         selected: selectedConceptIds.includes(concept.id),
       }));
-      console.log(updatedConcepts);
 
       const updatedGroupedConcepts = groupedConcepts.map((group) => ({
         ...group,
@@ -59,7 +111,6 @@ const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, se
         })),
       }));
 
-      getConcepts(selectedConceptIds);
       setConcepts(updatedConcepts);
       setGroupedConcepts(updatedGroupedConcepts);
     }
@@ -77,6 +128,40 @@ const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, se
     setSelectedConceptIds(tempArr);
   };
 
+  const onChapterExpand = (chapterId) => {
+    setGroupedConcepts((prev) => {
+      return prev.map((dept2) => {
+        if (dept2.id === chapterId) {
+          return { ...dept2, expansion: !dept2.expansion };
+        }
+        return dept2;
+      });
+    });
+  };
+
+  const toggleExpansion = (conceptId) => {
+    setGroupedConcepts((prevGroupedConcepts) => {
+      return prevGroupedConcepts.map((dept2) => {
+        const updatedChildren = dept2.children.map((dept3) => {
+          if (dept3.id === conceptId) {
+            return { ...dept3, expansion: !dept3.expansion };
+          }
+          return dept3;
+        });
+        return { ...dept2, children: updatedChildren };
+      });
+    });
+
+    setConcepts((prevConcepts) => {
+      return prevConcepts.map((concept) => {
+        if (concept.id === conceptId) {
+          return { ...concept, expansion: !concept.expansion };
+        }
+        return concept;
+      });
+    });
+  };
+
   const selectAll = () => {
     let result = [];
     concepts.map((concept) => result.push(concept.id));
@@ -86,30 +171,15 @@ const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, se
     setSelectedConceptIds([]);
   };
 
-  const getConcepts = async (payload) => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/question-paper/concept";
-
-      const response = await axios.post(url, payload, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const result = response.data.data.map((concept, index) => ({ ...concept, chapterId: selectedConceptIds[index] }));
-      setSelectedConcepts(result);
-      console.log(result);
-    } catch (error) {
-      console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-  };
+  useEffect(() => {
+    setSelectedConcepts(
+      conceptData.map((concept, index) => ({ ...concept, chapterId: selectedConceptIds[index], preview: false }))
+    );
+  }, [conceptData]);
   return (
     <AC.Wrapper>
       <AC.NoticeBox>
-        <FontAwesomeIcon icon={faCircleExclamation} />
+        <FontAwesomeIcon icon={faCircleExclamation} style={{ marginRight: `1rem` }} />
         개념 배치는 다음 단계에서 변경할 수 있습니다.
       </AC.NoticeBox>
       <AC.BtnLine>
@@ -117,68 +187,119 @@ const AddConcept = ({ simpleChapter, setSelectedConcepts, selectedConceptIds, se
           <AC.RadioBtn>{!isGrouped && <FontAwesomeIcon icon={faCircle} />}</AC.RadioBtn>
           유형별 개념
         </AC.GroupBtn>
-        <AC.GroupBtn onClick={groupConcepts}>
-          <AC.RadioBtn>{isGrouped && <FontAwesomeIcon icon={faCircle} />}</AC.RadioBtn>
-          소단원별 개념
-        </AC.GroupBtn>
+        {simpleChapter.length > 0 && (
+          <AC.GroupBtn onClick={groupConcepts} $disabled={simpleChapter.length < 1}>
+            <AC.RadioBtn>{isGrouped && <FontAwesomeIcon icon={faCircle} />}</AC.RadioBtn>
+            소단원별 개념
+          </AC.GroupBtn>
+        )}
         <AC.CancelAllBtn onClick={selectAll}>전체 추가</AC.CancelAllBtn>
         <AC.CancelAllBtn onClick={cancelAll}>전체 취소</AC.CancelAllBtn>
       </AC.BtnLine>
       {isGrouped ? (
-        <AC.ConceptContainer>
+        <AC.ConceptSection>
           {groupedConcepts.map((chapter) => (
             <div key={chapter.id}>
-              <AC.ChapterLine>{chapter.description}</AC.ChapterLine>
-              {chapter.children.map((concept) => (
-                <AC.ConceptLine
-                  $isSelected={concept.selected}
-                  key={concept.id}
-                  onClick={() => {
-                    onChapterSelect(concept.id);
-                  }}
-                >
-                  {concept.description}
-                  {concept.selected ? (
-                    <AC.AddedBtn>
-                      <FontAwesomeIcon
-                        icon={faCircleCheck}
-                        style={{ marginRight: `0.5rem`, color: theme.colors.mainColor }}
-                      />
-                      추가 완료
-                    </AC.AddedBtn>
-                  ) : (
-                    <AC.AddBtn>추가</AC.AddBtn>
-                  )}
-                </AC.ConceptLine>
-              ))}
+              <AC.ChapterLine
+                onClick={() => {
+                  onChapterExpand(chapter.id);
+                }}
+              >
+                <FontAwesomeIcon
+                  icon={chapter.expansion ? faCaretDown : faCaretRight}
+                  style={{ marginRight: `2rem` }}
+                />
+                {chapter.description}
+              </AC.ChapterLine>
+              {chapter.expansion &&
+                chapter.children.map((concept) => (
+                  <AC.ConceptContainer key={concept.id} $isSelected={concept.selected}>
+                    <AC.ConceptLine
+                      $isSelected={concept.selected}
+                      onClick={() => {
+                        toggleExpansion(concept.id);
+                      }}
+                    >
+                      {concept.description}
+                      {concept.selected ? (
+                        <AC.AddedBtn
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onChapterSelect(concept.id);
+                          }}
+                        >
+                          <FontAwesomeIcon
+                            icon={faCircleCheck}
+                            style={{ marginRight: `0.5rem`, color: theme.colors.mainColor }}
+                          />
+                          추가 완료
+                        </AC.AddedBtn>
+                      ) : (
+                        <AC.AddBtn
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onChapterSelect(concept.id);
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faPlus} style={{ marginRight: `0.5rem` }} />
+                          개념 추가
+                        </AC.AddBtn>
+                      )}
+                    </AC.ConceptLine>
+                    {concept.expansion && (
+                      <AC.ImageBox>
+                        <AC.ConceptImage src={concept.conceptUrl} />
+                      </AC.ImageBox>
+                    )}
+                  </AC.ConceptContainer>
+                ))}
             </div>
           ))}
-        </AC.ConceptContainer>
+        </AC.ConceptSection>
       ) : (
-        <AC.ConceptContainer>
+        <AC.ConceptSection>
           {concepts.map((concept) => (
-            <AC.ConceptLine
-              $isSelected={concept.selected}
-              key={concept.id}
-              onClick={() => {
-                onChapterSelect(concept.id);
-              }}
-            >
-              {concept.description}
-              {concept.selected ? (
-                <AC.AddedBtn>
-                  <FontAwesomeIcon
-                    icon={faCircleCheck}
-                    style={{ marginRight: `0.5rem`, color: theme.colors.mainColor }}
-                  />
-                  추가 완료
-                </AC.AddedBtn>
-              ) : (
-                <AC.AddBtn>추가</AC.AddBtn>
+            <AC.ConceptContainer key={concept.id} $isSelected={concept.selected}>
+              <AC.ConceptLine
+                $isSelected={concept.selected}
+                onClick={() => {
+                  toggleExpansion(concept.id);
+                }}
+              >
+                {concept.description}
+                {concept.selected ? (
+                  <AC.AddedBtn
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onChapterSelect(concept.id);
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={faCircleCheck}
+                      style={{ marginRight: `0.5rem`, color: theme.colors.mainColor }}
+                    />
+                    추가 완료
+                  </AC.AddedBtn>
+                ) : (
+                  <AC.AddBtn
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onChapterSelect(concept.id);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faPlus} style={{ marginRight: `0.5rem` }} />
+                    개념 추가
+                  </AC.AddBtn>
+                )}
+              </AC.ConceptLine>
+              {concept.expansion && (
+                <AC.ImageBox>
+                  <AC.ConceptImage src={concept.conceptUrl} />
+                </AC.ImageBox>
               )}
-            </AC.ConceptLine>
+            </AC.ConceptContainer>
           ))}
-        </AC.ConceptContainer>
+        </AC.ConceptSection>
       )}
     </AC.Wrapper>
   );
@@ -190,7 +311,6 @@ const AC = {
     width: 60rem;
     height: 68rem;
     margin-top: 1rem;
-    border-radius: 1rem;
     overflow: hidden;
     //border: 0.1rem solid ${({ theme }) => theme.colors.background};
     //background-color: white;
@@ -232,6 +352,7 @@ const AC = {
     font-size: 1.5rem;
     font-weight: 600;
     margin-right: 1rem;
+    color: ${({ $disabled, theme }) => ($disabled ? theme.colors.gray30 : `black`)};
     cursor: pointer;
   `,
   CancelAllBtn: styled.button`
@@ -247,7 +368,7 @@ const AC = {
       margin-left: 2rem;
     }
   `,
-  ConceptContainer: styled.div`
+  ConceptSection: styled.div`
     width: 60rem;
     height: 59.5rem;
     overflow-x: hidden;
@@ -262,35 +383,57 @@ const AC = {
     border-radius: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
+    padding-left: 2rem;
     font-size: 2rem;
     font-weight: 600;
     color: white;
     background-color: ${({ theme }) => theme.colors.gray40};
     margin-top: 1rem;
+    cursor: pointer;
+  `,
+  ConceptContainer: styled.div`
+    margin-top: 1rem;
+    width: 59.8rem;
+    border-radius: 1.2rem;
+    overflow: hidden;
+    background-color: white;
+    border: 0.2rem solid ${({ $isSelected, theme }) => ($isSelected ? theme.colors.mainColor : theme.colors.gray30)};
   `,
   ConceptLine: styled.div`
     width: 59.8rem;
     height: 5rem;
-    border-radius: 1.2rem;
     display: flex;
     align-items: center;
     font-size: 1.5rem;
     font-weight: 600;
     color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.gray70 : theme.colors.gray50)};
-    border: 0.2rem solid ${({ $isSelected, theme }) => ($isSelected ? theme.colors.mainColor : theme.colors.gray30)};
     background-color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.brightMain : theme.colors.gray05)};
-    margin-top: 1rem;
+
     padding-left: 2rem;
+    cursor: pointer;
+  `,
+  ImageBox: styled.div`
+    width: 59.8rem;
+    padding-left: 1.8rem;
+    padding-block: 1rem;
+    background-color: white;
+  `,
+  ConceptImage: styled.img`
+    width: 56rem;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard syntax */
+
+    pointer-events: none; /* 이미지에 대한 마우스 이벤트 비활성화 */
   `,
   ChapterDes: styled.div``,
   AddBtn: styled.button`
     margin-left: auto;
     margin-right: 2rem;
-    width: 11rem;
+    width: 12rem;
     height: 3rem;
-    border-radius: 2rem;
-    border: 0.1rem solid ${({ theme }) => theme.colors.gray60};
+    color: ${({ theme }) => theme.colors.gray50};
     font-size: 1.5rem;
     font-weight: 600;
   `,
@@ -299,7 +442,6 @@ const AC = {
     margin-right: 2rem;
     width: 12rem;
     height: 3rem;
-    border-radius: 2rem;
     font-size: 1.5rem;
     font-weight: 600;
   `,

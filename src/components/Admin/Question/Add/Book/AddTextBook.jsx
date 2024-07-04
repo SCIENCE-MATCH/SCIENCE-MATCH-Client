@@ -113,8 +113,8 @@ const AddTextBook = ({
   const answerOption = [1, 2, 3, 4, 5];
   const [answer, setAnswer] = useState("");
 
-  const [score, setScore] = useState(0);
-  const scoreOption = [0, 1, 2, 3, 4];
+  const [score, setScore] = useState(1);
+  const scoreOption = [1, 2, 3, 4];
 
   const uploadQuestion = async () => {
     try {
@@ -152,7 +152,7 @@ const AddTextBook = ({
       setQuestionOrder("");
       DeleteQuestionImg();
       DeleteSolutionImg();
-      setScore(0);
+      setScore(1);
       return response.data;
     } catch (error) {
       console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
@@ -194,7 +194,7 @@ const AddTextBook = ({
       </RQ.ChapterLine>
       <RQ.ChapterLine>
         <RQ.ChapterLabel>선택 단원명</RQ.ChapterLabel>
-        {chapToAdd.description === "" ? (
+        {chapToAdd.description === null ? (
           <RQ.WarningDes>
             <FontAwesomeIcon icon={faCircleExclamation} style={{ marginRight: `1rem` }} /> 선택된 단원이 없습니다.
             단원을 선택하세요.

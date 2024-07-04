@@ -17,7 +17,7 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
       <Te.SubHeader>
         <Te.NavBar>
           {tabs[activeTab].map((subTab) => (
-            <Te.TabBoxStyle
+            <Te.TabBox
               id={subTab}
               onClick={() => {
                 setSubTab(subTab);
@@ -26,7 +26,7 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
             >
               {subTab}
               <Te.UnderBar $selected={activeSubTab === subTab} />
-            </Te.TabBoxStyle>
+            </Te.TabBox>
           ))}
         </Te.NavBar>
       </Te.SubHeader>
@@ -42,7 +42,7 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
         </Te.Title>
         <Te.NavBar>
           {Object.keys(tabs).map((tab) => (
-            <Te.TabBoxStyle
+            <Te.TabBox
               id={tab}
               onClick={() => {
                 setTab(tab);
@@ -52,7 +52,7 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
             >
               {tab}
               <Te.UnderBar $selected={activeTab === tab} />
-            </Te.TabBoxStyle>
+            </Te.TabBox>
           ))}
         </Te.NavBar>
         <Te.MyPageBtnWrapper>
@@ -128,7 +128,7 @@ const Te = {
 
     gap: 6rem;
   `,
-  TabBoxStyle: styled.div`
+  TabBox: styled.div`
     color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.headerPoint : theme.colors.unsellected)};
     display: flex;
     align-items: center;
@@ -138,6 +138,7 @@ const Te = {
     font-weight: bold;
     font-size: 2rem; // 변경됨
     position: relative;
+    cursor: pointer;
   `,
   UnderBar: styled.div`
     position: absolute;

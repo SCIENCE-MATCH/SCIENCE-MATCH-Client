@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
+import styled from "styled-components";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
+
+import SecondStep from "./SecondStep/SecondStep";
+import ThirdStep from "./ThirdStep/ThirdStep";
 import SelectQuestionScope from "./FirstStep/SelectQeustionScope";
 import SelectQuestions from "./SecondStep/SelectQeustions";
 import DetailOfNormal from "./FirstStep/DetailOfNormal";
 import SelectCategory from "./FirstStep/SelectCategory";
-import styled from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
-import SecondStep from "./SecondStep/SecondStep";
-import { useNavigate } from "react-router";
-import { getCookie } from "../../../../libs/cookie";
-import Axios from "axios";
-import ThirdStep from "./ThirdStep/ThirdStep";
 import AddConcept from "./SecondStep/AddConcept";
 import SelectBook from "./FirstStep/SelectBook";
 import DetailOfBook from "./FirstStep/DetailOfBook";
 
+import usePostGetQuestions from "../../../../libs/apis/Teacher/Prepare/postGetQuestions";
+import AddMoreQuestions from "./SecondStep/AddMoreQuestions";
+
 const CreateQuestionPaper = ({ closeModal }) => {
-  const navigate = useNavigate();
+  const { questionData, getQuestions } = usePostGetQuestions();
   const [createStep, setCreateStep] = useState(1);
   const [simpleChapter, setSimpleChapters] = useState([]);
   const [selectedChapters, setSelectedChapters] = useState([]);
@@ -48,52 +50,25 @@ const CreateQuestionPaper = ({ closeModal }) => {
     }
   };
 
-  const [mockExam, setMockExam] = useState(false);
   const [questionTag, setQuestionTag] = useState("NORMAL");
-  const difficultyToSendOption = { 하: "LOW", 중하: "MEDIUM_LOW", 중: "MEDIUM", 중상: "MEDIUM_HARD", 상: "HARD" };
 
   const categoryToSendOption = {
     전체: ["MULTIPLE", "SUBJECTIVE"],
     객관식: ["MULTIPLE"],
     "주관식/서술형": ["SUBJECTIVE"],
   };
-  const getQuestions = async () => {
-    let tempArray = [];
-    const accessToken = getCookie("aToken");
-
+  const handleGetQuestion = async () => {
     const sortedChapters = selectedChapters.sort((a, b) => (a.id > b.id ? 1 : -1));
     setSelectedChapters(sortedChapters);
-    const newChapterIds = sortedChapters.map((chap) => `chapterIds=${chap.id}`).join("&");
-    if (mockIncluded === "모의고사 포함") setMockExam(true);
-    else setMockExam(false);
 
-    for (let i = 0; i < categoryToSendOption[quesTypes].length; i++) {
-      try {
-        const url = `https://www.science-match.p-e.kr/teacher/questions/normal?${newChapterIds}&questionNum=${quesNum}&level=${difficultyToSendOption[paperDifficulty]}&category=${categoryToSendOption[quesTypes][i]}&mockExam=${mockExam}`;
-
-        const response = await Axios.post(
-          url,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
-        tempArray = [...tempArray, ...response.data.data];
-      } catch (error) {
-        console.error(error);
-        console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-        if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-          alert("다시 로그인 해주세요");
-          navigate("/");
-        }
-        break;
-      }
-    }
-    tempArray.sort((a, b) => a.chapterId - b.chapterId);
-    setSelectedQuestions(tempArray);
+    await getQuestions(sortedChapters, quesNum, paperDifficulty, quesTypes, mockIncluded === "모의고사 포함");
   };
+
+  useEffect(() => {
+    const sortedQuestions = questionData.sort((a, b) => a.chapterId - b.chapterId);
+    console.log(sortedQuestions);
+    setSelectedQuestions(sortedQuestions);
+  }, [questionData]);
 
   const [quesNum, setQuesNum] = useState(25);
   const [paperDifficulty, setPaperDifficulty] = useState("중");
@@ -112,6 +87,7 @@ const CreateQuestionPaper = ({ closeModal }) => {
   };
 
   const [selectedBook, setSelectedBook] = useState(null);
+  const [localBookChapters, setLocalBookChapters] = useState([]);
   const TypeAndScope = () => {
     switch (activeMenu) {
       case "unitType":
@@ -140,10 +116,12 @@ const CreateQuestionPaper = ({ closeModal }) => {
             <SelectBook
               selectedBook={selectedBook}
               setSelectedBook={setSelectedBook}
+              localBookChapters={localBookChapters}
+              setLocalBookChapters={setLocalBookChapters}
               selectedQuestions={selectedQuestions}
               setSelectedQuestions={setSelectedQuestions}
-              selectedChapters={selectedChapters}
               setSelectedChapters={setSelectedChapters}
+              setPaperGrade={setPaperGrade}
             />
           </CQP.ScopeContainer>
         );
@@ -169,7 +147,7 @@ const CreateQuestionPaper = ({ closeModal }) => {
             selectedChapters={selectedChapters}
             setCreateStep={setCreateStep}
             preventNext={preventNext}
-            getQuestions={getQuestions}
+            getQuestions={handleGetQuestion}
           />
         );
       case "textbook":
@@ -179,6 +157,7 @@ const CreateQuestionPaper = ({ closeModal }) => {
             selectedChapters={selectedChapters}
             setCreateStep={setCreateStep}
             preventNext={preventNext}
+            setSimpleChapters={setSimpleChapters}
           />
         );
       case "exam":
@@ -206,12 +185,22 @@ const CreateQuestionPaper = ({ closeModal }) => {
           />
         );
       case "addNew":
-        return <CQP.ScopeContainer>새 문제 추가...</CQP.ScopeContainer>;
-      case "twinQues":
-        return <CQP.ScopeContainer>쌍디...</CQP.ScopeContainer>;
+        return (
+          <AddMoreQuestions
+            selectedQuestions={selectedQuestions}
+            setSelectedQuestions={setSelectedQuestions}
+            selectedChapters={selectedChapters}
+            paperDifficulty={paperDifficulty}
+            quesTypes={quesTypes}
+            mockIncluded={mockIncluded}
+            setSortOption={setSortOption}
+            setQuestionTag={setQuestionTag}
+          />
+        );
       case "addConcept":
         return (
           <AddConcept
+            selectedChapters={selectedChapters}
             simpleChapter={simpleChapter}
             setSelectedConcepts={setSelectedConcepts}
             selectedConceptIds={selectedConceptIds}
@@ -226,6 +215,7 @@ const CreateQuestionPaper = ({ closeModal }) => {
   const [sortOption, setSortOption] = useState("default");
   const [selectedConcepts, setSelectedConcepts] = useState([]);
   const [selectedConceptIds, setSelectedConceptIds] = useState([]);
+
   const RenderSteps = () => {
     switch (createStep) {
       case 1:
@@ -272,6 +262,7 @@ const CreateQuestionPaper = ({ closeModal }) => {
       case 3:
         return (
           <ThirdStep
+            closeModal={closeModal}
             selectedQuestions={selectedQuestions}
             selectedConcepts={selectedConcepts}
             title={paperName}
@@ -287,25 +278,90 @@ const CreateQuestionPaper = ({ closeModal }) => {
             questionTag={questionTag}
             subject={subject}
             level={paperDifficulty}
+            sortOption={sortOption}
           />
         );
     }
   };
 
   useEffect(() => {
+    switch (activeMenu) {
+      case "unitType":
+        setQuestionTag("NORMAL");
+        break;
+      case "textbook":
+        setQuestionTag("TEXT_BOOK");
+        break;
+      case "exam":
+        setQuestionTag("MOCK_EXAM");
+        break;
+      default:
+        setQuestionTag("NORMAL");
+    }
+  }, [activeMenu]);
+  useEffect(() => {
     setSelectedBook(null);
     setSelectedQuestions([]);
+    setSelectedChapters([]);
   }, [activeMenu]);
   useEffect(() => {
     manageCanGoNext();
   }, [selectedChapters]);
+  useEffect(() => {
+    const getKoreanGrade = (school, subject, semester) => {
+      // 과목명을 한글로 변환
+      const subjectNames = { SCIENCE: "과학", PHYSICS: "물", CHEMISTRY: "화", BIOLOGY: "생", EARTH_SCIENCE: "지" };
 
+      // 학기명을 서수로 변환
+      const semesterNames = {
+        FIRST1: "1-1",
+        FIRST2: "1-2",
+        SECOND1: "2-1",
+        SECOND2: "2-2",
+        THIRD1: "3-1",
+        THIRD2: "3-2",
+        FOURTH1: "4-1",
+        FOURTH2: "4-2",
+        FIFTH1: "5-1",
+        FIFTH2: "5-2",
+        SIXTH1: "6-1",
+        SIXTH2: "6-2",
+      };
+
+      // subject가 SCIENCE인 경우
+      if (subject === "SCIENCE") {
+        const grade = semesterNames[semester];
+        if (school && grade) {
+          return `${school}${grade}`;
+        } else {
+          return "Invalid input";
+        }
+      }
+
+      // subject가 SCIENCE가 아닌 경우
+      const subjectNameKorean = subjectNames[subject];
+      if (subjectNameKorean) {
+        const semesterNumber = semester.includes("FIRST") ? "1" : "2";
+        return `${subjectNameKorean}${semesterNumber}`;
+      }
+
+      return "Invalid input";
+    };
+    console.log(paperGrade);
+    setPaperGrade(getKoreanGrade(school, subject, semester));
+  }, [school, subject, semester]);
   return (
     <CQP.Modal_Overlay>
       <CQP.Modal>
         <CQP.NavigationBar>
           <CQP.StepBox>STEP {createStep}</CQP.StepBox>
-          <CQP.StepDescipt>{createPaperSequence()}</CQP.StepDescipt>
+          <CQP.StepDescipt
+            onClick={() => {
+              console.log(selectedQuestions);
+            }}
+          >
+            {createPaperSequence()}
+          </CQP.StepDescipt>
           <CQP.StepSpotBox>
             <CQP.StepSpot $isOnStep={createStep == 1}>① 범위 선택</CQP.StepSpot>
             <CQP.StepSpot $isOnStep={createStep == 2}>② 상세 편집</CQP.StepSpot>

@@ -11,15 +11,16 @@ import {
   faO,
   faSearch,
   faSliders,
-  faTrash,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale/ko";
 import ScoreQuiz from "./ScoreQuiz";
+import useDeleteAssignQuiz from "../../../../libs/apis/Teacher/Class/deleteAssignQuiz";
 
 const OneOnOneQuiz = ({ studentId }) => {
+  const { deleteAssignQuiz } = useDeleteAssignQuiz();
   const modifyDateToStartOfDay = (date) => {
     const newDate = new Date(date);
     newDate.setHours(0, 0, 0, 0); // 시간을 00:00:00:000로 설정
@@ -106,6 +107,7 @@ const OneOnOneQuiz = ({ studentId }) => {
         alert("다시 로그인 해주세요");
       }
     }
+    setLookMoreIndex(-1);
   };
   useEffect(() => {
     if (studentId) getQuizs();
@@ -169,7 +171,7 @@ const OneOnOneQuiz = ({ studentId }) => {
   }, [receivedQuizs]);
 
   const deleteQuiz = async (quizId) => {
-    console.log(`다음의 질문을 삭제합니다 ${quizId}`);
+    await deleteAssignQuiz(quizId);
   };
 
   const [selectedQuizIds, setSelectedQuizIds] = useState([]);
@@ -200,12 +202,13 @@ const OneOnOneQuiz = ({ studentId }) => {
     setQuizsWithAnswer(tempQuizs);
     setSelectedQuizIds([]);
   };
-  const deleteAll = () => {
-    selectedQuizIds.map((qId) => {
+  const deleteAll = async () => {
+    await selectedQuizIds.map((qId) => {
       deleteQuiz(qId);
     });
     alert(`질문 ${selectedQuizIds.length}개가 삭제 되었습니다.`);
     deselectAll();
+    getQuizs();
   };
 
   const cutLongText = (text, cutLength) => {
@@ -439,17 +442,18 @@ const OneOnOneQuiz = ({ studentId }) => {
               >
                 <FontAwesomeIcon icon={faEllipsisVertical} />
               </OO.MoreInfoBtn>
-              {/* {index == lookMoreIndex && (
+              {index == lookMoreIndex && (
                 <OO.MoreInfo>
                   <OO.MoreBtn
-                    onClick={() => {
-                      deleteQuiz(quiz.id);
+                    onClick={async () => {
+                      await deleteQuiz(quiz.id);
+                      getQuizs();
                     }}
                   >
                     삭제
                   </OO.MoreBtn>
                 </OO.MoreInfo>
-              )} */}
+              )}
             </OO.CellBox>
           </OO.QuestionPaperLine>
         ))}

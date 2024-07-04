@@ -1,16 +1,19 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCaretDown, faCheck } from "@fortawesome/free-solid-svg-icons";
-import PreviewPaper from "./PreviewPaper";
-import Axios from "axios";
-import { getCookie } from "../../../../../libs/cookie";
 import jsPDF from "jspdf";
 import nanum_font from "../../../../../style/fonts/nanum/Nanum_Base64";
 import theme from "../../../../../style/theme";
-import { useNavigate } from "react-router-dom";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faCircle } from "@fortawesome/free-solid-svg-icons";
+
+import PreviewPaper from "./PreviewPaper";
+
+import useGetLogo from "../../../../../libs/hooks/Teacher/MyPage/useGetLogo";
+import usePostCreateQuestion from "../../../../../libs/apis/Teacher/Prepare/postCreateQuestion";
 
 const ThirdStep = ({
+  closeModal,
   selectedQuestions,
   selectedConcepts,
   title,
@@ -18,7 +21,6 @@ const ThirdStep = ({
   makerName,
   setMakerName,
   paperGrade,
-  setPaperGrade,
   setCreateStep,
   school,
   semester,
@@ -26,24 +28,19 @@ const ThirdStep = ({
   questionTag,
   subject,
   level,
+  sortOption,
 }) => {
-  const navigate = useNavigate();
-  const gradeList = ["초3-1", "초4-1", "초5-1", "초6-1", "중1-1"];
-  const colorList = ["#00f200", "red", "yellow", "orange", "blue"];
+  const { logoUrl } = useGetLogo();
+  const { postCreateQuestion } = usePostCreateQuestion();
+  const colorList = ["#00f200", "#FF0064", "#AB00FF", "#FFAE00", "#0086FF"];
   const [selectedColor, setSelectedColor] = useState(colorList[0]);
   const [tamplateNum, setTamplateNum] = useState(1);
-  const [showGradeList, setShowGradeList] = useState(false);
-
-  const [pdfUrl, setPdfUrl] = useState("");
-
-  const [logoUrl, setLogoUrl] = useState("");
 
   const [minChapterId, setMinChapterId] = useState(null);
   const [maxChapterId, setMaxChapterId] = useState(null);
   useEffect(() => {
     const tempQues = [...selectedQuestions];
     tempQues.sort((a, b) => a.chapterId - b.chapterId);
-    console.log(tempQues);
     setMinChapterId({ id: tempQues[0].chapterId, description: tempQues[0].chapterDescription });
     setMaxChapterId({
       id: tempQues[tempQues.length - 1].chapterId,
@@ -74,30 +71,24 @@ const ThirdStep = ({
     pdf.text(pageNumText, 105, 289, "center");
   };
 
-  const getLogo = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/mypage";
+  const mergedArray = selectedConcepts.map((concept) => {
+    const relatedQuestions = selectedQuestions
+      .filter((question) => question.chapterId === concept.chapterId)
+      .map((question) => ({ imageUrl: question.imageURL, chapterDescription: question.chapterDescription }));
 
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      setLogoUrl(response.data.data.logo);
-    } catch (error) {
-      alert("로고를 불러오지 못했습니다.");
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-      navigate("/");
-    }
-  };
+    return {
+      chapterId: concept.chapterId,
+      conceptUrl: concept.url,
+      questions: relatedQuestions,
+    };
+  });
+  const [conceptAtFront, setConceptAtFront] = useState(true);
+  useEffect(() => {
+    if (sortOption !== `default`) setConceptAtFront(true);
+  }, [sortOption]);
 
   const generatePDF = async () => {
     const pdf = new jsPDF();
-    await getLogo();
 
     pdf.addFileToVFS("NanumGothic.ttf", nanum_font.normal);
     pdf.addFont("NanumGothic.ttf", "nanum", "normal");
@@ -168,136 +159,178 @@ const ThirdStep = ({
 
     let posX = 9;
     let posY = textPosY + 10;
+    if (conceptAtFront) {
+      for (const [index, concept] of selectedConcepts.entries()) {
+        try {
+          const img = await loadImage(concept.url);
+          const imgWidth = img.naturalWidth;
+          const imgHeight = img.naturalHeight;
 
-    for (const [index, concept] of selectedConcepts.entries()) {
-      try {
-        const img = await loadImage(concept.url);
-        const imgWidth = img.naturalWidth;
-        const imgHeight = img.naturalHeight;
+          const imgurl = `${concept.url}?r=` + Math.floor(Math.random() * 100000);
+          const pdfImgWidth = 87;
+          const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
 
-        const imgurl = `${concept.url}?r=` + Math.floor(Math.random() * 100000);
-        const pdfImgWidth = 87;
-        const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
-
-        if (posY + pdfImgHeight > 282) {
-          if (posX < 20) {
-            posX += 105;
-            posY = textPosY + 10;
-          } else {
-            pdf.addPage();
-            pageNum += 1;
-            addPageNum(pdf, pageNum);
-            addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
-            pdf.line(5, 20, 205, 20);
-            pdf.line(105, 20, 105, 282);
-            textPosY = 20;
-            posX = 9;
-            posY = textPosY + 10;
+          if (posY + pdfImgHeight > 282) {
+            if (posX < 20) {
+              posX += 105;
+              posY = textPosY + 10;
+            } else {
+              pdf.addPage();
+              pageNum += 1;
+              addPageNum(pdf, pageNum);
+              addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
+              pdf.line(5, 20, 205, 20);
+              pdf.line(105, 20, 105, 282);
+              textPosY = 20;
+              posX = 9;
+              posY = textPosY + 10;
+            }
           }
-        }
 
-        pdf.addImage(imgurl, "JPEG", posX, posY, pdfImgWidth, pdfImgHeight);
-        posY += pdfImgHeight + 10;
-      } catch (error) {
-        console.error(error);
+          pdf.addImage(imgurl, "JPEG", posX, posY, pdfImgWidth, pdfImgHeight);
+          posY += pdfImgHeight + 10;
+        } catch (error) {
+          console.error(error);
+        }
       }
-    }
 
-    for (const [index, ques] of selectedQuestions.entries()) {
-      try {
-        const img = await loadImage(ques.imageURL);
-        const imgWidth = img.naturalWidth;
-        const imgHeight = img.naturalHeight;
+      for (const [index, ques] of selectedQuestions.entries()) {
+        try {
+          const img = await loadImage(ques.imageURL); // imageURL을 imageUrl로 변경
+          const imgWidth = img.naturalWidth;
+          const imgHeight = img.naturalHeight;
 
-        const imgurl = `${ques.imageURL}?r=` + Math.floor(Math.random() * 100000);
-        const pdfImgWidth = 75;
-        const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
+          const imgurl = `${ques.imageURL}?r=` + Math.floor(Math.random() * 100000);
+          const pdfImgWidth = 75;
+          const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
 
-        if (posY + pdfImgHeight > 282) {
-          if (posX < 20) {
-            posX += 105;
-            posY = textPosY + 10;
-          } else {
-            pdf.addPage();
-            pageNum += 1;
-            addPageNum(pdf, pageNum);
-            addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
-            pdf.line(5, 20, 205, 20);
-            pdf.line(105, 20, 105, 282);
-            textPosY = 20;
-            posX = 9;
-            posY = textPosY + 10;
+          if (posY + pdfImgHeight > 282) {
+            if (posX < 20) {
+              posX += 105;
+              posY = textPosY + 10;
+            } else {
+              pdf.addPage();
+              pageNum += 1;
+              addPageNum(pdf, pageNum);
+              addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
+              pdf.line(5, 20, 205, 20);
+              pdf.line(105, 20, 105, 282);
+              textPosY = 20;
+              posX = 9;
+              posY = textPosY + 10;
+            }
+          }
+
+          const quesChapterText = `| ${ques.chapterDescription} |`;
+          addTextWithStyle(pdf, quesChapterText, posX, posY, "nanum", "normal", 8, theme.colors.gray60);
+          posY += 5;
+          const indexText = `${String(index + 1).padStart(2, "0")}`;
+          addTextWithStyle(pdf, indexText, posX, posY + 5, "nanumExtra", "extraBold", "20", selectedColor);
+          pdf.addImage(imgurl, "JPEG", posX + 11, posY, pdfImgWidth, pdfImgHeight);
+          posY += pdfImgHeight + 15;
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    } else {
+      let questionOrder = 1;
+      for (const chapter of mergedArray) {
+        try {
+          const img = await loadImage(chapter.conceptUrl);
+          const imgWidth = img.naturalWidth;
+          const imgHeight = img.naturalHeight;
+
+          const imgurl = `${chapter.conceptUrl}?r=` + Math.floor(Math.random() * 100000);
+          const pdfImgWidth = 87;
+          const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
+
+          if (posY + pdfImgHeight > 282) {
+            if (posX < 20) {
+              posX += 105;
+              posY = textPosY + 10;
+            } else {
+              pdf.addPage();
+              pageNum += 1;
+              addPageNum(pdf, pageNum);
+              addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
+              pdf.line(5, 20, 205, 20);
+              pdf.line(105, 20, 105, 282);
+              textPosY = 20;
+              posX = 9;
+              posY = textPosY + 10;
+            }
+          }
+
+          pdf.addImage(imgurl, "JPEG", posX, posY, pdfImgWidth, pdfImgHeight);
+          posY += pdfImgHeight + 10;
+        } catch (error) {
+          console.error(error);
+        }
+        for (const [index, ques] of chapter.questions.entries()) {
+          try {
+            const img = await loadImage(ques.imageUrl); // imageURL을 imageUrl로 변경
+            const imgWidth = img.naturalWidth;
+            const imgHeight = img.naturalHeight;
+
+            const imgurl = `${ques.imageUrl}?r=` + Math.floor(Math.random() * 100000);
+            const pdfImgWidth = 75;
+            const pdfImgHeight = (pdfImgWidth * imgHeight) / imgWidth;
+
+            if (posY + pdfImgHeight > 282) {
+              if (posX < 20) {
+                posX += 105;
+                posY = textPosY + 10;
+              } else {
+                pdf.addPage();
+                pageNum += 1;
+                addPageNum(pdf, pageNum);
+                addTextWithStyle(pdf, dateAndMakerText, 10, 15, "nanum", "normal", 9, theme.colors.gray70);
+                pdf.line(5, 20, 205, 20);
+                pdf.line(105, 20, 105, 282);
+                textPosY = 20;
+                posX = 9;
+                posY = textPosY + 10;
+              }
+            }
+
+            const quesChapterText = `| ${ques.chapterDescription} |`;
+            addTextWithStyle(pdf, quesChapterText, posX, posY, "nanum", "normal", 8, theme.colors.gray60);
+            posY += 5;
+            const indexText = `${String(questionOrder).padStart(2, "0")}`;
+            addTextWithStyle(pdf, indexText, posX, posY + 5, "nanumExtra", "extraBold", "20", selectedColor);
+            pdf.addImage(imgurl, "JPEG", posX + 11, posY, pdfImgWidth, pdfImgHeight);
+            questionOrder += 1;
+            posY += pdfImgHeight + 15;
+          } catch (error) {
+            console.error(error);
           }
         }
-
-        const quesChapterText = `| ${ques.chapterDescription} |`;
-        addTextWithStyle(pdf, quesChapterText, posX, posY, "nanum", "normal", 8, theme.colors.gray60);
-        posY += 5;
-        const indexText = `${String(index + 1).padStart(2, "0")}`;
-        addTextWithStyle(pdf, indexText, posX, posY + 5, "nanumExtra", "extraBold", "20", selectedColor);
-        pdf.addImage(imgurl, "JPEG", posX + 11, posY, pdfImgWidth, pdfImgHeight);
-        posY += pdfImgHeight + 15;
-      } catch (error) {
-        console.error(error);
       }
     }
 
     window.open(pdf.output("bloburl"));
     const pdfBlob = pdf.output("blob");
-    setPdfUrl(pdfBlob);
-    console.log(pdfBlob);
+    await postCreateQuestion(
+      school,
+      semester,
+      subject,
+      level,
+      title,
+      makerName,
+      category,
+      questionTag,
+      selectedQuestions,
+      pdfBlob,
+      minChapterId,
+      maxChapterId,
+      tamplateNum,
+      selectedColor
+    );
+    closeModal();
   };
 
-  useEffect(() => {
-    //if (minChapterId !== null) generatePDF();
-  }, [selectedColor, title, makerName, tamplateNum]);
-
-  const schoolToSend = { 초: "ELEMENTARY", 중: "MIDDLE", 고: "HIGH" };
-  const difficultyToSendOption = {
-    하: "LOW",
-    중하: "MEDIUM_LOW",
-    중: "MEDIUM",
-    중상: "MEDIUM_HARD",
-    상: "HARD",
-  };
-  const postQuesPaper = async () => {
-    console.log(pdfUrl);
-    const idsString = selectedQuestions.map((question) => question.questionId).join(",");
-    const tempQues = [...selectedQuestions];
-    console.log(tempQues);
-    tempQues.sort((a, b) => a.chapterId - b.chapterId);
-    const formData = new FormData();
-    formData.append("school", schoolToSend[school]);
-    formData.append("semester", semester);
-    formData.append("subject", subject);
-    formData.append("level", difficultyToSendOption[level]);
-    formData.append("title", title);
-    formData.append("makerName", makerName);
-    formData.append("category", "MULTIPLE"); //category.includes("SUBJECTIVE") ? "SUBJECTIVE" : "MULTIPLE");
-    formData.append("questionTag", questionTag);
-    formData.append("questionIds", idsString);
-    formData.append("questionNum", selectedQuestions.length);
-    formData.append("pdf", pdfUrl, "Example.pdf");
-    formData.append("minChapterId", minChapterId.id);
-    formData.append("maxChapterId", maxChapterId.id);
-    formData.append("template", tamplateNum);
-    formData.append("themeColor", selectedColor);
-
-    try {
-      const url = `https://www.science-match.p-e.kr/teacher/question-paper/create`;
-      const response = await Axios.post(url, formData, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${getCookie("aToken")}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      console.log("API 응답 데이터:", response.data);
-    } catch (error) {
-      // API 요청이 실패한 경우
-      console.error("API 요청 실패:", error);
-    }
+  const onCreateClicked = async () => {
+    await generatePDF();
   };
 
   const RenderSettings = () => {
@@ -312,6 +345,7 @@ const ThirdStep = ({
                 if (e.target.value.length < 30) setTitle(e.target.value);
               }}
               maxLength={35}
+              placeholder="학습지 제목을 입력하세요"
             />
           </SET.PropContainer>
           <SET.PropContainer>
@@ -321,43 +355,43 @@ const ThirdStep = ({
               onChange={(e) => {
                 setMakerName(e.target.value);
               }}
+              placeholder="출제 선생님 이름을 입력하세요"
             />
           </SET.PropContainer>
         </SET.PropLine>
         <SET.PropLine>
           <SET.PropContainer>
-            <SET.PropLabel>학년 선택</SET.PropLabel>
+            <SET.PropLabel>학년</SET.PropLabel>
             <SELECT.DropDown>
-              <SELECT.DropdownLabel
-                onClick={() => {
-                  setShowGradeList((prev) => !prev);
-                }}
-              >
-                {paperGrade}
-                <FontAwesomeIcon icon={faCaretDown} style={{ marginLeft: "1rem" }} />
-              </SELECT.DropdownLabel>
-
-              {showGradeList ? (
-                <SELECT.DropdownContainor>
-                  {gradeList.map((targetGrade, index) => (
-                    <SELECT.DropdownOption
-                      key={index}
-                      onClick={() => {
-                        setPaperGrade(targetGrade);
-                        setShowGradeList(false);
-                      }}
-                    >
-                      {targetGrade}
-                    </SELECT.DropdownOption>
-                  ))}
-                </SELECT.DropdownContainor>
-              ) : (
-                <></>
-              )}
+              <SELECT.DropdownLabel>{paperGrade}</SELECT.DropdownLabel>
             </SELECT.DropDown>
           </SET.PropContainer>
           <SET.PropContainer>
             <SET.PropLabel>개념 배치</SET.PropLabel>
+            <SET.BtnLine>
+              <SET.RadioLabel
+                onClick={() => {
+                  setConceptAtFront(true);
+                }}
+              >
+                <SET.RadioBtn $selected={conceptAtFront}>
+                  {conceptAtFront && <FontAwesomeIcon icon={faCircle} />}
+                </SET.RadioBtn>
+                학습지 맨 앞
+              </SET.RadioLabel>
+              {sortOption === `default` && (
+                <SET.RadioLabel
+                  onClick={() => {
+                    setConceptAtFront(false);
+                  }}
+                >
+                  <SET.RadioBtn $selected={!conceptAtFront}>
+                    {!conceptAtFront && <FontAwesomeIcon icon={faCircle} />}
+                  </SET.RadioBtn>
+                  연관 문제 앞
+                </SET.RadioLabel>
+              )}
+            </SET.BtnLine>
           </SET.PropContainer>
         </SET.PropLine>
         <SET.TemplateContainer>
@@ -391,7 +425,7 @@ const ThirdStep = ({
         <PreviewPaper
           selectedQuestions={selectedQuestions}
           tamplateNum={tamplateNum}
-          selectedColor={selectedColor}
+          colorTheme={selectedColor}
           title={title}
           makerName={makerName}
           paperGrade={paperGrade}
@@ -403,22 +437,10 @@ const ThirdStep = ({
         </PV.SummaryBox>
         <PV.ButtonBox>
           <PV.PrevStepBtn onClick={() => setCreateStep((prev) => prev - 1)}>이전</PV.PrevStepBtn>
-          <PV.MakeBtn
-            onClick={() => {
-              generatePDF();
-            }}
-          >
+          <PV.MakeBtn onClick={onCreateClicked} disabled={title === "" || makerName === ""}>
             학습지 생성
           </PV.MakeBtn>
-          {/* <MakePaper
-            selectedQuestions={selectedQuestions}
-            title={title}
-            makerName={makerName}
-            paperGrade={paperGrade}
-            selectedColor={selectedColor}
-          /> */}
         </PV.ButtonBox>
-        <button onClick={postQuesPaper}>!!!!!!!!!!</button>
       </PV.PaperSection>
     );
   };
@@ -480,7 +502,33 @@ const SET = {
     font-size: 1.75rem;
   `,
   ComboBox: styled.select``,
-  RadioBtn: styled.input``,
+  BtnLine: styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  `,
+  RadioBtn: styled.div`
+    width: 2rem;
+    height: 2rem;
+    border: 0.2rem solid ${({ $selected, theme }) => ($selected ? theme.colors.mainColor : `black`)};
+    color: ${({ $selected, theme }) => ($selected ? theme.colors.mainColor : `black`)};
+    border-radius: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+  `,
+  RadioLabel: styled.div`
+    height: 5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-right: 3rem;
+    cursor: pointer;
+  `,
   TagContainer: styled.div``,
   TagLabel: styled.div``,
   Tag: styled.div``,
@@ -541,11 +589,9 @@ const SELECT = {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     color: black;
     font-size: 1.75rem;
-    padding-inline-end: 1rem;
-    cursor: pointer;
   `,
   DropdownContainor: styled.div`
     position: relative;
@@ -682,5 +728,9 @@ const PV = {
     font-weight: bold;
     color: white;
     background-color: ${({ theme }) => theme.colors.mainColor};
+    &:disabled {
+      background-color: ${({ theme }) => theme.colors.gray30};
+      cursor: default;
+    }
   `,
 };
