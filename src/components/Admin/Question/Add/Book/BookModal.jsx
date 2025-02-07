@@ -217,7 +217,6 @@ const BookLookupModal = ({
     setEditingBook({ ...editingBook, editionNum: e.target.value });
   };
   const updateBook = async () => {
-    console.log(editingBook);
     await patchUpdateBook(editingBook);
     await getBooks();
     setIsEditing(false);

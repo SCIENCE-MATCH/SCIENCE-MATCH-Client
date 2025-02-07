@@ -1,28 +1,36 @@
 import styled from "styled-components";
-const PreviewQuiz = ({ closeModal, questionText }) => {
+const PreviewQuiz = ({ closeModal, previewQuiz }) => {
   return (
-    <CTEAM.ModalOverlay>
-      <CTEAM.Modal>
-        <CTEAM.TitleLine>
-          <CTEAM.Title>1:1 질문 상세보기</CTEAM.Title>
-        </CTEAM.TitleLine>
-        <CTEAM.ContentLine>
-          <CTEAM.TextLabel>질문 전문</CTEAM.TextLabel>
-        </CTEAM.ContentLine>
-        <CTEAM.ContentLine>
-          <CTEAM.TextBox>{questionText}</CTEAM.TextBox>
-        </CTEAM.ContentLine>
-        <CTEAM.BtnLine>
-          <CTEAM.CloseBtn onClick={closeModal}>닫기</CTEAM.CloseBtn>
-        </CTEAM.BtnLine>
-      </CTEAM.Modal>
-    </CTEAM.ModalOverlay>
+    <PQ.ModalOverlay>
+      <PQ.Modal>
+        <PQ.TitleLine>
+          <PQ.Title>1:1 질문 상세보기</PQ.Title>
+        </PQ.TitleLine>
+        <PQ.ContentLine>
+          <PQ.TextLabel>질문 전문</PQ.TextLabel>
+        </PQ.ContentLine>
+        <PQ.ContentLine>
+          <PQ.TextBox>{previewQuiz.question}</PQ.TextBox>
+        </PQ.ContentLine>
+        {previewQuiz.image && (
+          <PQ.ContentLine>
+            <PQ.TextLabel>이미지</PQ.TextLabel>
+            <PQ.ImgBox>
+              <PQ.Image src={previewQuiz.image} />
+            </PQ.ImgBox>
+          </PQ.ContentLine>
+        )}
+        <PQ.BtnLine>
+          <PQ.CloseBtn onClick={closeModal}>닫기</PQ.CloseBtn>
+        </PQ.BtnLine>
+      </PQ.Modal>
+    </PQ.ModalOverlay>
   );
 };
 
 export default PreviewQuiz;
 
-const CTEAM = {
+const PQ = {
   ModalOverlay: styled.div`
     position: fixed;
     top: 0;
@@ -61,8 +69,8 @@ const CTEAM = {
   `,
   ContentLine: styled.div`
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
   `,
   ContentBox: styled.div`
     display: flex;
@@ -91,6 +99,37 @@ const CTEAM = {
     font-weight: 500;
     line-height: 2.5rem;
     border: 0.2rem solid ${({ $isEmpty, theme }) => ($isEmpty ? theme.colors.warning : theme.colors.unselected)};
+  `,
+  ImgBox: styled.div`
+    width: 62.9rem;
+    max-height: 30rem;
+    border-radius: 1rem;
+    border: 0.2rem solid ${({ theme }) => theme.colors.gray50};
+    display: flex;
+    align-items: flex-start;
+    padding: 2rem;
+    padding-right: 0rem;
+    margin-left: 3rem;
+    overflow: hidden;
+    &:hover {
+      overflow-y: scroll;
+    }
+    &::-webkit-scrollbar {
+      width: 1rem;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.colors.unselected};
+      border-radius: 1rem;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: ${({ theme }) => theme.colors.mainColor};
+    }
+  `,
+  Image: styled.img`
+    width: 58.4rem;
+    height: auto;
   `,
 
   BtnLine: styled.div`

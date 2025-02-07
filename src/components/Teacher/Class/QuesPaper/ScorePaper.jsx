@@ -14,20 +14,20 @@ import usePostGetWrong from "../../../../libs/apis/Teacher/Class/postGetWrongs";
 
 const ScorePaper = ({ closeModal, paper, studentInfo }) => {
   const { postGradeQuestion } = usePostGradeQuestion();
-  const { getLogo, logoUrl } = useGetLogo();
+  const { logoUrl } = useGetLogo();
   const { wrongQuestions, postGetWrong } = usePostGetWrong();
   const [selectedQuestion, setSelectedQuestion] = useState("");
 
   const [answers, setAnswers] = useState(paper.answerResponseDtos);
 
-  const makeRight = (target) => {
-    postGradeQuestion(target.id, true);
+  const makeRight = async (target) => {
+    await postGradeQuestion(target.id, true);
     const tempPaper = answers.map((answer) => (answer.id === target.id ? { ...answer, rightAnswer: true } : answer));
 
     setAnswers(tempPaper); // 새 배열을 반환
   };
-  const makeWrong = (target) => {
-    postGradeQuestion(target.id, false);
+  const makeWrong = async (target) => {
+    await postGradeQuestion(target.id, false);
     const tempPaper = answers.map((answer) => (answer.id === target.id ? { ...answer, rightAnswer: false } : answer));
 
     setAnswers(tempPaper); // 새 배열을 반환
@@ -40,7 +40,6 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
         ...ques,
         rightAnswer: ques.category === "MULTIPLE" ? ques.rightAnswer : null,
       }));
-      console.log(tempArr);
       setAnswers(tempArr);
     }
   };
@@ -131,8 +130,6 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
     });
 
     // setLevelPercent 및 setChapterPercent 호출
-    console.log(levelPercent);
-    console.log(chapterPercent);
     setLevelPercent(levelPercent);
     setChapterPercent(chapterPercent);
   }, [paper]);
@@ -242,7 +239,6 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
       });
     });
   };
-  console.log(studentInfo);
   const generatePDF = async () => {
     const pdf = new jsPDF();
 
@@ -287,7 +283,6 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
     );
     textPosY += 7;
     addTextWithStyle(pdf, `${paper.title}`, 14, textPosY, "nanum", "normal", 11, theme.colors.gray90);
-    console.log(paper);
 
     let logoWidth = 0;
     let logoHeight = 0;
@@ -447,7 +442,6 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
   const makeWrongPaper = async () => {
     await postGetWrong(paper.id);
   };
-  console.log(paper);
   return (
     <EQ.ModalOverlay>
       <EQ.Modal>
@@ -488,16 +482,16 @@ const ScorePaper = ({ closeModal, paper, studentInfo }) => {
                   </EQ.PreviewBtn>
                   <EQ.RightBtn
                     $isCorrect={answer.rightAnswer}
-                    onClick={() => {
-                      makeRight(answer);
+                    onClick={async () => {
+                      await makeRight(answer);
                     }}
                   >
                     <FontAwesomeIcon icon={faO} />
                   </EQ.RightBtn>
                   <EQ.WrongBtn
                     $isCorrect={answer.rightAnswer === false}
-                    onClick={() => {
-                      makeWrong(answer);
+                    onClick={async () => {
+                      await makeWrong(answer);
                     }}
                   >
                     <FontAwesomeIcon icon={faXmark} />

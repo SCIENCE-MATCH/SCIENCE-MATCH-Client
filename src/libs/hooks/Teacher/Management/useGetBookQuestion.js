@@ -1,5 +1,5 @@
 import useApiClient from "../../../useApiClient";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const useGetBookQuestion = () => {
   const apiClient = useApiClient();

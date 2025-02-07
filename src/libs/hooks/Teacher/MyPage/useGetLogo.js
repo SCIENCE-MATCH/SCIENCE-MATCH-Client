@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 const useGetLogo = () => {
   const apiClient = useApiClient();
   const [logoUrl, setData] = useState({});
+  const [teacherName, setName] = useState("");
 
   const getLogo = () => {
     apiClient
@@ -11,10 +12,10 @@ const useGetLogo = () => {
       .then((response) => {
         const responseData = response.data.data;
         setData(responseData.logo ?? "");
+        setName(responseData.name);
       })
       .catch((error) => {
         console.error("API 요청 실패:", error.response);
-        alert("로고를 불러오지 못했습니다.");
       });
   };
 
@@ -22,7 +23,7 @@ const useGetLogo = () => {
     getLogo();
   }, []);
 
-  return { getLogo, logoUrl };
+  return { getLogo, teacherName, logoUrl };
 };
 
 export default useGetLogo;

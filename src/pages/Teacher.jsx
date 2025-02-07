@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import ManageStudent from "../components/Teacher/Management/ManageStudent";
-import ManageQuestionPaper from "../components/Teacher/PrepareClass/CreateQuestionPaper/ManageQuestionPaper.jsx";
+import ManageQuestionPaper from "../components/Teacher/PrepareClass/QuestionPaper/ManageQuestionPaper.jsx";
 import TeacherHeader from "../components/Teacher/TeacherHeader";
 import MyPage from "../components/Teacher/More/MyPage";
 import PrepareOneOnOneQuiz from "../components/Teacher/PrepareClass/OneOnOneQuiz/OneOnOneQuiz.jsx";
@@ -11,13 +11,19 @@ import ReportPage from "../components/Teacher/Class/ReportPage.jsx";
 import ManageTeam from "../components/Teacher/Management/ManageTeam.jsx";
 import StudentsAndTeams from "../components/Teacher/Class/StudentsAndTeams.jsx";
 import ClassQuestionPaper from "../components/Teacher/Class/QuesPaper/QuestionPaper.jsx";
+import { useNavigate } from "react-router";
 
-const Teacher = ({ accessToken, setAccessToken }) => {
+const Teacher = () => {
+  const navigate = useNavigate();
   const [activeTab, setTab] = useState("수업");
   const [activeSubTab, setSubTab] = useState("학습내역");
   const [currentStudentId, setCurrentStudentId] = useState(null);
   const [studentInfo, setStudentInfo] = useState({ name: "", grade: "" });
-  console.log(studentInfo);
+  const isMobile = /iPhone|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) {
+    alert("이 페이지는 모바일에서 접근할 수 없습니다.");
+    navigate("/"); // 리다이렉트할 페이지 경로
+  }
   useEffect(() => {
     setCurrentStudentId(null);
   }, []);

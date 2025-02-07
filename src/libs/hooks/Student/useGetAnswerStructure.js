@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { api } from "../../api";
+import useApiClient from "../../useApiClient";
 
 const useGetAnswerStructure = (id) => {
+  const apiClient = useApiClient();
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
-    await api
+    await apiClient
       .get("/student/question-paper/detail", {
         params: {
           AssignQuestionPaperId: id,
@@ -19,6 +20,7 @@ const useGetAnswerStructure = (id) => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { data, loading };

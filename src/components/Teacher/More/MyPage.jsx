@@ -11,7 +11,6 @@ const MyPage = () => {
   const { logOut } = useLogOut();
   const { data, getInfo } = useGetTeacherInfo();
 
-  console.log(data);
   const [modalType, setModalType] = useState(0);
   const [pw, setPw] = useState("");
   const [newPw, setNewPw] = useState("");
@@ -47,9 +46,7 @@ const MyPage = () => {
             setImgWidth((tempWidth * 15) / tempHeight);
             setImgHeight(15);
           }
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       })();
     }
   }, [data]);
@@ -104,9 +101,7 @@ const MyPage = () => {
             setNewImgWidth((tempWidth * 15) / tempHeight);
             setNewImgHeight(15);
           }
-        } catch (error) {
-          console.log(error);
-        }
+        } catch (error) {}
       })();
     }
   }, [newLogoUrl]);
@@ -328,7 +323,7 @@ const MP = {
     height: 80rem;
     padding-top: 2rem;
     border-radius: 1rem;
-    border: 0.05rem solid ${({ theme }) => theme.colors.gray20};
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   InfoContainer: styled.div`
     display: flex;
@@ -358,7 +353,7 @@ const MP = {
     width: 15rem;
     height: 5rem;
     font-size: 1.6rem;
-    font-weight: bold;
+    font-weight: 600;
   `,
   DataSlot: styled.div`
     display: flex;

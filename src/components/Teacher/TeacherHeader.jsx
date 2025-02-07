@@ -16,8 +16,9 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
     ) : (
       <Te.SubHeader>
         <Te.NavBar>
-          {tabs[activeTab].map((subTab) => (
+          {tabs[activeTab].map((subTab, i) => (
             <Te.TabBox
+              key={`subtab_${i}`}
               id={subTab}
               onClick={() => {
                 setSubTab(subTab);
@@ -35,14 +36,15 @@ const TeacherHeader = ({ activeTab, setTab, activeSubTab, setSubTab }) => {
 
   return (
     <Te.HeaderWrapper $onMyPage={activeTab === "MyPage"}>
-      <Te.MainHeader>
+      <Te.MainHeader $isOnlyHeader={activeTab === "MyPage"}>
         <Te.Title>
           Science
           <Te.ColoredTitle>Match</Te.ColoredTitle>
         </Te.Title>
         <Te.NavBar>
-          {Object.keys(tabs).map((tab) => (
+          {Object.keys(tabs).map((tab, i) => (
             <Te.TabBox
+              key={`tab_${i}`}
               id={tab}
               onClick={() => {
                 setTab(tab);
@@ -70,12 +72,12 @@ export default TeacherHeader;
 
 const Te = {
   HeaderWrapper: styled.header`
-    height: ${({ $onMyPage }) => ($onMyPage ? "5rem" : "10rem")}; // 전체 높이
+    min-width: 135rem;
+    height: ${({ $onMyPage }) => ($onMyPage ? "4.9rem" : "10rem")};
     background-color: ${({ theme }) => theme.colors.headerBg};
-    display: flex; // flexbox를 사용하여 두 헤더를 수직으로 정렬
-    flex-direction: column; // 자식 요소들을 세로로 배열
-    align-items: center; // 가운데 정렬
-    border-bottom: 0.2rem solid ${({ theme }) => theme.colors.gray20};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   `,
   MainHeader: styled.header`
     height: 5rem;
@@ -84,7 +86,14 @@ const Te = {
     grid-template-columns: 1fr 1fr 1fr;
     display: grid;
     align-items: center;
-    border-bottom: 0.2rem solid ${({ theme }) => theme.colors.gray20}; // 구분선 추가
+    ${({ $isOnlyHeader, theme }) =>
+      $isOnlyHeader
+        ? css`
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+          `
+        : css`
+            border-bottom: 0.2rem solid ${theme.colors.gray20};
+          `}
   `,
   SubHeader: styled.header`
     height: 5rem; // 헤더 높이 설정
@@ -93,6 +102,7 @@ const Te = {
     display: flex;
     align-items: center;
     justify-content: center; // 내용을 중앙 정렬
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   Title: styled.div`
     display: flex;
@@ -110,33 +120,33 @@ const Te = {
   `,
   SubTabs: styled.div`
     width: 100%;
-    min-width: 180rem; // 변경됨
-    height: 5rem; // 변경됨
-    top: 0.5rem; // 변경됨
+    min-width: 180rem;
+    height: 5rem;
+    top: 0.5rem;
     background-color: white;
     display: flex;
     align-items: center;
     flex-direction: row;
     justify-content: center;
-    border-bottom: 0.2rem solid ${({ theme }) => theme.colors.gray20}; // 변경됨
+    border-bottom: 0.2rem solid ${({ theme }) => theme.colors.gray20};
   `,
   NavBar: styled.div`
     display: flex;
-    align-items: center;
     flex-direction: row;
+    align-items: center;
     justify-content: center;
 
     gap: 6rem;
   `,
   TabBox: styled.div`
-    color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.headerPoint : theme.colors.unsellected)};
+    color: ${({ $isSelected, theme }) => ($isSelected ? theme.colors.mainColor : theme.colors.headerLi)};
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15rem; // 변경됨
+    width: 15rem;
     height: 5rem;
     font-weight: bold;
-    font-size: 2rem; // 변경됨
+    font-size: 2rem;
     position: relative;
     cursor: pointer;
   `,
@@ -147,17 +157,17 @@ const Te = {
     transform: translateX(-50%);
     width: ${({ $selected }) => ($selected ? `7.5rem` : 0)};
     height: 0.4rem;
-    background-color: ${({ theme }) => theme.colors.headerPoint};
+    background-color: ${({ theme }) => theme.colors.mainColor};
   `,
   SelectedTab: styled.div`
-    color: ${({ theme }) => theme.colors.headerPoint};
+    color: ${({ theme }) => theme.colors.mainColor};
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15rem; // 변경됨
-    height: 5rem; // 변경됨
+    width: 15rem;
+    height: 5rem;
     font-weight: bold;
-    font-size: 2.5rem; // 변경됨
+    font-size: 2.5rem;
   `,
   MyPageBtnWrapper: styled.div`
     margin-right: 2.6rem;

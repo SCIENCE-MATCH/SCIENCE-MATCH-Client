@@ -177,6 +177,34 @@ input, textarea,button {
 
 }
 
+.rdp-root {
+    --rdp-cell-size: 40px!important;
+    --rdp-nav_button-width: 40px!important;
+    font-family: 'Arial', sans-serif;
+    font-size: 25rem;
+    font-weight: bold;
+  }
+
+  .rdp-day {
+    transition: all 0.2s ease-in-out;
+    font-size:2rem;
+    &:hover {
+      color: ${({ theme }) => theme.colors.mainColor};
+    }
+  }
+  .rdp-caption {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .rdp-caption_label {
+    font-size: 1.8rem; /* 년/월 텍스트 크기 */
+    color: #007bff; /* 글자 색상 */
+    font-weight: bold; /* 글자 두께 */
+  }
+
+
 // react-datepicker 커스텀 스타일
 .react-datepicker {
     width: 33rem;

@@ -30,16 +30,12 @@ const RegistStudent = ({ closeModal, setSortOption, setSearchGrade }) => {
         parentNum: parentNum,
         phoneNum: phoneNum,
       };
-      //console.log(accessToken);
-      //console.log(grade, name, parentNum, phoneNum);
-
       await Axios.post(url, data, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
 
-      //console.log("API 응답 데이터:", response.data);
       alert("등록 완료!");
       {
         continueRegist || closeModal();

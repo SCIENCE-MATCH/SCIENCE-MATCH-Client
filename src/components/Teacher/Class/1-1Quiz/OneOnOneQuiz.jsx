@@ -486,6 +486,7 @@ const OO = {
     flex-direction: column;
     padding-top: 1.5rem;
     overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   FilterLine: styled.div`
     height: 6rem;

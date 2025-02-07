@@ -20,6 +20,8 @@ const LD = {
     justify-content: center;
     width: 113.5rem; /*standard: 1400*/
     height: 80rem;
+    border-radius: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   ManageSection: styled.div`
     width: 135rem;
@@ -28,7 +30,6 @@ const LD = {
     flex-direction: column;
     border-radius: 1rem;
     padding-top: 1.5rem;
-    border: 0.05rem solid ${({ theme }) => theme.colors.gray20};
     overflow: hidden;
   `,
 };

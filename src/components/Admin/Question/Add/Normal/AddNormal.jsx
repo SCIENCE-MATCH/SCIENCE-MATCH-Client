@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { getCookie } from "../../../../../libs/cookie";
-import { useNavigate } from "react-router-dom";
-import Axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleExclamation, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
+import usePostAddQuestion from "../../../../../libs/apis/Admin/Question/postAddQuestion";
 
 const AddNormal = ({ chapToAdd }) => {
-  const navigate = useNavigate();
+  const { postAddQuestion } = usePostAddQuestion();
   const [questionFile, setQuestionFile] = useState(null);
   const [questionImage, setQuestionImage] = useState(null);
   const [solutionFile, setSolutionFile] = useState(null);
@@ -17,7 +15,7 @@ const AddNormal = ({ chapToAdd }) => {
     setQuestionImage(null);
     setQuestionFile(null);
   };
-  const onQuestoinImgChange = (event) => {
+  const onQuestionImgChange = (event) => {
     const file = event.target.files[0];
 
     // Check if the selected file is an image
@@ -33,6 +31,8 @@ const AddNormal = ({ chapToAdd }) => {
     } else {
       alert("이미지 파일을 선택하세요.");
     }
+
+    event.target.value = null;
   };
 
   const onSolutionImgChange = (event) => {
@@ -51,6 +51,8 @@ const AddNormal = ({ chapToAdd }) => {
     } else {
       alert("이미지 파일을 선택하세요.");
     }
+
+    event.target.value = null;
   };
 
   const DeleteSolutionImg = () => {
@@ -59,78 +61,24 @@ const AddNormal = ({ chapToAdd }) => {
   };
 
   const difficultyOption = ["하", "중하", "중", "중상", "상"];
-  const difficultyToSendOption = {
-    하: "LOW",
-    중하: "MEDIUM_LOW",
-    중: "MEDIUM",
-    중상: "MEDIUM_HARD",
-    상: "HARD",
-  };
   const [difficulty, setDifficulty] = useState("중");
 
   const categoryOption = ["선택형", "단답형", "서술형"];
-  const categoryToSendOption = {
-    선택형: "MULTIPLE",
-    단답형: "SUBJECTIVE",
-    서술형: "DESCRIPTIVE",
-  };
   const [category, setCategory] = useState(categoryOption[0]);
-  const [categoryToSend, setCategoryToSend] = useState(categoryToSendOption[category]);
 
   const answerOption = [1, 2, 3, 4, 5];
   const [answer, setAnswer] = useState("");
 
-  const inputAnswer = (e) => {
-    setAnswer(e.target.value);
-  };
-
   const [score, setScore] = useState(1);
   const scoreOption = [1, 2, 3, 4];
-  const inputScore = (e) => {
-    setScore(e.target.value);
-  };
 
   const uploadQuestion = async () => {
-    try {
-      const apiUrl = "https://www.science-match.p-e.kr/admin/question/post";
+    postAddQuestion(difficulty, chapToAdd, solutionFile, answer, questionFile, category, score, "NORMAL");
 
-      // FormData 객체 생성
-      const formData = new FormData();
-      formData.append("level", difficultyToSendOption[difficulty]);
-      formData.append("chapterId", chapToAdd.id);
-      formData.append("solutionImg", solutionFile);
-      formData.append("solution", answer);
-      formData.append("image", questionFile);
-      formData.append("category", categoryToSendOption[category]);
-      formData.append("score", score);
-      formData.append("questionTag", "NORMAL");
-      formData.forEach((value, key) => {
-        console.log(key, value);
-      });
-      // Axios POST 요청
-      const accessToken = getCookie("aToken");
-      const response = await Axios.post(apiUrl, formData, {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "multipart/form-data; boundary=",
-        },
-      });
-
-      console.log(response.data);
-      alert("문제를 성공적으로 추가했습니다.");
-      setAnswer("");
-      DeleteQuestionImg(null);
-      DeleteSolutionImg(null);
-      setScore(1);
-      return response.data;
-    } catch (error) {
-      console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-        navigate("/");
-      }
-    }
+    setAnswer("");
+    DeleteQuestionImg();
+    DeleteSolutionImg();
+    setScore(1);
   };
 
   return (
@@ -148,15 +96,13 @@ const AddNormal = ({ chapToAdd }) => {
         ) : (
           <RQ.ChapterDescription>{chapToAdd.description}</RQ.ChapterDescription>
         )}
-        <RQ.AddBtn onClick={uploadQuestion} disabled={!chapToAdd.id || !questionFile || !solutionFile || !answer}>
-          문제 추가
-        </RQ.AddBtn>
       </RQ.ChapterLine>
       <RQ.OptionLine>
         <RQ.OptionLabel>난이도</RQ.OptionLabel>
         <RQ.OptionBtnBox>
           {difficultyOption.map((opt) => (
             <RQ.OptionBtn
+              key={`diff_${opt}`}
               $isSelected={difficulty === opt}
               onClick={() => {
                 setDifficulty(opt);
@@ -173,6 +119,7 @@ const AddNormal = ({ chapToAdd }) => {
           <RQ.OptionBtnBox>
             {scoreOption.map((opt) => (
               <RQ.OptionBtn
+                key={`score_${opt}`}
                 $isSelected={score === opt}
                 onClick={() => {
                   setScore(opt);
@@ -191,6 +138,7 @@ const AddNormal = ({ chapToAdd }) => {
         <RQ.OptionBtnBox>
           {categoryOption.map((opt) => (
             <RQ.OptionBtn
+              key={`cate_${opt}`}
               $isSelected={category === opt}
               onClick={() => {
                 setCategory(opt);
@@ -208,6 +156,7 @@ const AddNormal = ({ chapToAdd }) => {
           <RQ.OptionBtnBox>
             {answerOption.map((opt) => (
               <RQ.OptionBtn
+                key={`answer_${opt}`}
                 $isSelected={answer === opt}
                 onClick={() => {
                   setAnswer(opt);
@@ -227,7 +176,7 @@ const AddNormal = ({ chapToAdd }) => {
             <RQ.ImgLabel>문제 이미지</RQ.ImgLabel>
             <RQ.SelectBtn htmlFor="question_input">
               이미지 선택
-              <RQ.FileInput id="question_input" type="file" onChange={onQuestoinImgChange} accept="image/*" />
+              <RQ.FileInput id="question_input" type="file" onChange={onQuestionImgChange} accept="image/*" />
             </RQ.SelectBtn>
           </RQ.ImgLabelLine>
           <RQ.ImgBox>
@@ -247,6 +196,17 @@ const AddNormal = ({ chapToAdd }) => {
           </RQ.ImgBox>
         </RQ.ImgContainer>
       </RQ.ImgLine>
+      <RQ.SubmitLine>
+        {chapToAdd.description === null && (
+          <RQ.WarningDes style={{ border: `none` }}>
+            <FontAwesomeIcon icon={faCircleExclamation} style={{ marginRight: `1rem` }} /> 선택된 단원이 없습니다.
+            단원을 선택하세요.
+          </RQ.WarningDes>
+        )}
+        <RQ.AddBtn onClick={uploadQuestion} disabled={!chapToAdd.id || !questionFile || !solutionFile || !answer}>
+          문제 추가
+        </RQ.AddBtn>
+      </RQ.SubmitLine>
     </RQ.Wrapper>
   );
 };
@@ -320,7 +280,7 @@ const RQ = {
     height: 80rem;
     overflow: hidden;
     border-radius: 1rem;
-    border: 0.02rem solid ${({ theme }) => theme.colors.gray20};
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   TitleLine: styled.div`
     height: 6rem;
@@ -352,6 +312,15 @@ const RQ = {
     font-weight: 600;
     margin-right: 1rem;
   `,
+  SubmitLine: styled.div`
+    height: 7.5rem;
+    width: 86rem;
+    padding-left: 3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: auto;
+  `,
 
   ChapterDescription: styled.div`
     height: 4.5rem;
@@ -377,7 +346,7 @@ const RQ = {
     color: ${({ theme }) => theme.colors.warning};
   `,
   AddBtn: styled.button`
-    width: 15rem;
+    width: 20rem;
     height: 4.5rem;
     border-radius: 0.8rem;
     color: white;

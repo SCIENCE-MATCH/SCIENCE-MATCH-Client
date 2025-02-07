@@ -2,12 +2,14 @@ import React from "react";
 import styled from "styled-components";
 import MonthlyReport from "./RightSide/MonthlyReport";
 import WeeklyStatus from "./LeftSide/WeeklyStatus";
+import useGetQuestionPaperList from "../../../libs/hooks/Student/useGetQuestionPaperList";
 
 const LearningStatus = () => {
   localStorage.clear();
+  const { data } = useGetQuestionPaperList();
   return (
     <St.Wrapper>
-      <WeeklyStatus />
+      <WeeklyStatus data={data} />
       <MonthlyReport />
     </St.Wrapper>
   );

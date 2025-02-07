@@ -1,22 +1,13 @@
 import { useState, useEffect } from "react";
-import { getCookie } from "../../../libs/cookie";
-import Axios from "axios";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCaretDown,
-  faCaretRight,
-  faCircleExclamation,
-  faCircleMinus,
-  faCirclePlus,
-  faSearch,
-  faUser,
-  faUserGroup,
-  faUsers,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCaretDown, faCaretRight, faSearch, faUser, faXmark } from "@fortawesome/free-solid-svg-icons";
+import useGetTeams from "../../../libs/hooks/Teacher/Class/useGetTeams";
+import useGetStudents from "../../../libs/hooks/Teacher/Class/useGetStudents";
 
 const StudentsAndTeams = ({ setCurrentStudentId, setStudentInfo }) => {
+  const { receivedTeams, getTeams } = useGetTeams();
+  const { receivedStudents, getStudents } = useGetStudents();
   const [nameSearchKey, setNameSearchKey] = useState("");
   const emptyGrades = [
     {
@@ -96,99 +87,35 @@ const StudentsAndTeams = ({ setCurrentStudentId, setStudentInfo }) => {
   };
   const [viewTeams, setViewTeams] = useState(false);
 
-  const getStudents = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/students";
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const tempStudents = response.data.data.filter((student) => {
-        return student.deleted === false;
-      });
-      tempStudents.sort((a, b) => (a.name > b.name ? 1 : -1));
-
-      const tempGrades = [...emptyGrades];
-      tempStudents.map((stud) => {
-        for (let i = 0; i < 12; i++) {
-          if (stud.grade === tempGrades[i].grade) {
-            tempGrades[i].students.push({ id: stud.id, name: stud.name });
-            break;
-          }
-        }
-      });
-      setGrades(tempGrades);
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-  };
-  const getDetail = async (id) => {
-    let allStuds = [];
-    try {
-      const accessToken = getCookie("aToken");
-      const url = `https://www.science-match.p-e.kr/teacher/team/detail?groupId=${id}`;
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      allStuds = response.data.data.allStudents;
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-    console.log(allStuds);
-    return allStuds;
-  };
-
-  const [teams, setTeams] = useState([]);
-  const [teamsToRender, setTeamsToRender] = useState([]);
-  const getTeams = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/team";
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      const overallTeams = await Promise.all(
-        response.data.data.map(async (team) => {
-          return { ...team, extended: false, allSelected: false, students: await getDetail(team.teamId) };
-        })
-      );
-
-      setTeams(overallTeams);
-      setTeamsToRender(overallTeams);
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-  };
-
   useEffect(() => {
     getStudents();
     getTeams();
   }, []);
+  useEffect(() => {
+    if (receivedStudents.length > 0) {
+      const tempStudents = receivedStudents.sort((a, b) => (a.name > b.name ? 1 : -1));
+
+      const tempGrades = [...emptyGrades];
+      tempStudents.map((stud) => {
+        if (stud.deleted === false)
+          for (let i = 0; i < 12; i++) {
+            if (stud.grade === tempGrades[i].grade) {
+              tempGrades[i].students.push({ id: stud.id, name: stud.name });
+              break;
+            }
+          }
+      });
+      setGrades(tempGrades);
+    }
+  }, [receivedStudents]);
+  useEffect(() => {
+    if (receivedTeams.length > 0) {
+      setTeams(receivedTeams);
+    }
+  }, [receivedTeams]);
+
+  const [teams, setTeams] = useState([]);
+  const [teamsToRender, setTeamsToRender] = useState([]);
 
   const onKeyChange = (e) => {
     setNameSearchKey(e.target.value);
@@ -231,12 +158,20 @@ const StudentsAndTeams = ({ setCurrentStudentId, setStudentInfo }) => {
   const closeAll = () => {
     let tempTeams = [...teams];
     for (let i = 0; i < tempTeams.length; i++) {
-      tempTeams[i].extended = true;
+      tempTeams[i].extended = false;
     }
     setTeams(tempTeams);
+
     let tempGrades = [...grades];
     for (let i = 0; i < tempGrades.length; i++) {
       tempGrades[i].extended = false;
+    }
+    for (let i = 0; i < tempGrades.length; i++) {
+      const matchingStudent = tempGrades[i].students.some((student) => student.id === selectedStudent.id);
+
+      if (matchingStudent) {
+        tempGrades[i].extended = true;
+      }
     }
     setGrades(tempGrades);
   };
@@ -346,7 +281,6 @@ const StudentsAndTeams = ({ setCurrentStudentId, setStudentInfo }) => {
                   <StudTeamList.GradeLine
                     onClick={() => {
                       extendTeam(team);
-                      console.log(teamsToRender);
                     }}
                   >
                     <StudTeamList.ExtendBtn>
@@ -430,6 +364,7 @@ const StudTeamList = {
   CurrentStudBox: styled.div`
     width: 100%;
     height: 5rem;
+    border-radius: 0.5rem;
     background-color: ${({ theme }) => theme.colors.gray13};
     color: ${({ theme }) => theme.colors.gray80};
     font-size: 1.5rem;
@@ -438,6 +373,7 @@ const StudTeamList = {
     align-items: center;
     justify-content: center;
     margin-bottom: 1rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   SearchBox: styled.div`
     width: 20rem;
@@ -483,6 +419,7 @@ const StudTeamList = {
     border-radius: 0.6rem;
     display: flex;
     flex-direction: column;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   ListOptionLine: styled.div`
     width: 20rem;
@@ -494,8 +431,8 @@ const StudTeamList = {
     width: 15rem;
     height: 4.5rem;
     background-color: ${({ $isSelected, theme }) => ($isSelected ? `white` : theme.colors.gray00)};
-    border: ${({ $isSelected, theme }) => ($isSelected ? `0.1rem solid ${theme.colors.gray30}` : `none`)};
-    border-bottom: ${({ $isSelected, theme }) => ($isSelected ? `none` : `0.1rem solid ${theme.colors.gray30}`)};
+    border: ${({ $isSelected, theme }) => ($isSelected ? `0.1rem solid ${theme.colors.gray20}` : `none`)};
+    border-bottom: ${({ $isSelected, theme }) => ($isSelected ? `none` : `0.1rem solid ${theme.colors.gray20}`)};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -510,7 +447,7 @@ const StudTeamList = {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    border-inline: ${({ theme }) => `0.1rem solid ${theme.colors.gray30}`};
+    border-inline: ${({ theme }) => `0.1rem solid ${theme.colors.gray20}`};
   `,
   SmallBtn: styled.button`
     width: 8rem;
@@ -530,7 +467,7 @@ const StudTeamList = {
     display: flex;
     flex-direction: column;
     border-radius: 0rem 0rem 0.6rem 0.6rem;
-    border: 0.1rem solid ${({ theme }) => theme.colors.gray30};
+    border: 0.1rem solid ${({ theme }) => theme.colors.gray20};
     border-top: none;
     &:hover {
       overflow-y: overlay; /* 마우스를 올릴 때 수직 스크롤바 표시 */

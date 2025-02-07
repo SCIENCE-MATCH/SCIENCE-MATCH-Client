@@ -8,17 +8,15 @@ import Student from "../pages/Student";
 import TestPage from "../pages/TestPage";
 
 const Router = () => {
-  console.log(`I'm working on App`);
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/teacher" element={<Teacher />} />
-        <Route path="/student" element={<Student />} />
-        <Route path="/" element={<LogIn />} />
-        <Route path="/test" element={<TestPage />} />
+        <Route path={`${process.env.PUBLIC_URL}/signup`} element={<SignUp />} />
+        <Route path={`${process.env.PUBLIC_URL}/admin`} element={<Admin />} />
+        <Route path={`${process.env.PUBLIC_URL}/teacher`} element={<Teacher />} />
+        <Route path={`${process.env.PUBLIC_URL}/student`} element={<Student />} />
+        <Route path={`${process.env.PUBLIC_URL}/`} element={<LogIn />} />
+        <Route path={`${process.env.PUBLIC_URL}/test`} element={<TestPage />} />
       </Routes>
     </BrowserRouter>
   );

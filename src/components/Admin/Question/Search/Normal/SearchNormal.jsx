@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { getCookie } from "../../../../../libs/cookie";
-import { useNavigate } from "react-router-dom";
-import Axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleExclamation, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import styled from "styled-components";
 import WarningModal from "../../../Concept/WarningModal";
+import useDeleteQuestion from "../../../../../libs/apis/Admin/Question/deleteQuestion";
+import usePostGetQuestion from "../../../../../libs/apis/Admin/Question/getQuestion";
 
 const SearchNormal = ({ chapToSearch }) => {
-  const navigate = useNavigate();
+  const { deleteQuestion } = useDeleteQuestion();
+  const { allQuestions, postGetQuestion } = usePostGetQuestion();
 
   const [idToDelete, setIdToDelete] = useState(null);
   const [isWarning, setIsWarning] = useState(false);
@@ -16,13 +16,6 @@ const SearchNormal = ({ chapToSearch }) => {
   const closeWarning = () => setIsWarning(false);
 
   const difficultyOption = ["하", "중하", "중", "중상", "상"];
-  const difficultyToSendOption = {
-    하: "LOW",
-    중하: "MEDIUM_LOW",
-    중: "MEDIUM",
-    중상: "MEDIUM_HARD",
-    상: "HARD",
-  };
   const [selectedDifficulty, setSelectedDifficulty] = useState({
     하: true,
     중하: true,
@@ -41,87 +34,24 @@ const SearchNormal = ({ chapToSearch }) => {
   };
 
   const categoryOption = ["선택형", "단답형", "서술형"];
-  const categoryToSendOption = {
-    선택형: "MULTIPLE",
-    단답형: "SUBJECTIVE",
-    서술형: "DESCRIPTIVE",
-  };
   const [category, setCategory] = useState(categoryOption[0]);
 
   useEffect(() => {
-    if (chapToSearch.id !== null) getQuestions();
-    else setQuestionSet([]);
-  }, [selectedDifficulty, category, chapToSearch]);
+    console.log(chapToSearch);
+    if (chapToSearch.id !== null) {
+      postGetQuestion(chapToSearch.id, selectedDifficulty, category);
+    } else setQuestionSet([]);
+  }, [selectedDifficulty, category, chapToSearch.id]);
 
-  const getQuestions = async () => {
-    const accessToken = getCookie("aToken");
-    setQuestionSet([]);
-    const url = "https://www.science-match.p-e.kr/admin/question";
-
-    const promises = difficultyOption.map((diff) => {
-      if (selectedDifficulty[diff]) {
-        return Axios.post(
-          url,
-          {
-            chapterId: chapToSearch.id,
-            level: difficultyToSendOption[diff],
-            category: categoryToSendOption[category],
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        )
-          .then((response) => response.data.data)
-          .catch((error) => {
-            console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-            if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-              navigate("/");
-            }
-            return [];
-          });
-      } else {
-        return Promise.resolve([]); // 조건이 맞지 않으면 빈 배열을 반환
-      }
-    });
-
-    try {
-      const results = await Promise.all(promises);
-      const allQuestions = results.flat(); // 모든 질문을 하나의 배열로 합침
-      setQuestionSet(allQuestions);
-    } catch (error) {
-      console.error("질문을 가져오는 중 오류가 발생했습니다:", error);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인하세요");
-        navigate("/");
-      } else {
-        alert("문제 조회 실패");
-      }
-    }
-  };
-
+  useEffect(() => {
+    if (allQuestions) setQuestionSet(allQuestions);
+  }, [allQuestions]);
   const DeleteQuestion = async () => {
-    const url = `https://www.science-match.p-e.kr/admin/question?questionId=${idToDelete}`;
-    const accessToken = getCookie("aToken");
-    try {
-      await Axios.delete(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
+    await deleteQuestion(idToDelete);
+    const filteredQuestionSet = questionSet.filter((item) => item.questionId !== idToDelete);
 
-      const filteredQuestionSet = questionSet.filter((item) => item.questionId !== idToDelete);
-
-      setIdToDelete(null);
-      setQuestionSet(filteredQuestionSet);
-    } catch (error) {
-      console.error("API 요청 실패:", error.response, error.response.data.code, error.response.data.message);
-      alert("삭제 실패");
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        navigate("/");
-      }
-    }
+    setIdToDelete(null);
+    setQuestionSet(filteredQuestionSet);
   };
 
   return (
@@ -152,6 +82,7 @@ const SearchNormal = ({ chapToSearch }) => {
         <SQ.OptionBtnBox>
           {difficultyOption.map((opt) => (
             <SQ.OptionBtn
+              key={`diff_${opt}`}
               $isSelected={selectedDifficulty[opt]}
               onClick={() => {
                 clickDifficulty(opt);
@@ -168,6 +99,7 @@ const SearchNormal = ({ chapToSearch }) => {
         <SQ.OptionBtnBox>
           {categoryOption.map((opt) => (
             <SQ.OptionBtn
+              key={`cate_${opt}`}
               $isSelected={category === opt}
               onClick={() => {
                 setCategory(opt);
@@ -182,8 +114,8 @@ const SearchNormal = ({ chapToSearch }) => {
         {questionSet.length === 0 ? (
           <SQ.NoImgMsg>조회된 문제가 없습니다.</SQ.NoImgMsg>
         ) : (
-          questionSet.map((q) => (
-            <SQ.ImgContainer>
+          questionSet.map((q, i) => (
+            <SQ.ImgContainer key={`img_${i}`}>
               <SQ.ImgOptionLine>
                 <SQ.DeleteBtn
                   onClick={() => {
@@ -216,7 +148,7 @@ const SQ = {
     height: 80rem;
     overflow: hidden;
     border-radius: 1rem;
-    border: 0.02rem solid ${({ theme }) => theme.colors.gray20};
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   TitleLine: styled.div`
     height: 6rem;

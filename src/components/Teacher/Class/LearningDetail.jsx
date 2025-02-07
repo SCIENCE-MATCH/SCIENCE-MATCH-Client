@@ -179,7 +179,7 @@ const LearningDetail = ({ studentId }) => {
               </LD.InnerBox>
             </LD.PaperContainer>
             <LD.PaperContainer>
-              <LD.OptionLabel>1:1 질문</LD.OptionLabel>
+              <LD.OptionLabel2>1:1 질문</LD.OptionLabel2>
               <LD.InnerBox>
                 <LD.InnerLabel>총 문제수</LD.InnerLabel>
                 <LD.StatusBox>{summaryData.assignPaperTotalNum}개</LD.StatusBox>
@@ -363,6 +363,18 @@ const LD = {
     border: 0.1rem solid ${({ theme }) => theme.colors.gray20};
   `,
   OptionLabel: styled.div`
+    height: 7rem;
+    width: 9rem;
+    background-color: ${({ theme }) => theme.colors.lightMain};
+    color: ${({ theme }) => theme.colors.mainColor};
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+  `,
+  OptionLabel2: styled.div`
     height: 7rem;
     width: 9rem;
     background-color: ${({ theme }) => theme.colors.lightPurple};

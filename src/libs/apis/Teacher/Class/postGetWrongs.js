@@ -4,9 +4,9 @@ import useApiClient from "../../../useApiClient";
 const usePostGetWrong = () => {
   const apiClient = useApiClient();
   const [wrongQuestions, setData] = useState([]);
-  const postGetWrong = async (id) => {
+  const postGetWrong = async (ids) => {
     await apiClient
-      .post(`/teacher/question-paper/wrong/assign`, [id])
+      .post(`/teacher/question-paper/wrong/assign`, ids)
       .then((res) => {
         setData(res.data.data);
       })

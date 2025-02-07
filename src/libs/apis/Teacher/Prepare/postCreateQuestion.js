@@ -35,7 +35,10 @@ const usePostCreateQuestion = () => {
     formData.append("level", difficultyToSendOption[level]);
     formData.append("title", title);
     formData.append("makerName", makerName);
-    formData.append("category", category.includes("SUBJECTIVE") ? "SUBJECTIVE" : "MULTIPLE");
+    formData.append(
+      "category",
+      category.includes("DESCRIPTIVE") ? "DESCRIPTIVE" : category.includes("SUBJECTIVE") ? "SUBJECTIVE" : "MULTIPLE"
+    );
     formData.append("questionTag", questionTag);
     formData.append("questionIds", idsString);
     formData.append("questionNum", selectedQuestions.length);

@@ -1,7 +1,8 @@
 import styled, { css } from "styled-components";
-import postQuestionPaper from "../../../libs/apis/Student/postQuestionPaper";
+import usePostQuestionPaper from "../../../libs/apis/Student/postQuestionPaper";
 
 const PageLayout = ({ handleClickedCloseBtn, isCompleted, children, id, input, questionNum }) => {
+  const { postQuestionPaper } = usePostQuestionPaper();
   const handleClickSubmitBtn = () => {
     postQuestionPaper(input, id, questionNum, handleClickedCloseBtn);
   };
@@ -62,6 +63,10 @@ const St = {
 
             margin: 0 0 3.5rem 0.9rem;
           `};
+
+    @media only screen and (max-width: 600px) {
+      grid-template-columns: 1fr;
+    }
   `,
 
   BtnWrapper: styled.div`

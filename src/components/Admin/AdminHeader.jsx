@@ -1,13 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import useLogOut from "../../libs/hooks/Teacher/MyPage/useLogOut";
-// React Component
+
 const AdminHeader = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab }) => {
   const { logOut } = useLogOut();
   const tabs = {
     회원: ["선생님"],
+    단원: ["단원"],
     문제: ["추가", "검색"],
     개념: ["개념"],
+    "1:1질문": ["생성", "조회"],
   };
 
   return (
@@ -19,7 +21,7 @@ const AdminHeader = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
         </Ad.Title>
         <Ad.NavBar>
           {Object.keys(tabs).map((tab) => (
-            <Ad.TabBoxStyle
+            <Ad.TabBox
               id={tab}
               onClick={() => {
                 setActiveTab(tab);
@@ -29,7 +31,7 @@ const AdminHeader = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
             >
               {tab}
               <Ad.UnderBar $sellected={activeTab === tab} />
-            </Ad.TabBoxStyle>
+            </Ad.TabBox>
           ))}
         </Ad.NavBar>
         <Ad.LogOutBtnWrapper>
@@ -39,7 +41,7 @@ const AdminHeader = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
       <Ad.SubHeader>
         <Ad.NavBar>
           {tabs[activeTab].map((subTab) => (
-            <Ad.TabBoxStyle
+            <Ad.TabBox
               id={subTab}
               onClick={() => {
                 setActiveSubTab(subTab);
@@ -48,7 +50,7 @@ const AdminHeader = ({ activeTab, setActiveTab, activeSubTab, setActiveSubTab })
             >
               {subTab}
               <Ad.UnderBar $sellected={activeSubTab === subTab} />
-            </Ad.TabBoxStyle>
+            </Ad.TabBox>
           ))}
         </Ad.NavBar>
       </Ad.SubHeader>
@@ -60,12 +62,11 @@ export default AdminHeader;
 
 const Ad = {
   HeaderWrapper: styled.header`
-    height: 10rem; // 전체 높이
+    height: 10rem;
     background-color: ${({ theme }) => theme.colors.headerBg};
-    display: flex; // flexbox를 사용하여 두 헤더를 수직으로 정렬
-    flex-direction: column; // 자식 요소들을 세로로 배열
-    align-items: center; // 가운데 정렬
-    border-bottom: 0.1rem solid ${({ theme }) => theme.colors.gray20};
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   `,
   MainHeader: styled.header`
     height: 5rem;
@@ -74,15 +75,16 @@ const Ad = {
     grid-template-columns: 1fr 1fr 1fr;
     display: grid;
     align-items: center;
-    border-bottom: 0.1rem solid ${({ theme }) => theme.colors.gray20}; // 구분선 추가
+    border-bottom: 0.1rem solid ${({ theme }) => theme.colors.gray20};
   `,
   SubHeader: styled.header`
-    height: 5rem; // 헤더 높이 설정
-    background-color: ${({ theme }) => theme.colors.subHeaderBg}; // theme에서 SubHeader 배경색 설정 필요
-    width: 100%; // 부모의 전체 너비를 차지하도록 설정
+    height: 5rem;
+    background-color: ${({ theme }) => theme.colors.subHeaderBg};
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center; // 내용을 중앙 정렬
+    justify-content: center;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   Title: styled.div`
     display: flex;
@@ -116,19 +118,18 @@ const Ad = {
     align-items: center;
     flex-direction: row;
     justify-content: center;
-
-    gap: 6rem;
   `,
-  TabBoxStyle: styled.div`
-    color: ${({ $issellected, theme }) => ($issellected ? theme.colors.mainColor : theme.colors.unsellected)};
+  TabBox: styled.div`
+    color: ${({ $issellected, theme }) => ($issellected ? theme.colors.mainColor : theme.colors.headerLi)};
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15rem; // 변경됨
+    width: 15rem;
     height: 5rem;
     font-weight: bold;
-    font-size: 2rem; // 변경됨
+    font-size: 2rem;
     position: relative;
+    cursor: pointer;
   `,
   UnderBar: styled.div`
     position: absolute;
@@ -144,10 +145,10 @@ const Ad = {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 15rem; // 변경됨
-    height: 5rem; // 변경됨
+    width: 15rem;
+    height: 5rem;
     font-weight: bold;
-    font-size: 2.5rem; // 변경됨
+    font-size: 2.5rem;
   `,
 
   LogOutBtnWrapper: styled.div`

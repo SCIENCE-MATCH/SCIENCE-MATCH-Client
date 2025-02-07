@@ -1,19 +1,22 @@
 import { useState, useEffect } from "react";
-import { getCookie } from "../../../../libs/cookie";
-import Axios from "axios";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCaretDown,
   faCaretRight,
-  faCircleExclamation,
   faCircleMinus,
   faCirclePlus,
   faSearch,
   faXmark,
 } from "@fortawesome/free-solid-svg-icons";
+import useGetTeams from "../../../../libs/hooks/Teacher/Class/useGetTeams";
+import useGetStudents from "../../../../libs/hooks/Teacher/Class/useGetStudents";
+import usePostPresentQuiz from "../../../../libs/apis/Teacher/Class/postPresentQuiz";
 
 const PresentQuiz = ({ closeModal, questionText, quizId }) => {
+  const { receivedTeams, getTeams } = useGetTeams();
+  const { receivedStudents, getStudents } = useGetStudents();
+  const { postPresentQuiz } = usePostPresentQuiz();
   const [nameSearchKey, setNameSearchKey] = useState("");
   const emptyGrades = [
     {
@@ -88,130 +91,39 @@ const PresentQuiz = ({ closeModal, questionText, quizId }) => {
 
   const [viewTeams, setViewTeams] = useState(false);
 
-  const getStudents = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/students";
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      const tempStudents = response.data.data.filter((student) => {
-        return student.deleted === false;
-      });
-      tempStudents.sort((a, b) => (a.name > b.name ? 1 : -1));
-
-      const tempGrades = [...emptyGrades];
-      tempStudents.map((stud) => {
-        for (let i = 0; i < 12; i++) {
-          if (stud.grade === tempGrades[i].grade) {
-            tempGrades[i].students.push({ id: stud.id, name: stud.name });
-            break;
-          }
-        }
-      });
-      setGrades(tempGrades);
-      setSelectedGrades(deepCopiedArray);
-      setSelectedNum(0);
-      setSelectedStudIds([]);
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-  };
-  const getDetail = async (id) => {
-    let allStuds = [];
-    try {
-      const accessToken = getCookie("aToken");
-      const url = `https://www.science-match.p-e.kr/teacher/team/detail?groupId=${id}`;
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      allStuds = response.data.data.allStudents.map((stud) => {
-        return { ...stud, selected: false };
-      });
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-    return allStuds;
-  };
   const [teams, setTeams] = useState([]);
 
   const [teamsToRender, setTeamsToRender] = useState([]);
-  const getTeams = async () => {
-    try {
-      const accessToken = getCookie("aToken");
-      const url = "https://www.science-match.p-e.kr/teacher/team";
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      const overallTeams = await Promise.all(
-        response.data.data.map(async (team) => {
-          return { ...team, extended: false, allSelected: false, students: await getDetail(team.teamId) };
-        })
-      );
-
-      setTeams(overallTeams);
-      setTeamsToRender(overallTeams);
-    } catch (error) {
-      // API 요청이 실패한 경우
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-      if (error.response.data.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
-  };
-
   useEffect(() => {
     getStudents();
     getTeams();
   }, []);
+  useEffect(() => {
+    if (receivedStudents.length > 0) {
+      const tempStudents = receivedStudents.sort((a, b) => (a.name > b.name ? 1 : -1));
+
+      const tempGrades = [...emptyGrades];
+      tempStudents.map((stud) => {
+        if (stud.deleted === false)
+          for (let i = 0; i < 12; i++) {
+            if (stud.grade === tempGrades[i].grade) {
+              tempGrades[i].students.push({ id: stud.id, name: stud.name });
+              break;
+            }
+          }
+      });
+      setGrades(tempGrades);
+    }
+  }, [receivedStudents]);
+  useEffect(() => {
+    if (receivedTeams.length > 0) {
+      setTeams(receivedTeams);
+    }
+  }, [receivedTeams]);
 
   const presentOneQuiz = async () => {
-    try {
-      const accessToken = await getCookie("aToken");
-      let payLoad = "?";
-      selectedStudIds.map((studId) => (payLoad = payLoad + `studentIds=${studId}&`));
-
-      quizId.map((quizId) => (payLoad = payLoad + `paperTestIds=${quizId}&`));
-      payLoad = payLoad.slice(0, payLoad.length - 1);
-      const url = `https://www.science-match.p-e.kr/teacher/paper-test/multiple-submit${payLoad}`;
-
-      await Axios.post(
-        url,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      alert("출제 완료!");
-      closeModal();
-    } catch (error) {
-      // API 요청이 실패한 경우
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-    }
+    await postPresentQuiz(selectedStudIds, quizId);
+    closeModal();
   };
 
   const onKeyChange = (e) => {
@@ -429,8 +341,6 @@ const PresentQuiz = ({ closeModal, questionText, quizId }) => {
     if (nameSearchKey === "") {
       const updatedTeams = teams.map((team) => {
         const allSelected = team.students.every((student) => student.selected);
-        console.log("??");
-        console.log(allSelected);
         return {
           ...team,
           allSelected: allSelected,
@@ -440,14 +350,11 @@ const PresentQuiz = ({ closeModal, questionText, quizId }) => {
       setGTR(grades); //gradesToRender
     } else {
       if (viewTeams) {
-        console.log("!!!");
         const tempTeams = teams.filter(
           (team) => team.name.includes(nameSearchKey) || team.teacherName.includes(nameSearchKey)
         );
         const updatedTeams = tempTeams.map((team) => {
           const allSelected = team.students.every((student) => student.selected);
-          console.log("??");
-          console.log(allSelected);
           return {
             ...team,
             allSelected: allSelected,

@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react";
-//import { useNavigate } from "react-router-dom";
-import { getCookie } from "../../../../libs/cookie";
-import Axios from "axios";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -19,12 +16,17 @@ import {
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { ko } from "date-fns/locale/ko";
-import PDFViewer from "../../PrepareClass/CreateQuestionPaper/PreviewPdf";
+import PDFViewer from "../../PrepareClass/QuestionPaper/PreviewPdf";
 import ScorePaper from "./ScorePaper";
 import useDeleteAssignPaper from "../../../../libs/apis/Teacher/Class/deleteAssignPaper";
+import useGetPaperOfOne from "../../../../libs/hooks/Teacher/Class/useGetPaperOfOne";
+import usePostPresentPaper from "../../../../libs/apis/Teacher/Class/postPresentPaper";
+import MakeWrongPaper from "./WrongPaper/MakeWrongPaper";
 
 const ClassQuestionPaper = ({ studentId, studentInfo }) => {
   const { deleteAssignPaper } = useDeleteAssignPaper();
+  const { receivedPapers, getPaperAndAnswers } = useGetPaperOfOne();
+  const { postPresentPaper } = usePostPresentPaper();
 
   const modifyDateToStartOfDay = (date) => {
     const newDate = new Date(date);
@@ -44,7 +46,6 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
 
   const [isFilterModalOn, setIsFilterModalOn] = useState(false);
 
-  const [receivedPapers, setRecivedPapers] = useState([]);
   const [papersWithAnswer, setPaperWithAnswer] = useState([]);
   const [lookMoreIndex, setLookMoreIndex] = useState(-1);
   const onLookMore = (index) => {
@@ -60,136 +61,22 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
   const changeState = (e) => {
     setStateToSee(e.target.value);
   };
-  const [evaluateArray, setEvaluateArray] = useState({
-    question: "",
-    submitAnswer: "",
-    solution: "",
-    rightAnswer: false,
-  });
 
-  const [previewPaper, setPreviewPaper] = useState("");
-
-  const [isPreviewing, setIsPreviewing] = useState(false);
-  const openPreview = (paper) => {
-    setIsPreviewing(true);
-    setPreviewPaper(paper);
-  };
-  const closePreview = () => {
-    setIsPreviewing(false);
-    setPreviewPaper("");
-  };
-
+  const [makingWrongPaper, setMakingWrongPaper] = useState(false);
+  const [previewPaper, setPreviewPaper] = useState(null);
   const [scoringPaper, setScoringPaper] = useState(null);
-  const [isScoring, setIsScoring] = useState(false);
-  const openScoring = (paper) => {
-    setScoringPaper(paper);
-    setIsScoring(true);
-  };
-  const closeScoring = () => {
-    setIsScoring(false);
+
+  const closeScoring = async () => {
     setScoringPaper(null);
-    getPapers();
-  };
-
-  const getPapers = async () => {
-    setPapersToRender([]);
     setPaperWithAnswer([]);
-    try {
-      const accessToken = getCookie("aToken");
-      const url = `https://www.science-match.p-e.kr/teacher/assign-question-paper/${studentId}`;
-
-      const response = await Axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      let tempPapers = response.data.data;
-      tempPapers.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-      setRecivedPapers(tempPapers);
-    } catch (error) {
-      alert("학생 정보를 불러오지 못했습니다.");
-      console.error("API 요청 실패:", error.response?.data?.code, error.response?.data?.message);
-      if (error.response?.data?.message === "만료된 액세스 토큰입니다.") {
-        alert("다시 로그인 해주세요");
-      }
-    }
+    await getPaperAndAnswers(studentId);
   };
+
   useEffect(() => {
-    if (studentId) getPapers();
+    if (studentId) getPaperAndAnswers(studentId);
   }, [studentId]);
-  const levelsToKorean = { LOW: ` 하 `, MEDIUM_LOW: `중하`, MEDIUM: ` 중 `, MEDIUM_HIGH: `중상`, HIGH: ` 상 ` };
-
-  const getAnswerForOne = async () => {
-    const accessToken = getCookie("aToken");
-
-    // "COMPLETE" 상태가 아닌 퀴즈들을 미리 null 값으로 설정
-    const updatedPapers = receivedPapers.map((paper) => {
-      if (paper.assignStatus !== "COMPLETE") {
-        return {
-          ...paper,
-          score: 0,
-          totalScore: 0,
-          correctNum: 0,
-          answerResponseDtos: [],
-        };
-      }
-      return paper;
-    });
-
-    // "COMPLETE" 상태인 퀴즈들만 필터링하여 요청 생성
-    const promises = updatedPapers.map(async (paper) => {
-      if (paper.assignStatus === "COMPLETE" || paper.assignStatus === "GRADED") {
-        return await Axios.get(`https://www.science-match.p-e.kr/teacher/assign-question-paper/${paper.id}/complete`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-          .then((response) => ({
-            ...paper,
-            score: response.data.data.score,
-            totalScore: response.data.data.totalScore,
-            correctNum: response.data.data.correctNum,
-            questionNum: response.data.data.questionNum,
-            answerResponseDtos: response.data.data.answerResponseDtos,
-            selected: false,
-          }))
-          .catch((error) => {
-            console.error(`Error fetching data for paper ${paper.id}`, error);
-            throw error; // 다른 종류의 에러는 다시 던짐
-          });
-        /**{"score": 0,
-        "totalScore": 0,
-        "correctNum": 1,
-        "questionNum": 3,
-        "answerResponseDtos": [
-            {
-                "id": 415,
-                "submitAnswer": "3",
-                "solution": "5",
-                "solutionImg": "https://s3.ap-northeast-2.amazonaws.com/science-match-bucket/solution/image/5dce5cfc-e3ce-43b1-b4cf-10fa0cc6d1b1.jpg",
-                "category": "MULTIPLE",
-                "rightAnswer": false
-            },
-        ]
-    }*/
-      } else {
-        // "COMPLETE" 상태가 아닌 퀴즈는 이미 null 값이 설정되어 있으므로 그냥 반환
-        return Promise.resolve(paper);
-      }
-    });
-
-    try {
-      const results = await Promise.all(promises);
-      setPaperWithAnswer(results);
-    } catch (error) {
-      console.error("Failed to fetch quiz answers:", error);
-      setPaperWithAnswer(updatedPapers); // 에러 발생 시 원본 리스트 반환
-    }
-  };
-
   useEffect(() => {
-    getAnswerForOne();
+    setPaperWithAnswer(receivedPapers);
   }, [receivedPapers]);
 
   const deleteQuetionPaper = async (paperId) => {
@@ -207,13 +94,9 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
     let tempArr = [...selectedPaperIds];
     const index = tempArr.indexOf(id);
 
-    if (index === -1) {
-      // 배열에 요소가 없으면 추가
-      tempArr.push(id);
-    } else {
-      // 배열에 요소가 있으면 제거
-      tempArr.splice(index, 1);
-    }
+    if (index === -1) tempArr.push(id);
+    else tempArr.splice(index, 1);
+
     setSelectedPaperIds(tempArr);
   };
   const deselectAll = () => {
@@ -223,6 +106,7 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
     });
     setPaperWithAnswer(tempPapers);
     setSelectedPaperIds([]);
+    setPapersToRender([]);
   };
   const deleteAll = async () => {
     selectedPaperIds.map(async (qId) => {
@@ -233,38 +117,18 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
   };
 
   const presentPapers = async (paperId) => {
-    try {
-      const accessToken = await getCookie("aToken");
-      let payLoad = "?";
-      payLoad = payLoad + `studentIds=${studentId}&`;
-
-      if (paperId) payLoad = payLoad + `questionPaperIds=${paperId}&`;
-      else selectedPaperIds.map((paperIds) => (payLoad = payLoad + `questionPaperIds=${paperIds}&`));
-
-      payLoad = payLoad.slice(0, payLoad.length - 1);
-      const url = `https://www.science-match.p-e.kr/teacher/question-paper/multiple-submit${payLoad}`;
-
-      await Axios.post(
-        url,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+    if (paperId) await postPresentPaper([studentId], [{ id: paperId }]);
+    else
+      await postPresentPaper(
+        [studentId],
+        selectedPaperIds.map((paperId) => ({
+          id: paperId,
+        }))
       );
-
-      alert("재출제 완료!");
-      if (!paperId) deselectAll();
-    } catch (error) {
-      // API 요청이 실패한 경우
-      console.error("API 요청 실패:", error.response.data.code, error.response.data.message);
-    }
+    getPaperAndAnswers(studentId);
   };
 
   const [questionTagSet, setQuestionTagSet] = useState(["단원유형별", "시중교재", "모의고사"]);
-  const questionTagToSend = { 전체: "", 단원유형별: "NORMAL", 시중교재: "TEXT_BOOK", 모의고사: "MOCK_EXAM" };
-  const questionTagToKr = { NORMAL: "단원유형별", TEXT_BOOK: "시중교재", MOCK_EXAM: "모의고사" };
   const selectTag = (e) => {
     const gotValue = e.target.value;
     let tempSet = [...questionTagSet];
@@ -334,17 +198,15 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
         return (
           quiz.title.includes(searchName) &&
           quiz.assignStatus.includes(status) &&
-          //questionTagSet.includes(paper.questionTag) && //학습지 종류 필터링
           dateFrom < quizDate &&
           quizDate < dateTo
         );
       });
-      console.log(filteredArr);
       setPapersToRender(filteredArr);
     } else {
       setPapersToRender([]);
     }
-  }, [papersWithAnswer, searchName, questionTagSet, , dateFrom, dateTo, stateToSee]);
+  }, [papersWithAnswer, searchName, questionTagSet, dateFrom, dateTo, stateToSee]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -357,8 +219,15 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
   const widths = [9, 7, 46.5, 13, 6, 10, 12, 9];
   return (
     <MQP.Wrapper>
-      {isPreviewing && <PDFViewer closeModal={closePreview} paper={previewPaper} />}
-      {isScoring && <ScorePaper closeModal={closeScoring} paper={scoringPaper} studentInfo={studentInfo} />}
+      {makingWrongPaper && (
+        <MakeWrongPaper
+          closeModal={() => setMakingWrongPaper(false)}
+          papers={papersToRender}
+          studentName={studentInfo.name}
+        />
+      )}
+      {previewPaper && <PDFViewer closeModal={() => setPreviewPaper(null)} paper={previewPaper} />};
+      {scoringPaper && <ScorePaper closeModal={closeScoring} paper={scoringPaper} studentInfo={studentInfo} />}
       <MQP.FilterLine>
         <STATUSFILTER.FilterContainer>
           <STATUSFILTER.BtnContainer>
@@ -402,7 +271,7 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
             <FontAwesomeIcon icon={faXmark} />
           </MQP.XBtn>
         </MQP.SearchBox>
-        <MQP.CreateBtn>{`기간별 취약 유형 정리`}</MQP.CreateBtn>
+        <MQP.CreateBtn onClick={() => setMakingWrongPaper(true)}>{`기간별 취약 유형 정리`}</MQP.CreateBtn>
       </MQP.FilterLine>
       {isFilterModalOn && (
         <DATEFILTER.Modal>
@@ -514,29 +383,23 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
                 {cutLongText(paper.title, 23)}
                 {paper.category === "MULTIPLE" && <MQP.AutoEvaluateBox>자동채점</MQP.AutoEvaluateBox>}
               </MQP.PaperTitleLine>
-              <MQP.DescriptionText>{`${paper.questionNum}문제 | ${levelsToKorean[paper.level]} | ${cutLongText(
-                paper.boundary,
-                28
-              )}`}</MQP.DescriptionText>
+              <MQP.DescriptionText>{`${paper.questionNum}문제 | ${
+                { LOW: ` 하 `, MEDIUM_LOW: `중하`, MEDIUM: ` 중 `, MEDIUM_HIGH: `중상`, HIGH: ` 상 ` }[paper.level]
+              } | ${cutLongText(paper.boundary, 28)}`}</MQP.DescriptionText>
             </MQP.CellBox>
             <MQP.CellBox $width={widths[3]}>{formatDate(paper.createdAt)}</MQP.CellBox>
             <MQP.CellBox $width={widths[4]}>
               <MQP.InnerBtn
                 $width={4}
                 onClick={() => {
-                  presentPapers(paper.id);
+                  presentPapers(paper.originQuestionPaperId);
                 }}
               >
                 <FontAwesomeIcon icon={faRepeat} />
               </MQP.InnerBtn>
             </MQP.CellBox>
             <MQP.CellBox $width={widths[5]}>
-              <MQP.InnerBtn
-                $width={4}
-                onClick={() => {
-                  openPreview(paper);
-                }}
-              >
+              <MQP.InnerBtn $width={4} onClick={() => setPreviewPaper(paper)}>
                 <FontAwesomeIcon icon={faFilePdf} />
               </MQP.InnerBtn>
             </MQP.CellBox>
@@ -544,9 +407,7 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
               <MQP.EvaluateBtn
                 disabled={paper.assignStatus === "WAITING"}
                 $graded={paper.assignStatus === "GRADED"}
-                onClick={() => {
-                  openScoring(paper);
-                }}
+                onClick={() => setScoringPaper(paper)}
               >
                 {paper.assignStatus === "WAITING"
                   ? "미제출"
@@ -570,7 +431,7 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
                   <MQP.MoreBtn
                     onClick={async () => {
                       await deleteQuetionPaper(paper.id);
-                      getPapers();
+                      getPaperAndAnswers(studentId);
                     }}
                   >
                     삭제
@@ -599,7 +460,7 @@ const ClassQuestionPaper = ({ studentId, studentInfo }) => {
           <MQP.BatchActionBtn
             onClick={async () => {
               await deleteAll();
-              await getPapers();
+              await getPaperAndAnswers(studentId);
             }}
           >
             <FontAwesomeIcon icon={faCircleMinus} style={{ marginBottom: "0.75rem" }} />
@@ -626,6 +487,7 @@ const MQP = {
     flex-direction: column;
     padding-top: 1.5rem;
     overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   FilterLine: styled.div`
     height: 6rem;

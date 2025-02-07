@@ -1,20 +1,30 @@
-import { useEffect, useState } from "react";
-import AdminHeader from "../components/Admin/AdminHeader";
-import ManageTeacher from "../components/Admin/Management/ManageTeacher";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+
+import AdminHeader from "../components/Admin/AdminHeader";
+
+import ManageTeacher from "../components/Admin/Management/ManageTeacher";
+
+import AddQuiz from "../components/Admin/Quiz/AddQuiz";
+import SearchQuiz from "../components/Admin/Quiz/ManageQuiz";
+
+import MainChapter from "../components/Admin/Chapter/MainChapters";
+import ChangeParent from "../components/Admin/Chapter/ChangeParent";
+import ChapterForNormal from "../components/Admin/Chapter/ChapterForNormal";
+import ChapterForSearchBook from "../components/Admin/Chapter/ChapterForSearchBook";
+import ChapterForConcept from "../components/Admin/Chapter/ChapterForConcept";
+
 import ManageConcept from "../components/Admin/Concept/ManageConcept";
-import SelectChapter from "../components/Admin/Question/Add/Normal/MainChapters";
-import ChapterForConcept from "../components/Admin/Concept/ChapterForConcept";
+
 import AddNormal from "../components/Admin/Question/Add/Normal/AddNormal";
 import AddTextBook from "../components/Admin/Question/Add/Book/AddTextBook";
 import AddMock from "../components/Admin/Question/Add/Mock/AddMock";
+
 import SearchNormal from "../components/Admin/Question/Search/Normal/SearchNormal";
 import SearchTextBook from "../components/Admin/Question/Search/Book/SearchTextBook";
-import SearchMock from "../components/Admin/Question/Search/Mock/SearchMock";
-import ChapterForAddBook from "../components/Admin/Question/Add/Book/ChapterForAddBook";
-import ChapterForSearchBook from "../components/Admin/Question/Search/Book/ChapterForSearchBook";
+import MockList from "../components/Admin/Chapter/MockList";
 
-const Admin = (accessToken, setAccessToken) => {
+const Admin = () => {
   const [activeMainTab, setActiveMainTab] = useState("회원");
   const [activeSubTab, setActiveSubTab] = useState("선생님");
 
@@ -22,14 +32,25 @@ const Admin = (accessToken, setAccessToken) => {
   const [grade, setGrade] = useState(3);
   const [semester, setSemester] = useState(1);
 
-  const [currentChapter, setCurrentChapter] = useState({ id: null, description: null });
+  const [currentChapter, setCurrentChapter] = useState({ id: null, description: null, school: school });
   const [selectedBook, setSelectedBook] = useState({ bookId: null, title: null });
+  const [currentMock, setCurrentMock] = useState({
+    csatId: null,
+    publisher: null,
+    grade: null,
+    year: null,
+    month: null,
+    publisher: null,
+  });
   const [questionCategory, setQuestionCategory] = useState(0);
+
+  const [movingChapter, setMovingChapter] = useState({ id: null, description: null, parentId: null, moved: false });
+  const [targetChapter, setTargetChapter] = useState({ id: null, description: null, parentId: null });
 
   const [currentPage, setCurrentPage] = useState(null);
 
   useEffect(() => {
-    setCurrentChapter({ id: null, description: null });
+    setCurrentChapter({ id: null, description: null, school: school });
     //setSelectedBook({ bookId: null, title: null });
     setCurrentPage(null);
   }, [activeMainTab, activeSubTab, questionCategory]);
@@ -41,6 +62,18 @@ const Admin = (accessToken, setAccessToken) => {
             <ManageTeacher />
           </Ad.MainContent>
         );
+      case "단원":
+        return (
+          <Ad.MainContent>
+            <MainChapter movingChapter={movingChapter} setMovingChapter={setMovingChapter} />
+            <ChangeParent
+              movingChapter={movingChapter}
+              setMovingChapter={setMovingChapter}
+              targetChapter={targetChapter}
+              setTargetChapter={setTargetChapter}
+            />
+          </Ad.MainContent>
+        );
       case "추가":
         return handleAdd();
       case "검색":
@@ -48,8 +81,49 @@ const Admin = (accessToken, setAccessToken) => {
       case "개념":
         return (
           <Ad.MainContent>
-            <ChapterForConcept currentChapter={currentChapter} setCurrentChapter={setCurrentChapter} />
+            <ChapterForConcept
+              currentChapter={currentChapter}
+              setCurrentChapter={setCurrentChapter}
+              school={school}
+              setSchool={setSchool}
+              grade={grade}
+              setGrade={setGrade}
+              semester={semester}
+              setSemester={setSemester}
+            />
             <ManageConcept chapToAdd={currentChapter} />
+          </Ad.MainContent>
+        );
+      case "생성":
+        return (
+          <Ad.MainContent>
+            <ChapterForConcept
+              currentChapter={currentChapter}
+              setCurrentChapter={setCurrentChapter}
+              school={school}
+              setSchool={setSchool}
+              grade={grade}
+              setGrade={setGrade}
+              semester={semester}
+              setSemester={setSemester}
+            />
+            <AddQuiz chapToAdd={currentChapter} />
+          </Ad.MainContent>
+        );
+      case "조회":
+        return (
+          <Ad.MainContent>
+            <ChapterForConcept
+              currentChapter={currentChapter}
+              setCurrentChapter={setCurrentChapter}
+              school={school}
+              setSchool={setSchool}
+              grade={grade}
+              setGrade={setGrade}
+              semester={semester}
+              setSemester={setSemester}
+            />
+            <SearchQuiz chapToSearch={currentChapter} school={school} grade={grade} semester={semester} />
           </Ad.MainContent>
         );
       default:
@@ -58,11 +132,11 @@ const Admin = (accessToken, setAccessToken) => {
   };
 
   const handleAdd = () => {
-    switch (questionCategory) {
-      case 0:
-        return (
-          <Ad.MainContent>
-            <SelectChapter
+    return (
+      <Ad.MainContent>
+        {questionCategory === 0 ? (
+          <React.Fragment>
+            <ChapterForNormal
               currentChapter={currentChapter}
               setCurrentChapter={setCurrentChapter}
               questionCategory={questionCategory}
@@ -75,12 +149,10 @@ const Admin = (accessToken, setAccessToken) => {
               setSemester={setSemester}
             />
             <AddNormal chapToAdd={currentChapter} />
-          </Ad.MainContent>
-        );
-      case 1:
-        return (
-          <Ad.MainContent>
-            <ChapterForAddBook
+          </React.Fragment>
+        ) : questionCategory === 1 ? (
+          <React.Fragment>
+            <ChapterForNormal
               currentChapter={currentChapter}
               setCurrentChapter={setCurrentChapter}
               questionCategory={questionCategory}
@@ -92,6 +164,7 @@ const Admin = (accessToken, setAccessToken) => {
               semester={semester}
               setSemester={setSemester}
             />
+
             <AddTextBook
               chapToAdd={currentChapter}
               selectedBook={selectedBook}
@@ -103,17 +176,19 @@ const Admin = (accessToken, setAccessToken) => {
               semester={semester}
               setSemester={setSemester}
             />
-          </Ad.MainContent>
-        );
-      case 2:
-        return (
-          <Ad.MainContent>
-            <AddMock chapToAdd={currentChapter} />
-          </Ad.MainContent>
-        );
-      default:
-        return <RQ.ErrorDiv>에러 발생</RQ.ErrorDiv>;
-    }
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <MockList
+              currentMock={currentMock}
+              setCurrentMock={setCurrentMock}
+              setQuestionCategory={setQuestionCategory}
+            />
+            <AddMock currentMock={currentMock} />
+          </React.Fragment>
+        )}
+      </Ad.MainContent>
+    );
   };
 
   const handleSearch = () => {
@@ -121,7 +196,7 @@ const Admin = (accessToken, setAccessToken) => {
       case 0:
         return (
           <Ad.MainContent>
-            <ChapterForAddBook
+            <ChapterForNormal
               currentChapter={currentChapter}
               setCurrentChapter={setCurrentChapter}
               questionCategory={questionCategory}
@@ -170,11 +245,8 @@ const Admin = (accessToken, setAccessToken) => {
           </Ad.MainContent>
         );
       case 2:
-        return (
-          <Ad.MainContent>
-            <SearchMock chapToSearch={currentChapter} />
-          </Ad.MainContent>
-        );
+        alert("모의고사 검색은 [추가]탭에서 가능합니다.");
+        setActiveSubTab("추가");
       default:
         return <RQ.ErrorDiv>에러 발생</RQ.ErrorDiv>;
     }

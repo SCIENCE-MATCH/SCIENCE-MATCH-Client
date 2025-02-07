@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import styled, { css } from "styled-components";
-import { api } from "../../../libs/api";
-import postChangePw from "../../../libs/apis/Student/postChangePw";
+import usePostChangePw from "../../../libs/apis/Student/postChangePw";
+import useApiClient from "../../../libs/useApiClient";
 
 const ModalForm = ({ setModalOn }) => {
+  const apiClient = useApiClient();
+  const { postChangePw } = usePostChangePw();
   const [input, setInput] = useState({
     currentPw: "",
     newPw: "",
@@ -45,7 +47,7 @@ const ModalForm = ({ setModalOn }) => {
 
   const handleClickSubmitBtn = () => {
     if (currentPw && newPw && checkedPw) {
-      api
+      apiClient
         .post("/auth/student/check-pw", `${currentPw}`)
         .then(() => {
           postChangePw(newPw, checkedPw, handleModal);

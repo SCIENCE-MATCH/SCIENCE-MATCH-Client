@@ -16,7 +16,6 @@ const useGetTeacherInfo = () => {
       .get(`/teacher/mypage`)
       .then((response) => {
         const responseData = response.data.data;
-        console.log("API 응답 데이터:", responseData);
         setData({
           name: responseData.name,
           email: responseData.id,

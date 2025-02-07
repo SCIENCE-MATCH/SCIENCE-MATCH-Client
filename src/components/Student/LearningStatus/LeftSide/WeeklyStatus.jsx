@@ -1,8 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import ResolvedQuestionGraph from "./ResolvedQuestionGraph";
 
-const WeeklyStatus = () => {
+const WeeklyStatus = ({ data }) => {
+  const [solvedQuestionsNum, setSolvedQuestionsNum] = useState(0);
+  const [correctRatio, setCorrectRatio] = useState(0);
+  useEffect(() => {
+    let questionCnt = 0;
+    let totalScore = 0;
+    let score = 0;
+    if (data) {
+      data.map((paper) => {
+        if (paper.assignStatus !== "WAITING") questionCnt = questionCnt + paper.questionNum;
+        totalScore = totalScore + paper.totalScore;
+        score = score + paper.score;
+      });
+      setSolvedQuestionsNum(questionCnt);
+      setCorrectRatio(Math.floor((score / totalScore) * 100));
+    }
+  }, data);
   return (
     <St.Wrapper>
       <St.WeeklyWrapper>
@@ -11,12 +27,12 @@ const WeeklyStatus = () => {
         <St.WeeklyContentsWrapper>
           <St.ContentsWrapper>
             <St.Text>문제 수</St.Text>
-            <St.Text>100문제</St.Text>
+            <St.Text>{solvedQuestionsNum}문제</St.Text>
           </St.ContentsWrapper>
 
           <St.ContentsWrapper>
             <St.Text>정답률</St.Text>
-            <St.Text>80%</St.Text>
+            <St.Text>{correctRatio}%</St.Text>
           </St.ContentsWrapper>
         </St.WeeklyContentsWrapper>
       </St.WeeklyWrapper>

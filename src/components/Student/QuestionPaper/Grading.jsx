@@ -255,8 +255,8 @@ const St = {
 
   DescriptImg: styled.img`
     width: 100%;
-    height: calc(100vh - 27rem);
-
+    //height: calc(100vh - 27rem);
+    height: auto;
     background-color: ${({ theme }) => theme.colors.warning};
   `,
 };

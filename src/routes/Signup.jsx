@@ -10,7 +10,6 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [phoneNum, setPhoneNum] = useState("");
   const [pwCheck, setPwCheck] = useState("");
-  const [emailChecked, setEmailChecked] = useState(false);
   const [validName, setValidName] = useState(false);
   const [validEmail, setValidEmail] = useState(false);
   const [validPw, setValidPw] = useState(false);
@@ -21,10 +20,6 @@ function SignUp() {
   const fillName = (event) => {
     const newName = event.target.value;
     if (newName.length < 11) setName(newName);
-  };
-  const fillEmail = (event) => {
-    setEmail(event.target.value);
-    setEmailChecked(false);
   };
   const fillPhoneNum = (event) => {
     const newValue = event.target.value.replace(/[^0-9]/g, "");
@@ -47,27 +42,6 @@ function SignUp() {
     if (num.length <= 3) return num;
     if (num.length <= 7) return `${num.slice(0, 3)}-${num.slice(3)}`;
     return `${num.slice(0, 3)}-${num.slice(3, 7)}-${num.slice(7)}`;
-  };
-  const duplCheck = async (event) => {
-    //console.log(`email validity: ${validEmail}`);
-    event.preventDefault();
-
-    if (validEmail) {
-      Axios.post(`https://www.science-match.p-e.kr/auth/dupl-check`, {
-        email: email,
-      })
-        .then((response) => {
-          if (response.data.code === 200) {
-            setEmailChecked(true);
-            alert(response.data.message);
-          }
-        })
-        .catch((error) => {
-          alert("사용할 수 없습니다.");
-        });
-    } else {
-      alert("이메일 형식을 올바르게 입력하십시오.");
-    }
   };
   //**@.
   //2~10(한글, 영어)
@@ -97,30 +71,17 @@ function SignUp() {
       setPwAccord(false);
     }
   };
-  const finalSummitAble = () => {
-    if (
-      emailChecked === true &&
-      pwAccord === true &&
-      name !== "" &&
-      phoneNum !== "" &&
-      validName &&
-      validPhoneNum &&
-      validPw
-    ) {
-      setSubmitAble(true);
-    } else {
-      setSubmitAble(false);
-    }
-  };
+  const finalSummitAble = () =>
+    setSubmitAble(validEmail && pwAccord && validName && validName && validPhoneNum && validPw);
 
   useEffect(nameValidityCheck, [name]);
   useEffect(emailValidityCheck, [email]);
   useEffect(phoneNumValidityCheck, [phoneNum]);
   useEffect(pwValidityCheck, [password]);
   useEffect(passwordAccordCheck, [password, pwCheck]);
-  useEffect(finalSummitAble, [emailChecked, pwAccord, name, phoneNum]);
+  useEffect(finalSummitAble, [validEmail, pwAccord, validName, validPhoneNum, validPw]);
 
-  const signupSubmit = (event) => {
+  const signupSubmit = async (event) => {
     event.preventDefault();
     const data = {
       email: email, //**@.
@@ -128,15 +89,22 @@ function SignUp() {
       password: password, //8~16(영문, 숫자)
       phoneNum: phoneNum, //10~11(숫자)
     };
-    const url = "https://www.science-match.p-e.kr/auth/signup";
-    Axios.post(url, data)
+    await Axios.post(`https://www.science-match.p-e.kr/auth/dupl-check`, {
+      email: email,
+    })
       .then((response) => {
-        //console.log(response);
-        alert("회원가입 완료");
+        if (response.data.code === 200) {
+          Axios.post("https://www.science-match.p-e.kr/auth/signup", data)
+            .then(() => {
+              alert("회원가입 완료");
+            })
+            .catch(() => {
+              alert("회원가입이 정상적으로 처리되지 않았습니다");
+            });
+        }
       })
-      .catch((error) => {
-        //console.log(error);
-        alert("오류 발생");
+      .catch(() => {
+        alert("이미 가입된 이메일입니다.");
       });
     navigate("/");
   };
@@ -160,23 +128,38 @@ function SignUp() {
             placeholder="이름"
             value={name}
             onChange={fillName}
+            $isValid={name === "" || validName}
           ></SUP.InputBox>
         </SUP.InputLine>
         {name === "" || validName ? null : <SUP.WarningLine>한글, 영문 2~10자리</SUP.WarningLine>}
 
         <SUP.InputLine>
-          <SUP.InputBox placeholder="이메일@email.com" value={email} onChange={fillEmail}></SUP.InputBox>
-          <SUP.RoundBtn onClick={duplCheck} disabled={emailChecked || !validEmail}>
-            중복 확인
-          </SUP.RoundBtn>
+          <SUP.InputBox
+            placeholder="이메일@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            $isValid={email === "" || validEmail}
+            spellCheck="false"
+          ></SUP.InputBox>
         </SUP.InputLine>
 
         <SUP.InputLine>
-          <SUP.InputBox placeholder="전화번호" value={formatPhoneNum(phoneNum)} onChange={fillPhoneNum}></SUP.InputBox>
+          <SUP.InputBox
+            placeholder="전화번호"
+            value={formatPhoneNum(phoneNum)}
+            onChange={fillPhoneNum}
+            $isValid={phoneNum === "" || phoneNum > 1000000000}
+          ></SUP.InputBox>
         </SUP.InputLine>
 
         <SUP.InputLine>
-          <SUP.InputBox type="password" placeholder="비밀번호" value={password} onChange={fillPassword}></SUP.InputBox>
+          <SUP.InputBox
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={fillPassword}
+            $isValid={password === "" || validPw}
+          ></SUP.InputBox>
         </SUP.InputLine>
         {password === "" || validPw ? null : <SUP.WarningLine>영문, 숫자 8~16자리</SUP.WarningLine>}
 
@@ -186,6 +169,7 @@ function SignUp() {
             placeholder="비밀번호 확인"
             value={pwCheck}
             onChange={fillPwCheck}
+            $isValid={password === "" || pwCheck === "" || pwAccord}
           ></SUP.InputBox>
         </SUP.InputLine>
         {password === "" || pwCheck === "" ? "" : pwAccord ? null : <SUP.WarningLine>비밀번호 불일치</SUP.WarningLine>}
@@ -202,7 +186,6 @@ function SignUp() {
 
 export default SignUp;
 
-const wholeWidth = `55rem`;
 const SUP = {
   Wrapper: styled.form`
     display: flex;
@@ -214,8 +197,6 @@ const SUP = {
   SignUpSection: styled.div`
     display: flex;
     flex-direction: column;
-    width: ${wholeWidth};
-    margin-left: 15rem;
   `,
   TitleLine: styled.div`
     display: flex;
@@ -225,22 +206,32 @@ const SUP = {
     height: 6rem;
     width: 40rem;
     cursor: pointer;
+    @media only screen and (max-width: 500px) {
+      height: 8rem;
+    }
   `,
   TitleColor: styled.div`
     font-size: 5rem;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.mainColor};
+    @media only screen and (max-width: 500px) {
+      font-size: 4.5rem;
+    }
   `,
   TitleBlack: styled.div`
     font-size: 5rem;
     font-weight: 600;
     color: black;
+    @media only screen and (max-width: 500px) {
+      font-size: 4.5rem;
+    }
   `,
   InputLine: styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: ${wholeWidth};
+    justify-content: center;
+    width: 40rem;
     height: 7.5rem;
   `,
   InputBox: styled.input`
@@ -249,8 +240,16 @@ const SUP = {
     padding: 2rem;
     font-size: 2rem;
     font-weight: 600;
-    border: 0.2rem solid ${({ theme }) => theme.colors.gray50};
+    border: 0.2rem solid ${({ $isValid, theme }) => ($isValid ? theme.colors.gray50 : theme.colors.warning)};
     border-radius: 5rem;
+    &:focus {
+      outline: none;
+    }
+    @media only screen and (max-width: 500px) {
+      width: 37rem;
+      height: 6.5rem;
+      border-radius: 1rem;
+    }
   `,
   WarningLine: styled.div`
     margin-top: -1rem;
@@ -278,6 +277,12 @@ const SUP = {
       background-color: ${({ theme }) => theme.colors.gray30};
     }
     margin-inline: 1rem;
+    @media only screen and (max-width: 500px) {
+      width: 37rem;
+      height: 6.5rem;
+      border-radius: 1rem;
+      margin-top: -1.5rem;
+    }
   `,
   BtnLine: styled.div`
     margin-top: 2rem;

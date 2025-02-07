@@ -22,8 +22,6 @@ function LogIn() {
     const data = {
       email: loginId,
       password: loginPw,
-      access_token_expired_time: 3000,
-      refresh_token_expired_time: 3000,
     };
 
     Axios.post(url, data)
@@ -51,8 +49,6 @@ function LogIn() {
     const data = {
       phoneNum: loginId,
       password: loginPw,
-      access_token_expired_time: 3000,
-      refresh_token_expired_time: 3000,
     };
 
     Axios.post(url, data)
@@ -62,7 +58,6 @@ function LogIn() {
         setCookie("aToken", `${response.data.data.accessToken}`);
         setCookie("rToken", `${response.data.data.refreshToken}`);
         navigate("/student");
-        console.log(response.data.data.accessToken);
       })
       .catch((error) => {
         if (error.code === "ERR_BAD_RESPONSE") {
@@ -107,17 +102,19 @@ function LogIn() {
             onChange={onChangeId}
             maxLength="40"
             placeholder="이메일"
-            isRequired={true}
+            required
           ></LI.InputBox>
         </LI.InputLine>
-        <LI.InputBox
-          isRequired={true}
-          maxLength="25"
-          type="password"
-          placeholder="비밀번호"
-          value={loginPw}
-          onChange={onChangePw}
-        ></LI.InputBox>
+        <LI.InputLine>
+          <LI.InputBox
+            required
+            maxLength="25"
+            type="password"
+            placeholder="비밀번호"
+            value={loginPw}
+            onChange={onChangePw}
+          ></LI.InputBox>
+        </LI.InputLine>
         <LI.SubmitContainer>
           <LI.SignUpBtn
             type="button"
@@ -133,9 +130,15 @@ function LogIn() {
         </LI.SubmitContainer>
         {/*이 아래 지우면 됨 */}
         <LI.OptionContainer>
-          <LI.OptionBtn onClick={setStud}>Set Student</LI.OptionBtn>
-          <LI.OptionBtn onClick={setTeacher}>Set Teacher</LI.OptionBtn>
-          <LI.OptionBtn onClick={setAdmin}>Set Admin</LI.OptionBtn>
+          <LI.OptionBtn type="reset" onClick={setStud}>
+            Student
+          </LI.OptionBtn>
+          <LI.OptionBtn type="reset" onClick={setTeacher}>
+            Teacher
+          </LI.OptionBtn>
+          <LI.OptionBtn type="reset" onClick={setAdmin}>
+            Admin
+          </LI.OptionBtn>
         </LI.OptionContainer>
       </LI.MainContent>
     </LI.Wrapper>
@@ -158,51 +161,77 @@ const LI = {
     justify-content: center;
     width: 50rem;
     height: 40rem;
+    @media only screen and (max-width: 500px) {
+      width: 40rem;
+    }
   `,
   TitleLine: styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    height: 6rem;
+    height: 7rem;
     width: 40rem;
+    @media only screen and (max-width: 500px) {
+      width: 30rem;
+    }
   `,
   TitleColor: styled.div`
     font-size: 5rem;
     font-weight: 600;
     color: ${({ theme }) => theme.colors.mainColor};
+    @media only screen and (max-width: 500px) {
+      font-size: 4rem;
+    }
   `,
   TitleBlack: styled.div`
     font-size: 5rem;
     font-weight: 600;
     color: black;
+    @media only screen and (max-width: 500px) {
+      font-size: 4rem;
+    }
   `,
 
   SubmitContainer: styled.div`
     display: flex;
     gap: 2rem;
     align-items: center;
+    justify-content: center;
     font-size: 3rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
   `,
   OptionContainer: styled.div`
     display: flex;
     flex-direction: row;
     margin-top: 2rem;
+    @media only screen and (max-width: 500px) {
+      position: absolute;
+      top: 60rem;
+    }
   `,
   OptionBtn: styled.button`
     background-color: ${({ theme }) => theme.colors.brightGray};
-    width: 15rem;
+    width: 12rem;
     height: 4rem;
-    margin: 0rem 0.5rem 0rem 0.5rem;
+    margin: 0rem 1rem;
     border-radius: 1.5rem;
+    @media only screen and (max-width: 500px) {
+      width: 10rem;
+      height: 6rem;
+      border-radius: 1rem;
+    }
   `,
   InputLine: styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: center;
     width: 40rem;
-    height: 10rem;
+    height: 6.5rem;
+    @media only screen and (max-width: 500px) {
+      height: 9rem;
+    }
   `,
   InputBox: styled.input`
     width: 40rem;
@@ -212,10 +241,21 @@ const LI = {
     font-weight: 600;
     border: 0.2rem solid ${({ theme }) => theme.colors.gray50};
     border-radius: 5rem;
+    @media only screen and (max-width: 500px) {
+      width: 36rem;
+      height: 7rem;
+      border-radius: 1rem;
+      font-size: 2.25rem;
+    }
   `,
   SignUpBtn: styled.button`
     font-size: 2rem;
     font-weight: 600;
+    @media only screen and (max-width: 500px) {
+      width: 15rem;
+      height: 6rem;
+      border-radius: 1rem;
+    }
   `,
   RoundBtn: styled.button`
     color: white;
@@ -231,5 +271,10 @@ const LI = {
       background-color: ${({ theme }) => theme.colors.gray30};
     }
     margin-inline: 1rem;
+    @media only screen and (max-width: 500px) {
+      width: 15rem;
+      height: 6rem;
+      border-radius: 1rem;
+    }
   `,
 };

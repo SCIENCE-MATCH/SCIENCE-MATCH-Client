@@ -87,26 +87,34 @@ export default StudMyPage;
 
 const St = {
   Wrapper: styled.section`
-    //width: 135rem;
-    min-height: calc(70vh - 10.8rem);
+    max-width: 135rem;
+    min-height: 40rem;
+    height: calc(100vh - 10.8rem);
     border-radius: 1rem;
-    margin: 1.9rem 15.5rem;
+    margin: 7rem 15%;
     padding: 7.5rem 0 0 11.3rem;
 
     background-color: ${({ theme }) => theme.colors.headerBg};
+    @media only screen and (max-width: 900px) {
+      height: calc(100vh - 1rem);
+      margin: 12rem 10%;
+      padding: 4.5rem 0 0 4.5rem;
+      font-size: 2.5rem;
+      gap: 3rem;
+    }
   `,
 
   ContentsWrapper: styled.article`
     display: flex;
     flex-direction: column;
     width: fit-content;
-    margin-right: 40rem;
+    //margin-right: 40rem;
     gap: 3rem;
   `,
 
   Contents: styled.div`
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1.5fr;
     justify-content: center;
     align-items: center;
   `,
@@ -115,6 +123,7 @@ const St = {
     font-weight: 600;
     font-size: 1.6rem;
     line-height: 1.936rem;
+    margin-right: 2rem;
   `,
 
   Info: styled.p`

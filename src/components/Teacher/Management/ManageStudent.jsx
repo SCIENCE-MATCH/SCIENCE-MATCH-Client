@@ -366,8 +366,8 @@ const MSTUD = {
     flex-direction: column;
     border-radius: 1rem;
     padding-top: 1.5rem;
-    border: 0.05rem solid ${({ theme }) => theme.colors.gray20};
     overflow: hidden;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   FilterLine: styled.div`
     height: 6rem;

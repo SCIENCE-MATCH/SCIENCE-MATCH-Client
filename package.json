@@ -13,8 +13,10 @@
     "axois": "^0.0.1-security",
     "chart.js": "^4.4.3",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "date-fns": "^4.1.0",
     "file-saver": "^2.0.5",
     "framer-motion": "^11.2.4",
+    "gh-pages": "^6.2.0",
     "jspdf": "^2.5.1",
     "jszip": "^3.10.1",
     "nth-check": "^2.1.1",
@@ -24,6 +26,7 @@
     "react": "^18.2.0",
     "react-cookie": "^6.1.1",
     "react-datepicker": "^7.0.0",
+    "react-day-picker": "^9.5.1",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
@@ -39,7 +42,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "eslintConfig": {
     "extends": [

@@ -7,18 +7,20 @@ const QuestionPaperList = ({
   handleClickedOpenBtn,
   handleENStatus,
   clickedQuestionPaperId,
+  clickedOriginId,
   clickedQuestionNum,
 }) => {
   const status = localStorage.getItem("status");
 
   const { data } = useGetQuestionPaperList();
 
-  const handleClickBtn = (id, questionNum, status) => {
+  const handleClickBtn = (id, originId, questionNum, status) => {
     const selectedStatus = document.getElementById(`status_${id}`).innerHTML;
 
     handleENStatus(status);
     handleSelectedStatus(selectedStatus);
     clickedQuestionPaperId(id);
+    clickedOriginId(originId);
     clickedQuestionNum(questionNum);
     handleClickedOpenBtn();
   };
@@ -41,6 +43,49 @@ const QuestionPaperList = ({
         return data;
     }
   };
+  const getKoreanGrade = (school, subject, semester) => {
+    // 학교명을 한글로 변환
+    const schoolNames = { ELEMENTARY: "초", MIDDLE: "중", HIGH: "고" };
+
+    // 과목명을 한글로 변환
+    const subjectNames = { SCIENCE: "과학", PHYSICS: "물", CHEMISTRY: "화", BIOLOGY: "생", EARTH_SCIENCE: "지" };
+
+    // 학기명을 서수로 변환
+    const semesterNames = {
+      FIRST1: "1-1",
+      FIRST2: "1-2",
+      SECOND1: "2-1",
+      SECOND2: "2-2",
+      THIRD1: "3-1",
+      THIRD2: "3-2",
+      FOURTH1: "4-1",
+      FOURTH2: "4-2",
+      FIFTH1: "5-1",
+      FIFTH2: "5-2",
+      SIXTH1: "6-1",
+      SIXTH2: "6-2",
+    };
+
+    // subject가 SCIENCE인 경우
+    if (subject === "SCIENCE") {
+      const schoolNameKorean = schoolNames[school];
+      const grade = semesterNames[semester];
+      if (schoolNameKorean && grade) {
+        return `${schoolNameKorean}${grade}`;
+      } else {
+        return "Invalid input";
+      }
+    }
+
+    // subject가 SCIENCE가 아닌 경우
+    const subjectNameKorean = subjectNames[subject];
+    if (subjectNameKorean) {
+      const semesterNumber = semester.includes("FIRST") ? "1" : "2";
+      return `${subjectNameKorean}${semesterNumber}`;
+    }
+
+    return "Invalid input";
+  };
 
   return (
     <St.Wrapper>
@@ -49,43 +94,44 @@ const QuestionPaperList = ({
           .filter((v) => filterStatus(v))
           .map((it) => {
             const id = it.id;
+            const originId = it.originQuestionPaperId;
             const questionNum = it.questionNum;
             const status = it.assignStatus;
 
             return (
-              <St.ContentsWrapper key={it.id}>
-                <St.Status id={`status_${it.id}`} $status={it.assignStatus}>
-                  {it.assignStatus === "WAITING" && "학습대기"}
-                  {it.assignStatus === "SOLVING" && "풀이중"}
-                  {it.assignStatus === "COMPLETE" && "학습완료"}
-                  {it.assignStatus === "GRADED" && "학습완료"}
+              <St.ContentsWrapper key={id}>
+                <St.Status id={`status_${id}`} $status={status}>
+                  {status === "WAITING" && "학습대기"}
+                  {status === "SOLVING" && "풀이중"}
+                  {status === "COMPLETE" && "학습완료"}
+                  {status === "GRADED" && "학습완료"}
                 </St.Status>
-                <St.Subject>{it.subject}</St.Subject>
+                <St.Subject>{getKoreanGrade(it.school ?? "HIGH", it.subject, it.semester ?? "FIRST1")}</St.Subject>
 
                 <St.QuestionPaperWrapper>
                   <St.Title>{it.title}</St.Title>
-                  <St.QuestionNum>{it.questionNum}문제</St.QuestionNum>
+                  <St.QuestionNum>{questionNum}문제</St.QuestionNum>
                 </St.QuestionPaperWrapper>
 
                 <St.GradingWrapper>
-                  {it.assignStatus === "COMPLETE" && (
-                    <St.Grading $isCorrectNum={false} $status={it.assignStatus}>
+                  {status === "COMPLETE" && (
+                    <St.Grading $isCorrectNum={false} $status={status}>
                       채점 전
                     </St.Grading>
                   )}
-                  {it.assignStatus === "GRADED" && (
+                  {status === "GRADED" && (
                     <>
-                      <St.Grading $isCorrectNum={true} $status={it.assignStatus}>
+                      <St.Grading $isCorrectNum={true} $status={status}>
                         {it.score}
                       </St.Grading>
-                      <St.Grading $isCorrectNum={false} $status={it.assignStatus}>{`/ ${it.totalScore} 점`}</St.Grading>
+                      <St.Grading $isCorrectNum={false} $status={status}>{`/ ${it.totalScore} 점`}</St.Grading>
                     </>
                   )}
                 </St.GradingWrapper>
 
                 <St.BtnWrapper>
-                  <St.Button type="button" onClick={() => handleClickBtn(id, questionNum, status)}>
-                    {it.assignStatus === "COMPLETE" || it.assignStatus === "GRADED" ? "결과 보기" : "문제 풀기"}
+                  <St.Button type="button" onClick={() => handleClickBtn(id, originId, questionNum, status)}>
+                    {status === "COMPLETE" || status === "GRADED" ? "결과 보기" : "문제 풀기"}
                   </St.Button>
                 </St.BtnWrapper>
               </St.ContentsWrapper>
@@ -103,9 +149,28 @@ const St = {
     flex-direction: column;
 
     min-height: calc(100vh - 16.6rem);
+    height: 40rem;
+    overflow-y: scroll;
     padding: 0 4.4rem;
 
     background-color: ${({ theme }) => theme.colors.headerBg};
+    &::-webkit-scrollbar {
+      width: 1rem;
+    }
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 1rem;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: ${({ theme }) => theme.colors.unselected};
+      border-radius: 1rem; /* 핸들의 모서리 둥글게 */
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: ${({ theme }) => theme.colors.mainColor};
+    }
+    @media only screen and (max-width: 900px) {
+      padding: 0 1.4rem;
+    }
   `,
 
   ContentsWrapper: styled.div`
@@ -116,6 +181,8 @@ const St = {
     padding: 2.4rem 0;
 
     border-bottom: 0.1rem solid #f5f5f5;
+    @media only screen and (max-width: 900px) {
+    }
   `,
 
   Status: styled.p`
@@ -223,5 +290,8 @@ const St = {
     font-size: 2rem;
     font-weight: 600;
     line-height: 2.42rem;
+    @media only screen and (max-width: 900px) {
+      font-size: 1.5rem;
+    }
   `,
 };

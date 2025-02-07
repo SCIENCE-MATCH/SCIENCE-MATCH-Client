@@ -3,13 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 import SearchBookModal from "./SearchBookModal";
 import { useEffect, useState } from "react";
-import useGetBookChaper from "../../../../../libs/hooks/Teacher/Management/useGetBookChapter";
 import useGetBookQuestion from "../../../../../libs/hooks/Teacher/Management/useGetBookQuestion";
 import useDeleteQuestion from "../../../../../libs/apis/Admin/deleteQuestion";
 import WarningModal from "../../../Concept/WarningModal";
 
 const SearchTextBook = ({
-  chapToSearch,
   school,
   setSchool,
   grade,
@@ -22,6 +20,7 @@ const SearchTextBook = ({
 }) => {
   const { bookQuestions, getBookQuestion } = useGetBookQuestion();
   const { deleteQuestion } = useDeleteQuestion();
+  const [quesToRender, setQuesToRender] = useState([]);
   const [isSelectingBook, setIsSelectingBook] = useState(false);
   const openModal = () => {
     setIsSelectingBook(true);
@@ -34,39 +33,6 @@ const SearchTextBook = ({
   const [isWarning, setIsWarning] = useState(false);
   const openWarning = () => setIsWarning(true);
   const closeWarning = () => setIsWarning(false);
-
-  const difficultyOption = ["하", "중하", "중", "중상", "상"];
-  const difficultyToSendOption = {
-    하: "LOW",
-    중하: "MEDIUM_LOW",
-    중: "MEDIUM",
-    중상: "MEDIUM_HARD",
-    상: "HARD",
-  };
-  const [selectedDifficulty, setSelectedDifficulty] = useState({
-    하: true,
-    중하: true,
-    중: true,
-    중상: true,
-    상: true,
-  });
-
-  const [questionSet, setQuestionSet] = useState([]);
-
-  const clickDifficulty = (diff) => {
-    setSelectedDifficulty((prevState) => ({
-      ...prevState,
-      [diff]: !prevState[diff],
-    }));
-  };
-
-  const categoryOption = ["선택형", "단답형", "서술형"];
-  const categoryToSendOption = {
-    선택형: "MULTIPLE",
-    단답형: "SUBJECTIVE",
-    서술형: "DESCRIPTIVE",
-  };
-  const [category, setCategory] = useState(categoryOption[0]);
 
   function convertNumber(number) {
     const decimalPart = number % 1;
@@ -81,8 +47,12 @@ const SearchTextBook = ({
   }
 
   useEffect(() => {
-    if (currentPage !== null) getBookQuestion(selectedBook.bookId, currentPage);
+    if (currentPage === null) setQuesToRender([]);
+    else getBookQuestion(selectedBook.bookId, currentPage);
   }, [currentPage]);
+  useEffect(() => {
+    if (bookQuestions.length > 0) setQuesToRender(bookQuestions);
+  }, [bookQuestions]);
 
   return (
     <RQ.Wrapper>
@@ -136,11 +106,11 @@ const SearchTextBook = ({
         )}
       </RQ.ChapterLine>
       <RQ.ImgSection>
-        {bookQuestions.length === 0 ? (
+        {quesToRender.length === 0 ? (
           <RQ.NoImgMsg>조회된 문제가 없습니다.</RQ.NoImgMsg>
         ) : (
-          bookQuestions.map((q) => (
-            <RQ.ImgContainer>
+          quesToRender.map((q, i) => (
+            <RQ.ImgContainer key={`img_${i}`}>
               <RQ.ImgOptionLine>
                 {convertNumber(q.pageOrder)}
                 <RQ.DeleteBtn
@@ -174,7 +144,7 @@ const RQ = {
     height: 80rem;
     overflow: hidden;
     border-radius: 1rem;
-    border: 0.02rem solid ${({ theme }) => theme.colors.gray20};
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
   `,
   TitleLine: styled.div`
     height: 6rem;

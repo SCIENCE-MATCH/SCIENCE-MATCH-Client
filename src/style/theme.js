@@ -12,6 +12,7 @@ const colors = {
   unselected: "#969696",
   notGraded: "#e4e4e4",
   brightMain: "#f0fff0",
+  middleMain: "#e0ffe0",
   headerBg: "#ffffff",
   headerLi: "#6a6a6a",
   infoBtn: "#3d3d3d",
@@ -49,6 +50,8 @@ const colors = {
   MEDIUM: `#00DE5C`,
   MLOW: `#008ADE`,
   LOW: `#4A4A4A`,
+  white: `#FFFFFF`,
+  black: `#000000`,
 };
 
 const theme = {
